@@ -87,7 +87,7 @@ class TransRes():
         '''init'''
         self.trans_res = []
 
-    def add_row(self, m_list, brief='', dtype='', value=None, unit='', conversion=0, depth=0):
+    def add_row(self, m_list, brief='', dtype='', value='', unit='', conversion=0, depth=0):
         '''add trans result row'''
         self.trans_res += [[m_list, brief, dtype, value, unit, conversion, depth]]
 

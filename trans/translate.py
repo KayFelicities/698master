@@ -13,7 +13,7 @@ class Translate():
         '''translate all messages'''
         offset = 0
         if not commonfun.chk_format(m_text):
-            return False
+            return 'format error'
         m_list = commonfun.text2list(m_text)
         offset += linklayer_do.take_linklayer(m_list[offset:], self.trans_res)
         offset += applayer_do.take_applayer(m_list[offset:], self.trans_res)
@@ -21,7 +21,9 @@ class Translate():
         print(res_list)
         res_text = ''
         for row in res_list:
-            res_text += '  '*row[2] + commonfun.list2text(row[0]) + ' ---- ' + row[1] + '\n'
+            res_text += '  '*row[6] + commonfun.list2text(row[0]) +\
+                        ' ---- {brief}({dtype}:{value}{unit})'\
+                        .format(brief=row[1], dtype=row[2], value=row[3], unit=row[4]) + '\n'
 
         return res_text
 

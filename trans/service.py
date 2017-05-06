@@ -13,7 +13,7 @@ class Service():
         offset = 0
         offset += self.typedo.take_PIID_ACD(m_list[offset:])
         link_type = {'00': '登录', '01': '心跳', '02': '退出登录'}
-        offset += self.typedo.take_enum(m_list[offset:], add_text='请求类型', enum_dict=link_type)
+        offset += self.typedo.take_enum(m_list[offset:], brief='请求类型', enum_dict=link_type)
         offset += self.typedo.take_long_unsigned(m_list[offset:], '心跳周期s')
         offset += self.typedo.take_date_time(m_list[offset:], '请求时间')
         return offset
@@ -36,8 +36,8 @@ class Service():
         offset = 0
         offset += self.typedo.take_PIID(m_list[offset:])
         offset += self.typedo.take_long_unsigned(m_list[offset:], '期望的应用层协议版本号')
-        offset += self.typedo.take_bit_string(m_list[offset:], bit_len=64, add_text='期望的协议一致性块')
-        offset += self.typedo.take_bit_string(m_list[offset:], bit_len=128, add_text='期望的功能一致性块')
+        offset += self.typedo.take_bit_string(m_list[offset:], bit_len=64, brief='期望的协议一致性块')
+        offset += self.typedo.take_bit_string(m_list[offset:], bit_len=128, brief='期望的功能一致性块')
         offset += self.typedo.take_long_unsigned(m_list[offset:], '客户机发送帧最大尺寸')
         offset += self.typedo.take_long_unsigned(m_list[offset:], '客户机接收帧最大尺寸')
         offset += self.typedo.take_unsigned(m_list[offset:], '客户机接收帧最大窗口尺寸')
@@ -52,8 +52,8 @@ class Service():
         offset += self.typedo.take_PIID_ACD(m_list[offset:])
         offset += self.typedo.take_FactoryVersion(m_list[offset:])
         offset += self.typedo.take_long_unsigned(m_list[offset:], '商定的应用层协议版本号')
-        offset += self.typedo.take_bit_string(m_list[offset:], bit_len=64, add_text='期望的协议一致性块')
-        offset += self.typedo.take_bit_string(m_list[offset:], bit_len=128, add_text='期望的功能一致性块')
+        offset += self.typedo.take_bit_string(m_list[offset:], bit_len=64, brief='期望的协议一致性块')
+        offset += self.typedo.take_bit_string(m_list[offset:], bit_len=128, brief='期望的功能一致性块')
         offset += self.typedo.take_long_unsigned(m_list[offset:], '服务器发送帧最大尺寸')
         offset += self.typedo.take_long_unsigned(m_list[offset:], '服务器发送帧最大尺寸')
         offset += self.typedo.take_unsigned(m_list[offset:], '服务器发送帧最大窗口尺寸')
