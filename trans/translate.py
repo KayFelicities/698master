@@ -20,10 +20,14 @@ class Translate():
         res_list = self.trans_res.get_res()
         print(res_list)
         res_text = ''
+        data_add = [[], '']
         for row in res_list:
-            res_text += '  '*row[6] + commonfun.list2text(row[0]) +\
-                        ' ---- {brief}({dtype}:{value}{unit})'\
-                        .format(brief=row[1], dtype=row[2], value=row[3], unit=row[4]) + '\n'
-
+            if row[2] == 'Data':
+                data_add = [row[0], 'Data ']
+                continue
+            res_text += '  '*row[6] + commonfun.list2text(data_add[0] + row[0]) +\
+                        ' ---- {brief}({data_add}{dtype}:{value}{unit})'\
+                        .format(data_add=data_add[1], brief=row[1], dtype=row[2], value=row[3], unit=row[4]) + '\n'
+            data_add = [[], '']
         return res_text
 
