@@ -5,10 +5,10 @@ import config
 def take_linklayer(m_list, trans_res):
     '''translate linklayer'''
     offset = 0
-    trans_res.add_row(m_list[offset:], 1, '帧起始符', 0)
+    trans_res.add_row(m_list[offset : offset+1], '帧起始符')
     offset += 1
-    trans_res.add_row(m_list[offset:], 2, '长度L:'
-                      + str(int(m_list[offset + 1] + m_list[offset], 16)) + '字节', 0)
+    trans_res.add_row(m_list[offset : offset+2], '长度L', '',\
+                      int(m_list[offset + 1] + m_list[offset], 16), '字节')
     offset += 2
 
     # 控制域
@@ -35,26 +35,24 @@ def take_linklayer(m_list, trans_res):
         }.get(dir_prm_flag, '错误')
     else:
         function_type = '错误'
-    trans_res.add_row(m_list[offset:], 1, '控制域C: ' + frame_type + ' ' + function_type, 0)
+    trans_res.add_row(m_list[offset: offset+1], '控制域C', '', frame_type + ',' + function_type)
     offset += 1
 
     # 地址域
     server_addr_type = {
-        0: ' 单地址',
-        1: ' 通配地址',
-        2: ' 组地址',
-        3: ' 广播地址'
+        0: '单地址',
+        1: '通配地址',
+        2: '组地址',
+        3: '广播地址'
     }.get(int(m_list[offset], 16) >> 6, '错误')
     server_logic_addr = (int(m_list[offset], 16) >> 4) & 0x03
     server_addr_len = (int(m_list[offset], 16) & 0x0f) + 1
     server_addr_reverse = m_list[offset + server_addr_len: offset: -1]
-    server_addr = ''
-    for k in range(0, server_addr_len):
-        server_addr += server_addr_reverse[k]
-    trans_res.add_row(m_list[offset:], server_addr_len + 1,\
-                    '服务器地址: 逻辑地址' + str(server_logic_addr) + server_addr_type + server_addr, 0)
+    server_addr = ''.join(server_addr_reverse)
+    trans_res.add_row(m_list[offset: offset+server_addr_len+1], '服务器地址', '',\
+                    '逻辑地址[%s], %s[%s]'%(server_logic_addr, server_addr_type, server_addr))
     offset += server_addr_len + 1
-    trans_res.add_row(m_list[offset:], 1, '客户机地址: ' + m_list[offset], 0)
+    trans_res.add_row(m_list[offset: offset+1], '客户机地址', '', m_list[offset])
     offset += 1
 
     # 帧头校验
@@ -69,7 +67,7 @@ def take_linklayer(m_list, trans_res):
     else:
         hcs_check = '(错误，正确值{0:04X})'.format(hcs_calc)
         config.good_HCS = ['{0:02X}'.format(hcs_calc >> 8), '{0:02X}'.format(hcs_calc & 0xff)]
-    trans_res.add_row(m_list[offset:], 2, '帧头校验:{0:04X}'.format(fcs_now) + hcs_check, 0)
+    trans_res.add_row(m_list[offset: offset+2], '帧头校验', '', '{0:04X}'.format(fcs_now) + hcs_check)
     offset += 2
 
     # 分帧
@@ -82,8 +80,7 @@ def take_linklayer(m_list, trans_res):
             2: '(确认帧)',
             3: '(中间帧)',
         }.get(frame_separation >> 14, '错误')
-        trans_res.add_row(m_list[offset:], 2,
-                          '分帧序号:' + str(frame_separation_seq) + frame_separation_type, 0)
+        trans_res.add_row(m_list[offset: offset+2], '分帧序号', str(frame_separation_seq) + frame_separation_type)
         offset += 2
     return offset
 
