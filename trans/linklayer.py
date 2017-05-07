@@ -2,7 +2,7 @@
 import trans.common as commonfun
 import config
 
-def take_linklayer(m_list, trans_res):
+def take_linklayer1(m_list, trans_res):
     '''translate linklayer'''
     offset = 0
     trans_res.add_row(m_list[offset : offset+1], '帧起始符')
@@ -56,10 +56,10 @@ def take_linklayer(m_list, trans_res):
     offset += 1
 
     # 帧头校验
-    # print('hcs_calc:', data[1:offset], 'len', offset - 1)
+    # print('hcs_calc:', m_list[1:offset], 'len', offset - 1)
     hcs_calc = commonfun.get_fcs(m_list[1:offset])
     hcs_calc = ((hcs_calc << 8) | (hcs_calc >> 8)) & 0xffff  # 低位在前
-    # print('fcs test:', data[1:offset], 'cs:', hex(hcs_calc))
+    # print('fcs test:', m_list[1:offset], 'cs:', hex(hcs_calc))
     fcs_now = int(m_list[offset] + m_list[offset + 1], 16)
     if fcs_now == hcs_calc:
         hcs_check = '(正确)'
@@ -84,4 +84,22 @@ def take_linklayer(m_list, trans_res):
         offset += 2
     return offset
 
-
+def take_linklayer2(m_list, offset, trans_res):
+    '''take_linklayer2'''
+    offset_temp = offset
+    fcs_calc = commonfun.get_fcs(m_list[1:offset])
+    fcs_calc = ((fcs_calc << 8) | (fcs_calc >> 8)) & 0xffff  # 低位在前
+    # print('fcs test:', m_list[1:offset], 'cs:', hex(fcs_calc))
+    fcs_now = int(m_list[offset] + m_list[offset + 1], 16)
+    if fcs_now == fcs_calc:
+        hcs_check = '(正确)'
+        config.good_FCS = None
+    else:
+        hcs_check = '(错误，正确值{0:04X})'.format(fcs_calc)
+        config.good_FCS = ['{0:02X}'.format(fcs_calc >> 8), '{0:02X}'.format(fcs_calc & 0xff)]
+        print('good_FCS', config.good_FCS)
+    trans_res.add_row(m_list[offset: offset+2], '帧校验', '', '{0:04X}'.format(fcs_now) + hcs_check)
+    offset += 2
+    trans_res.add_row(m_list[offset: offset+1], '结束符')
+    offset += 1
+    return offset - offset_temp

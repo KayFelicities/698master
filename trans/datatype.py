@@ -14,8 +14,8 @@ class TypeDo():
         service_priority = '一般的' if piid >> 7 == 0 else '高级的'
         invoke_id = piid & 0x3f
         offset += 1
-        self.trans_res.add_row(m_list[:offset],\
-                brief, '', '服务优先级:%s, 服务序号:%d'%(service_priority, invoke_id), depth=depth)
+        self.trans_res.add_row(m_list[:offset], brief, '',\
+                '服务优先级:%s, 服务序号:%d'%(service_priority, invoke_id), depth=depth)
         return offset
 
     def take_PIID_ACD(self, m_list, brief='', depth=0):
@@ -27,42 +27,8 @@ class TypeDo():
         invoke_id = piid_acd & 0x3f
         offset += 1
         self.trans_res.add_row(m_list[:offset], brief, '',\
-                '服务优先级:%s,请求访问(ACD):%s,  服务序号:%d'%(service_priority, acd_text, invoke_id), depth=depth)
+                '服务优先级:%s, 请求访问(ACD):%s, 服务序号:%d'%(service_priority, acd_text, invoke_id), depth=depth)
         return offset
-
-    # def take_FollowReport(self, m_list, brief='', depth=0):
-    #     offset = 0
-    #     follow_report_option = m_list[offset]
-    #     offset += take_OPTIONAL(m_list[offset:], '跟随上报信息域')
-    #     if follow_report_option == '01':
-    #         follow_report_choice = m_list[offset]
-    #         show_data_source(m_list[offset:], 1)
-    #         if follow_report_choice == '01':
-    #             result_normal_num = get_num_of_SEQUENCE(m_list[offset:], '对象属性及其数据')
-    #             offset += 1
-    #             config.line_depth += 1
-    #             for result_normal_count in range(result_normal_num):
-    #                 end_flag = 1 if result_normal_count == result_normal_num - 1 else 0
-    #                 offset += take_A_ResultNormal(m_list[offset:], end_flag=end_flag)
-    #             config.line_depth -= 1
-    #         elif follow_report_choice == '02':
-    #             result_record_num = get_num_of_SEQUENCE(m_list[offset:], '对象属性及其数据')
-    #             offset += 1
-    #             config.line_depth += 1
-    #             for result_record_count in range(result_record_num):
-    #                 end_flag = 1 if result_record_count == result_record_num - 1 else 0
-    #                 offset += take_A_ResultRecord(m_list[offset:], end_flag=end_flag)
-    #             config.line_depth -= 1
-    #     return offset
-
-    # def take_TimeTag(self, m_list, brief='', depth=0):
-    #     offset = 0
-    #     timetag_option = m_list[offset]
-    #     offset += take_OPTIONAL(m_list[offset:], '时间标签')
-    #     if timetag_option == '01':
-    #         offset += take_date_time_s(m_list[offset:], '发送时标')
-    #         offset += take_TI(m_list[offset:], '允许传输延时时间')
-    #     return offset
 
     def take_OPTIONAL(self, m_list, brief='', depth=0):
         '''take_OPTIONAL'''
@@ -107,18 +73,6 @@ class TypeDo():
         explain = database.DAR.get(m_list[0], '无效DAR')
         offset += 1
         self.trans_res.add_row(m_list[:offset], brief, 'DAR', explain, depth=depth)
-        return offset
-
-    def take_Get_Result(self, m_list, brief='', depth=0):
-        '''take_Get_Result'''
-        offset = 0
-        result = m_list[offset]
-        offset += self.take_CHOICE(m_list[offset:], brief, depth=depth,\
-                                    choice_dict={'00': '错误信息', '01': '数据'})
-        if result == '00':  # 错误信息
-            offset += self.take_DAR(m_list[offset:], '错误信息', depth=depth)
-        elif result == '01':  # 数据
-            offset += self.take_Data(m_list[offset:], '数据', depth=depth)
         return offset
 
     def take_ConnectMechanismInfo(self, m_list, brief='', depth=0):
@@ -220,7 +174,7 @@ class TypeDo():
             '5E': self.take_SID_MAC,
             '5F': self.take_COMDCB,
             '60': self.take_RCSD,
-        }[data_type](m_list[offset:], brief=brief, depth=depth + 1)
+        }[data_type](m_list[offset:], brief=brief, depth=depth)
         return offset
 
     def take_NULL(self, m_list, brief='', depth=0):
@@ -495,7 +449,7 @@ class TypeDo():
         index = int(m_list[offset + 3], 16)
         explain = database.OAD.get(''.join(m_list[offset : offset + 3]),\
                     database.OAD.get(''.join(m_list[offset : offset + 2]) + '01',\
-                    '未知OAD') + '，属性%d'%attr) + '，索引%d'%index
+                    '未知OAD') + '[属性%d]'%attr) + '[索引%d]'%index
         offset += 4
         self.trans_res.add_row(m_list[:offset], brief, 'OAD', explain, depth=depth)
         return offset
@@ -518,7 +472,7 @@ class TypeDo():
         mode = int(m_list[offset + 3], 16)
         explain = database.OMD.get(''.join(m_list[offset : offset + 3]),\
             database.OMD.get(''.join(m_list[offset : offset + 2] + '01'),\
-            '未知OMD') + '，方法%d'%method) + '，操作模式%d'%mode
+            '未知OMD') + '[方法%d]'%method) + '[操作模式%d]'%mode
         offset += 4
         self.trans_res.add_row(m_list[:offset], brief, 'OMD', explain, depth=depth)
         return offset

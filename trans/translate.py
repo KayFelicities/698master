@@ -1,7 +1,7 @@
 '''translate 698 messages'''
 import trans.common as commonfun
 import trans.linklayer as linklayer_do
-import trans.applayer as applayer_do
+import trans.service as applayer_do
 
 class Translate():
     '''translate class'''
@@ -15,8 +15,9 @@ class Translate():
         if not commonfun.chk_format(m_text):
             return 'format error'
         m_list = commonfun.text2list(m_text)
-        offset += linklayer_do.take_linklayer(m_list[offset:], self.trans_res)
+        offset += linklayer_do.take_linklayer1(m_list[offset:], self.trans_res)
         offset += applayer_do.take_applayer(m_list[offset:], self.trans_res)
+        offset += linklayer_do.take_linklayer2(m_list[:], offset, self.trans_res)
         res_list = self.trans_res.get_res()
         print(res_list)
         res_text = ''
