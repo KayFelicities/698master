@@ -449,7 +449,7 @@ class TypeDo():
         index = int(m_list[offset + 3], 16)
         explain = database.OAD.get(''.join(m_list[offset : offset + 3]),\
                     database.OAD.get(''.join(m_list[offset : offset + 2]) + '01',\
-                    '未知OAD') + '[属性%d]'%attr) + '[索引%d]'%index
+                    '未知OAD').split('[')[0] + '[属性%d]'%attr) + '[索引%d]'%index
         offset += 4
         self.trans_res.add_row(m_list[:offset], brief, 'OAD', explain, depth=depth)
         return offset
@@ -471,8 +471,8 @@ class TypeDo():
         method = int(m_list[offset + 2], 16)
         mode = int(m_list[offset + 3], 16)
         explain = database.OMD.get(''.join(m_list[offset : offset + 3]),\
-            database.OMD.get(''.join(m_list[offset : offset + 2] + '01'),\
-            '未知OMD') + '[方法%d]'%method) + '[操作模式%d]'%mode
+                    database.OMD.get(''.join(m_list[offset : offset + 2]) + '01',\
+                    '未知OMD').split('[')[0] + '[方法%d]'%method) + '[操作模式%d]'%mode
         offset += 4
         self.trans_res.add_row(m_list[:offset], brief, 'OMD', explain, depth=depth)
         return offset
@@ -616,11 +616,11 @@ class TypeDo():
                           '03': '一组用户地址', '04': '一组配置序号', '05': '一组用户类型区间',
                           '06': '一组用户地址区间', '07': '一组配置序号区间'}
         offset += self.take_CHOICE(m_list[offset:], 'MS', depth=depth, choice_dict=ms_choice_dict)
-        if MS_choice == '00':  # 无电能表
-            offset += self.take_NULL(m_list[offset:], '无电能表')
-        elif MS_choice == '01':  # 全部用户地址
-            offset += self.take_NULL(m_list[offset:], '全部用户地址')
-        elif MS_choice == '02':  # 一组用户类型
+        # if MS_choice == '00':  # 无电能表
+        #     offset += self.take_NULL(m_list[offset:], '无电能表')
+        # elif MS_choice == '01':  # 全部用户地址
+        #     offset += self.take_NULL(m_list[offset:], '全部用户地址')
+        if MS_choice == '02':  # 一组用户类型
             num = int(m_list[1], 16)
             self.trans_res.add_row(m_list[offset: offset+1], brief, 'SEQUENCE OF unsigned', num, depth=depth)
             offset += 1
