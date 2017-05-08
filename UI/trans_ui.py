@@ -35,11 +35,11 @@ class TransWindow(QtGui.QMainWindow, QtGui.QWidget, Ui_TransWindow):
         '''start_trans'''
         input_text = self.input_box.toPlainText()
         trans = Translate()
-        try:
-            res = trans.trans_all(input_text)
-        except Exception:
-            res = 'error'
-            traceback.print_exc()
+        # try:
+        res = trans.trans_all(input_text)
+        # except Exception:
+        #     res = 'error'
+        #     traceback.print_exc()
         self.output_box.setText(res)
 
     def clear_box(self):

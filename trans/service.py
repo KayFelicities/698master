@@ -157,6 +157,7 @@ class Service():
         '''take_TimeTag'''
         offset = 0
         timetag_option = m_list[offset]
+        print('Kay timetag_option', timetag_option)
         offset += self.typedo.take_OPTIONAL(m_list[offset:], '时间标签', depth=depth)
         if timetag_option == '01':
             offset += self.typedo.take_date_time_s(m_list[offset:], '发送时标', depth=depth)
