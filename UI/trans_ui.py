@@ -1,10 +1,10 @@
 '''trans ui'''
-import traceback
 from PyQt4 import QtCore
 from PyQt4 import QtGui
 from UI.trans_window import Ui_TransWindow
 from trans.translate import Translate
 import config
+import trans.common as commonfun
 
 
 class TransWindow(QtGui.QMainWindow, QtGui.QWidget, Ui_TransWindow):
@@ -34,13 +34,11 @@ class TransWindow(QtGui.QMainWindow, QtGui.QWidget, Ui_TransWindow):
     def start_trans(self):
         '''start_trans'''
         input_text = self.input_box.toPlainText()
-        trans = Translate()
-        # try:
-        res = trans.trans_all(input_text)
-        # except Exception:
-        #     res = 'error'
-        #     traceback.print_exc()
-        self.output_box.setText(res)
+        brief_trans = Translate()
+        brief = brief_trans.get_brief(input_text)
+        full_trans = Translate()
+        full = full_trans.get_full(input_text)
+        self.output_box.setText(r'<b>【概览】</b>%s<hr><b>【完整】</b>%s'%(brief, full))
 
     def clear_box(self):
         '''clear_box'''
@@ -100,14 +98,13 @@ class TransWindow(QtGui.QMainWindow, QtGui.QWidget, Ui_TransWindow):
     def calc_len_box(self):
         '''calc_len_box'''
         input_text = self.input_box.toPlainText()
-        input_len = calc_text_len(input_text)
+        input_len = commonfun.calc_len(input_text)
         len_message = str(input_len) + '字节(' + str(hex(input_len)) + ')'
         self.clear_button.setText('清空(' + len_message + ')')
 
     def show_about_window(self):
         '''show_about_window'''
-        pass
-        # config.about_window.show()
+        config.about_window.show()
 
     def shift_serial_window(self):
         '''shift_serial_window'''

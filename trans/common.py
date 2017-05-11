@@ -1,6 +1,7 @@
 '''common functions'''
 import time
 
+
 def text2list(m_text):
     '''str to list'''
     m_text = m_text.replace(' ', '').replace('\n', '').upper()  # 处理空格和换行
@@ -21,21 +22,22 @@ def text2list(m_text):
 
 def list2text(m_list, separator=' '):
     '''list to str'''
-    m_text = ''
-    for byte in m_list:
-        m_text += byte + separator
+    m_text = separator.join(m_list)
     return m_text
 
 
-def chk_format(m_text):
+def chk_format(m_list):
     '''chk format'''
-    m_list = text2list(m_text)
-
-    # chk format
     if m_list[0] != '68' or m_list[len(m_list) - 1] != '16':
         return False
     else:
         return True
+
+
+def calc_len(m_text):
+    '''calculate input text length'''
+    m_list = text2list(m_text)
+    return len(m_list)
 
 
 def get_fcs(data_list):
@@ -87,10 +89,12 @@ class TransRes():
         '''init'''
         self.trans_res = []
 
+
     def add_row(self, m_list, brief='', dtype='', value='', unit='', conversion=0, depth=0):
         '''add trans result row'''
         self.trans_res += [{'m_list': m_list, 'brief': brief, 'dtype': dtype, 'value': value,\
                             'unit': unit, 'conversion': conversion, 'depth': depth}]
+
 
     def get_res(self):
         '''get result'''

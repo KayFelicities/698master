@@ -3,17 +3,15 @@ import os
 import sys
 
 
-version = 'V4.4'
-DT = '2017.02'
+version = 'V5.0'
+DT = '2017.05'
 
-output_text = ''
 is_auto_se_heartbeat = True
 is_auto_se_confirm = True
 show_level = True
 auto_trans = True
 auto_fix = False
 
-line_level = 0
 trans_window = None
 serial_window = None
 about_window = None
