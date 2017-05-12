@@ -34,16 +34,18 @@ class Translate():
         m_list = commonfun.text2list(m_text)
         res_list = self.trans_all(m_list)
         m_chk = [byte for row in res_list for byte in row['m_list']]
-        res_text = '' if m_chk == m_list\
+        res_text = '<table">' if m_chk == m_list\
                     else '<p style="color: red">报文解析过程出现问题，请检查报文。若报文无问题请反馈665593，谢谢！</p>'
         temp_row = None
         for row in res_list:
             if row['dtype'] in ['Data', 'CSD']:
                 temp_row = row
                 continue
-            res_text += '<p style="{style}">{depth}{messagerow} -- {brief}{value}{unit}{dtype}</p>'\
-                .format(style='color: blue' if row['dtype'] in ['OAD', 'OMD'] else '',\
-                depth='  '*row['depth'],\
+            res_text += '<tr style="{color}">\
+                            <td style="{padding} padding-right: 5px;">{messagerow}</td>\
+                            <td>{brief}{value}{unit}{dtype}</td></tr>'\
+                .format(color='color: blue;' if row['dtype'] in ['OAD', 'OMD'] else '',\
+                padding='padding-left: %d px;'%(row['depth'] * 10),\
                 messagerow=commonfun.list2text(temp_row['m_list']+row['m_list']\
                                                 if temp_row else row['m_list']),\
                 brief=row['brief']+':' if row['brief'] else '',\
@@ -51,6 +53,8 @@ class Translate():
                         else ('('+row['dtype']+')' if row['dtype'] else ''),\
                         value=row['value'], unit=row['unit'])
             temp_row = None
+        res_text += '</table>'
+        # print(res_text)
         return res_text
 
 
@@ -71,7 +75,7 @@ class Translate():
         if service_type[1] == '8':
             brief = {'dir': '应答' if service_type[0] == '0' else '主动'}
         else:
-            brief = {'dir': '申请' if service_type[0] == '0' else '回复'}
+            brief = {'dir': '申请' if service_type[0] in ['0', '1'] else '回复'}
         print('Kay', brief)
         if service_type[1] in ['1']:
             brief['service'] = '预连接'
@@ -138,7 +142,7 @@ class Translate():
                 brief['content'] = '通道: ' + list(filter(lambda row: row['dtype'] == 'OAD'\
                         , depth0_list))[0]['value'].split('[索引')[0]
 
-        elif service_type[1] in ['A']:
+        elif service_type[1] in ['0']:
             brief['service'] = '安全传输'
 
         return '<p>%s%s %s</p>'%(brief.get('dir', ''),\
