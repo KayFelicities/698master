@@ -10,7 +10,7 @@ def text2list(m_text):
     while m_text[k * 2:(k + 1) * 2] == 'FE':
         k += 1
     m_text = m_text[k * 2:]
-    print('原始报文： ' + m_text + '\n')
+    # print('原始报文： ' + m_text + '\n')
     # 写入list
     m_list = []
     for k in range(0, int((len(m_text) + 1) / 2)):

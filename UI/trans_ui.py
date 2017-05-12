@@ -1,6 +1,7 @@
 '''trans ui'''
 from PyQt4 import QtCore
 from PyQt4 import QtGui
+import re
 from UI.trans_window import Ui_TransWindow
 from trans.translate import Translate
 import config
@@ -15,11 +16,12 @@ class TransWindow(QtGui.QMainWindow, QtGui.QWidget, Ui_TransWindow):
         self.setWindowTitle('698解析工具_' + config.version + '(' + config.DT + ')')
         config.show_level = self.show_level_cb.isChecked()
         config.auto_trans = self.auto_trans_cb.isChecked()
+        self.input_box.cursorPositionChanged.connect(self.cursor_changed)
         if config.auto_trans is True:
-            self.input_box.textChanged.connect(self.start_trans)
+            self.input_box.textChanged.connect(self.take_input_text)
             self.translate_button.setVisible(False)
         else:
-            self.input_box.textChanged.disconnect(self.start_trans)
+            self.input_box.textChanged.disconnect(self.take_input_text)
             self.translate_button.setVisible(True)
         self.quick_fix_button.clicked.connect(self.quick_fix)
         self.translate_button.clicked.connect(self.start_trans)
@@ -31,23 +33,57 @@ class TransWindow(QtGui.QMainWindow, QtGui.QWidget, Ui_TransWindow):
         self.about.triggered.connect(self.show_about_window)
         self.serial_mode_button.clicked.connect(self.shift_serial_window)
 
-    def start_trans(self):
-        '''start_trans'''
+        self.find_dict = []
+
+
+    def cursor_changed(self):
+        '''cursor changed to trans'''
+        for row in self.find_dict:
+            print(row)
+            if row['start'] <= int(self.input_box.textCursor().position()) <= row['end']:
+                self.start_trans(row['message'])
+
+
+    def take_input_text(self):
+        '''handle with input text'''
         input_text = self.input_box.toPlainText()
+        res = re.compile(r'68 ([0-9a-fA-F]{2} )+16')
+        all_match = res.finditer(input_text)
+        offset = 0
+        for mes in all_match:
+            input_text = input_text[:mes.start()+offset] + '<b>'\
+                            + input_text[mes.start()+offset:mes.end()+offset]\
+                            + '</b>' + input_text[mes.end()+offset:]
+            offset += 7
+        print('kay, ', input_text)
+        self.input_box.textChanged.disconnect(self.take_input_text)
+        self.input_box.setText(input_text)
+        self.input_box.textChanged.connect(self.take_input_text)
+        all_match = res.finditer(input_text)
+        self.find_dict = []
+        for mes in all_match:
+            self.find_dict += [{'message': mes.group(), 'start': mes.start(), 'end': mes.end()}]
+
+
+    def start_trans(self, input_text):
+        '''start_trans'''
         brief_trans = Translate()
         brief = brief_trans.get_brief(input_text)
         full_trans = Translate()
         full = full_trans.get_full(input_text)
         self.output_box.setText(r'<b>【概览】</b>%s<hr><b>【完整】</b>%s'%(brief, full))
 
+
     def clear_box(self):
         '''clear_box'''
         self.input_box.setFocus()
+
 
     def set_level_visible(self):
         '''set_level_visible'''
         config.show_level = self.show_level_cb.isChecked()
         self.start_trans()
+
 
     def quick_fix(self):
         '''quick_fix'''
@@ -73,6 +109,7 @@ class TransWindow(QtGui.QMainWindow, QtGui.QWidget, Ui_TransWindow):
         #     input_text += data + ' '
         # self.input_box.setText(input_text)
 
+
     def set_auto_trans(self):
         '''set_auto_trans'''
         config.auto_trans = self.auto_trans_cb.isChecked()
@@ -83,6 +120,7 @@ class TransWindow(QtGui.QMainWindow, QtGui.QWidget, Ui_TransWindow):
             self.input_box.textChanged.disconnect(self.start_trans)
             self.translate_button.setVisible(True)
         self.start_trans()
+
 
     def set_always_top(self):
         '''set_always_top'''
@@ -95,6 +133,7 @@ class TransWindow(QtGui.QMainWindow, QtGui.QWidget, Ui_TransWindow):
             self.show()
         self.move(window_pos)
 
+
     def calc_len_box(self):
         '''calc_len_box'''
         input_text = self.input_box.toPlainText()
@@ -102,9 +141,11 @@ class TransWindow(QtGui.QMainWindow, QtGui.QWidget, Ui_TransWindow):
         len_message = str(input_len) + '字节(' + str(hex(input_len)) + ')'
         self.clear_button.setText('清空(' + len_message + ')')
 
+
     def show_about_window(self):
         '''show_about_window'''
         config.about_window.show()
+
 
     def shift_serial_window(self):
         '''shift_serial_window'''

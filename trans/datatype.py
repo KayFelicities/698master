@@ -240,7 +240,8 @@ class TypeDo():
         for count in range(byte_len):
             bit_string_text += m_list[offset + count]
         offset += byte_len
-        bit_value = '' if byte_len == 0 else str(bin(int(bit_string_text, 16))).split('b')[1].rjust(bit_len, '0')
+        bit_value = '空' if byte_len == 0\
+                else str(bin(int(bit_string_text, 16))).split('b')[1].rjust(bit_len, '0')
         self.trans_res.add_row(m_list[:offset], brief, 'bit-string', bit_value, depth=depth)
         return offset
 
