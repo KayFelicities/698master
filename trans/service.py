@@ -179,9 +179,9 @@ class Service():
         offset = 0
         offset += self.typedo.take_PIID(m_list[offset:])
         time_credible_flag = int(m_list[offset], 16) >> 7
-        offset += 1
-        self.trans_res.add_row(m_list[:offset], '结果', 'Result',\
+        self.trans_res.add_row(m_list[offset: offset+1], '结果', 'Result',\
                                 '可信' if time_credible_flag == 1 else '不可信')
+        offset += 1
         offset += self.typedo.take_date_time(m_list[offset:], '请求时间')
         offset += self.typedo.take_date_time(m_list[offset:], '收到时间')
         offset += self.typedo.take_date_time(m_list[offset:], '响应时间')

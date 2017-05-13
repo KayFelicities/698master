@@ -1,7 +1,7 @@
 '''main'''
 import sys
 import os
-from UI.trans_ui import TransWindow
+from UI.trans_ui2 import TransWindow
 from UI.about_ui import AboutWindow
 from PyQt4 import QtGui
 import config

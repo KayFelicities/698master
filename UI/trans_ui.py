@@ -39,7 +39,7 @@ class TransWindow(QtGui.QMainWindow, QtGui.QWidget, Ui_TransWindow):
     def cursor_changed(self):
         '''cursor changed to trans'''
         for row in self.find_dict:
-            print(row)
+            # print(row)
             if row['start'] <= int(self.input_box.textCursor().position()) <= row['end']:
                 self.start_trans(row['message'])
 
@@ -55,7 +55,7 @@ class TransWindow(QtGui.QMainWindow, QtGui.QWidget, Ui_TransWindow):
                             + input_text[mes.start()+offset:mes.end()+offset]\
                             + '</b>' + input_text[mes.end()+offset:]
             offset += 7
-        print('kay, ', input_text)
+        # print('kay, ', input_text)
         self.input_box.textChanged.disconnect(self.take_input_text)
         self.input_box.setText(input_text)
         self.input_box.textChanged.connect(self.take_input_text)

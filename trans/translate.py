@@ -25,7 +25,7 @@ class Translate():
             traceback.print_exc()
         finally:
             res_list = self.trans_res.get_res()
-            print(res_list)
+            # print(res_list)
         return res_list
 
 
@@ -34,8 +34,11 @@ class Translate():
         m_list = commonfun.text2list(m_text)
         res_list = self.trans_all(m_list)
         m_chk = [byte for row in res_list for byte in row['m_list']]
-        res_text = '<table">' if m_chk == m_list\
-                    else '<p style="color: red">报文解析过程出现问题，请检查报文。若报文无问题请反馈665593，谢谢！</p>'
+        if m_chk == m_list:
+            res_text = '<table>'
+        else:
+            print('ERROR:\nm_chk: %s\n m_list: %s\n'%(m_chk, m_list))
+            res_text = '<p style="color: red">报文解析过程出现问题，请检查报文。若报文无问题请反馈665593，谢谢！</p>'
         temp_row = None
         for row in res_list:
             if row['dtype'] in ['Data', 'CSD']:
