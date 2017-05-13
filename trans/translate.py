@@ -15,7 +15,7 @@ class Translate():
         '''translate all messages'''
         offset = 0
         try:
-            if commonfun.chk_format(m_list):
+            if m_list[0] == '68':
                 offset += linklayer_do.take_linklayer1(m_list[offset:], self.trans_res)
                 offset += applayer_do.take_applayer(m_list[offset:], self.trans_res)
                 offset += linklayer_do.take_linklayer2(m_list[:], offset, self.trans_res)
@@ -23,18 +23,19 @@ class Translate():
                 offset += applayer_do.take_applayer(m_list[offset:], self.trans_res)
         except Exception:
             traceback.print_exc()
-        finally:
             res_list = self.trans_res.get_res()
-            # print(res_list)
-        return res_list
+            return res_list, False
+        else:
+            res_list = self.trans_res.get_res()
+            return res_list, True
 
 
     def get_full(self, m_text):
         '''get full translate'''
         m_list = commonfun.text2list(m_text)
-        res_list = self.trans_all(m_list)
+        res_list, is_success = self.trans_all(m_list)
         m_chk = [byte for row in res_list for byte in row['m_list']]
-        if m_chk == m_list:
+        if is_success and m_chk == m_list:
             res_text = '<table>'
         else:
             print('ERROR:\nm_chk: %s\n m_list: %s\n'%(m_chk, m_list))
@@ -64,11 +65,11 @@ class Translate():
     def get_brief(self, m_text):
         '''get brief translate'''
         m_list = commonfun.text2list(m_text)
-        res_list = self.trans_all(m_list)
+        res_list, is_success = self.trans_all(m_list)
 
         m_chk = [byte for row in res_list for byte in row['m_list']]
-        if m_chk != m_list:
-            return '<p style="color: red">报文解析过程出现问题，请检查报文。若报文无问题请反馈665593，谢谢！</p>'
+        if is_success == False or m_chk != m_list:
+            return '<p style="color: red">无效报文</p>'
 
         depth0_list = [row for row in res_list if row['depth'] == 0]
         depth1_list = [row for row in res_list if row['depth'] == 1]

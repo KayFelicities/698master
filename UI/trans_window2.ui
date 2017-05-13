@@ -51,6 +51,13 @@
     <item row="0" column="0">
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
+       <widget class="QPushButton" name="open_b">
+        <property name="text">
+         <string>打开...</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QPushButton" name="clear_b">
         <property name="text">
          <string>清空</string>
@@ -180,8 +187,6 @@ p, li { white-space: pre-wrap; }
     </item>
    </layout>
    <zorder></zorder>
-   <zorder>input_box</zorder>
-   <zorder>clear_b</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="enabled">

@@ -18,6 +18,7 @@ class TransWindow(QtGui.QMainWindow, QtGui.QWidget, Ui_TransWindow):
         self.input_box.cursorPositionChanged.connect(self.cursor_changed)
         self.input_box.textChanged.connect(self.take_input_text)
         self.clear_b.clicked.connect(self.clear_box)
+        self.open_b.clicked.connect(self.openfile)
         self.show_level_cb.clicked.connect(self.set_level_visible)
         self.always_top_cb.clicked.connect(self.set_always_top)
         self.input_box.textChanged.connect(self.calc_len_box)
@@ -25,6 +26,14 @@ class TransWindow(QtGui.QMainWindow, QtGui.QWidget, Ui_TransWindow):
 
         self.find_dict = []
         self.last_cursor_span = (0, 0)
+
+
+    def openfile(self):
+        '''open file'''
+        filepath = QtGui.QFileDialog.getOpenFileName(self, 'Open file', '', '*.txt *.log')
+        with open(filepath, encoding='utf-8', errors='ignore') as file:
+            text = file.read()
+            self.input_box.setText(text)
 
 
     def cursor_changed(self):
