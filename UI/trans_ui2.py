@@ -92,6 +92,7 @@ class TransWindow(QtGui.QMainWindow, QtGui.QWidget, Ui_TransWindow):
             self.proc_bar.setVisible(True)
             self.open_b.setEnabled(False)
             self.setAcceptDrops(False)
+            self.proc_l.setText('处理中')
             threading.Thread(target=self.read_file,\
                                 args=(filepath,)).start()
 
@@ -104,7 +105,6 @@ class TransWindow(QtGui.QMainWindow, QtGui.QWidget, Ui_TransWindow):
                 count += 1
         print(count)
         with open(filepath, encoding='gb2312', errors='ignore') as file:
-            self.proc_l.setText('处理中')
             file_text = ''
             for i, line in enumerate(file):
                 file_text += line
