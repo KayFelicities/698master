@@ -273,7 +273,6 @@ class TypeDo():
         offset = 0
         if string_len is None:
             res = self.take_axdr_len(m_list[offset:])
-            print('Kay, ', res)
             offset += res['offset']
             string_len = res['len']
         string_text = ''.join(m_list[offset: offset+string_len])
@@ -661,51 +660,57 @@ class TypeDo():
     def take_MS(self, m_list, brief='', depth=0):
         '''take_MS'''
         offset = 0
-        MS_choice = m_list[0]
+        ms_choice = m_list[0]
         ms_choice_dict = {'00': '无电能表', '01': '全部用户地址', '02': '一组用户类型',
                           '03': '一组用户地址', '04': '一组配置序号', '05': '一组用户类型区间',
                           '06': '一组用户地址区间', '07': '一组配置序号区间'}
         offset += self.take_CHOICE(m_list[offset:], 'MS', depth=depth, choice_dict=ms_choice_dict)
-        # if MS_choice == '00':  # 无电能表
+        # if ms_choice == '00':  # 无电能表
         #     offset += self.take_NULL(m_list[offset:], '无电能表')
-        # elif MS_choice == '01':  # 全部用户地址
+        # elif ms_choice == '01':  # 全部用户地址
         #     offset += self.take_NULL(m_list[offset:], '全部用户地址')
-        if MS_choice == '02':  # 一组用户类型
+        if ms_choice == '02':  # 一组用户类型
             num = int(m_list[1], 16)
-            self.trans_res.add_row(m_list[offset: offset+1], brief, 'SEQUENCE OF unsigned[%d]'%num, num, depth=depth)
+            self.trans_res.add_row(m_list[offset: offset+1], brief,\
+                                    'SEQUENCE OF unsigned[%d]'%num, num, depth=depth)
             offset += 1
             for _ in range(num):
                 offset += self.take_unsigned(m_list[offset:], '用户类型', depth=depth + 1)
-        elif MS_choice == '03':  # 一组用户地址
+        elif ms_choice == '03':  # 一组用户地址
             num = int(m_list[1], 16)
-            self.trans_res.add_row(m_list[:offset], brief, 'SEQUENCE OF TSA', num, depth=depth)
+            self.trans_res.add_row(m_list[offset: offset+1], brief,\
+                                    'SEQUENCE OF TSA[%d]'%num, num, depth=depth)
             offset += 1
             for _ in range(num):
                 offset += self.take_TSA(m_list[offset:], '用户地址', depth=depth + 1)
-        elif MS_choice == '04':  # 一组配置序号
+        elif ms_choice == '04':  # 一组配置序号
             num = int(m_list[1], 16)
-            self.trans_res.add_row(m_list[offset: offset+1], brief, 'SEQUENCE OF long-unsigned[%d]'%num, num, depth=depth)
+            self.trans_res.add_row(m_list[offset: offset+1], brief,\
+                                    'SEQUENCE OF long-unsigned[%d]'%num, num, depth=depth)
             offset += 1
             for _ in range(num):
                 offset += self.take_long_unsigned(m_list[offset:], '配置序号', depth=depth + 1)
-        elif MS_choice == '05':  # 一组用户类型区间
+        elif ms_choice == '05':  # 一组用户类型区间
             offset = 0
             num = int(m_list[1], 16)
-            self.trans_res.add_row(m_list[offset: offset+1], brief, 'SEQUENCE OF Region[%d]'%num, num, depth=depth)
+            self.trans_res.add_row(m_list[offset: offset+1], brief,\
+                                    'SEQUENCE OF Region[%d]'%num, num, depth=depth)
             offset += 1
             for _ in range(num):
                 offset += self.take_Region(m_list[offset:], '用户类型区间', depth=depth + 1)
-        elif MS_choice == '06':  # 一组用户地址区间
+        elif ms_choice == '06':  # 一组用户地址区间
             offset = 0
             num = int(m_list[1], 16)
-            self.trans_res.add_row(m_list[offset: offset+1], brief, 'SEQUENCE OF Region[%d]'%num, num, depth=depth)
+            self.trans_res.add_row(m_list[offset: offset+1], brief,\
+                                    'SEQUENCE OF Region[%d]'%num, num, depth=depth)
             offset += 1
             for _ in range(num):
                 offset += self.take_Region(m_list[offset:], '用户地址区间', depth=depth + 1)
-        elif MS_choice == '07':  # 一组配置序号区间
+        elif ms_choice == '07':  # 一组配置序号区间
             offset = 0
             num = int(m_list[1], 16)
-            self.trans_res.add_row(m_list[offset: offset+1], brief, 'SEQUENCE OF Region[%d]'%num, num, depth=depth)
+            self.trans_res.add_row(m_list[offset: offset+1], brief,\
+                                    'SEQUENCE OF Region[%d]'%num, num, depth=depth)
             offset += 1
             for _ in range(num):
                 offset += self.take_Region(m_list[offset:], '配置序号区间:', depth=depth + 1)

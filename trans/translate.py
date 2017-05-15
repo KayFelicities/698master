@@ -54,7 +54,7 @@ class Translate():
                 messagerow=commonfun.list2text(temp_row['m_list']+row['m_list']\
                                                 if temp_row else row['m_list']),\
                 brief=row['brief']+':' if row['brief'] else '',\
-                dtype='('+temp_row['dtype']+'-'+row['dtype']+')' if temp_row\
+                dtype='('+temp_row['dtype']+'_'+row['dtype']+')' if temp_row\
                         else ('('+row['dtype']+')' if row['dtype'] else ''),\
                         value=row['value'], unit=row['unit'])
             temp_row = None

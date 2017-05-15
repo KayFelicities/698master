@@ -5,7 +5,7 @@ import config
 def take_linklayer1(m_list, trans_res):
     '''translate linklayer'''
     offset = 0
-    trans_res.add_row(m_list[offset : offset+1], '帧起始符', priority=0)
+    trans_res.add_row(m_list[offset : offset+1], '帧起始符', value=86, priority=0)
     offset += 1
     link_length = int(m_list[offset + 1] + m_list[offset], 16)
     if link_length == len(m_list) - 2:
@@ -108,6 +108,6 @@ def take_linklayer2(m_list, offset, trans_res):
         print('GOOD_FCS', config.GOOD_FCS)
     trans_res.add_row(m_list[offset: offset+2], '帧校验', '', '{0:04X}'.format(fcs_now) + hcs_check, priority=0)
     offset += 2
-    trans_res.add_row(m_list[offset: offset+1], '结束符', priority=0)
+    trans_res.add_row(m_list[offset: offset+1], '结束符', value=16, priority=0)
     offset += 1
     return offset - offset_temp
