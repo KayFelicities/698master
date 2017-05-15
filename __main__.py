@@ -8,8 +8,8 @@ import config
 
 if __name__ == "__main__":
     APP = QtGui.QApplication(sys.argv)
-    config.about_window = AboutWindow()
-    config.trans_window = TransWindow()
-    config.trans_window.show()
+    config.ABOUT_WINDOW = AboutWindow()
+    config.TRANS_WINDOW = TransWindow()
+    config.TRANS_WINDOW.show()
     APP.exec_()
     os._exit(0)

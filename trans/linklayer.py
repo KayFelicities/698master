@@ -7,8 +7,16 @@ def take_linklayer1(m_list, trans_res):
     offset = 0
     trans_res.add_row(m_list[offset : offset+1], '帧起始符')
     offset += 1
+    link_length = int(m_list[offset + 1] + m_list[offset], 16)
+    if link_length == len(m_list) - 2:
+        length_check = '(正确)'
+        config.GOOD_L = None
+    else:
+        length_check = '(错误，正确值{0:d}({0:04X}))'.format(len(m_list) - 2)
+        config.GOOD_L = ['{0:02X}'.format((len(m_list) - 2) >> 8),\
+                            '{0:02X}'.format((len(m_list) - 2) & 0xff)]
     trans_res.add_row(m_list[offset : offset+2], '长度L', '',\
-                      int(m_list[offset + 1] + m_list[offset], 16), '字节')
+                      int(m_list[offset + 1] + m_list[offset], 16), '字节' + length_check)
     offset += 2
 
     # 控制域
@@ -63,10 +71,10 @@ def take_linklayer1(m_list, trans_res):
     fcs_now = int(m_list[offset] + m_list[offset + 1], 16)
     if fcs_now == hcs_calc:
         hcs_check = '(正确)'
-        config.good_HCS = None
+        config.GOOD_HCS = None
     else:
         hcs_check = '(错误，正确值{0:04X})'.format(hcs_calc)
-        config.good_HCS = ['{0:02X}'.format(hcs_calc >> 8), '{0:02X}'.format(hcs_calc & 0xff)]
+        config.GOOD_HCS = ['{0:02X}'.format(hcs_calc >> 8), '{0:02X}'.format(hcs_calc & 0xff)]
     trans_res.add_row(m_list[offset: offset+2], '帧头校验', '', '{0:04X}'.format(fcs_now) + hcs_check)
     offset += 2
 
@@ -93,11 +101,11 @@ def take_linklayer2(m_list, offset, trans_res):
     fcs_now = int(m_list[offset] + m_list[offset + 1], 16)
     if fcs_now == fcs_calc:
         hcs_check = '(正确)'
-        config.good_FCS = None
+        config.GOOD_FCS = None
     else:
         hcs_check = '(错误，正确值{0:04X})'.format(fcs_calc)
-        config.good_FCS = ['{0:02X}'.format(fcs_calc >> 8), '{0:02X}'.format(fcs_calc & 0xff)]
-        print('good_FCS', config.good_FCS)
+        config.GOOD_FCS = ['{0:02X}'.format(fcs_calc >> 8), '{0:02X}'.format(fcs_calc & 0xff)]
+        print('GOOD_FCS', config.GOOD_FCS)
     trans_res.add_row(m_list[offset: offset+2], '帧校验', '', '{0:04X}'.format(fcs_now) + hcs_check)
     offset += 2
     trans_res.add_row(m_list[offset: offset+1], '结束符')

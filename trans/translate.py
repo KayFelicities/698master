@@ -30,7 +30,7 @@ class Translate():
             return res_list, True
 
 
-    def get_full(self, m_text):
+    def get_full(self, m_text, is_show_level=True):
         '''get full translate'''
         m_list = commonfun.text2list(m_text)
         res_list, is_success = self.trans_all(m_list)
@@ -49,7 +49,7 @@ class Translate():
                             <td style="{padding} padding-right: 5px;">{messagerow}</td>\
                             <td>{brief}{value}{unit}{dtype}</td></tr>'\
                 .format(color='color: blue;' if row['dtype'] in ['OAD', 'OMD'] else '',\
-                padding='padding-left: %d px;'%(row['depth'] * 10),\
+                padding='padding-left: %d px;'%(row['depth'] * 10) if is_show_level else '',\
                 messagerow=commonfun.list2text(temp_row['m_list']+row['m_list']\
                                                 if temp_row else row['m_list']),\
                 brief=row['brief']+':' if row['brief'] else '',\

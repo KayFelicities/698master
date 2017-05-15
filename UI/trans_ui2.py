@@ -19,8 +19,8 @@ class TransWindow(QtGui.QMainWindow, QtGui.QWidget, Ui_TransWindow):
         self.setupUi(self)
         self.setAcceptDrops(True)
         self.proc_bar.setVisible(False)
-        self.setWindowTitle('698解析工具_' + config.version + '(' + config.DT + ')')
-        config.show_level = self.show_level_cb.isChecked()
+        self.setWindowTitle('698解析工具_' + config.SOFTWARE_VERSION + '(' + config.SOFTWARE_DT + ')')
+        self.is_show_level = self.show_level_cb.isChecked()
         self.input_box.cursorPositionChanged.connect(self.cursor_changed)
         self.input_box.textChanged.connect(self.take_input_text)
         self.clear_b.clicked.connect(self.clear_box)
@@ -32,6 +32,7 @@ class TransWindow(QtGui.QMainWindow, QtGui.QWidget, Ui_TransWindow):
         self.set_progress.connect(self.set_progressbar, QtCore.Qt.QueuedConnection)
 
         self.find_dict = []
+        self.last_selection = (0, 0)
 
 
     def dragEnterEvent(self, event):
@@ -116,17 +117,29 @@ class TransWindow(QtGui.QMainWindow, QtGui.QWidget, Ui_TransWindow):
 
     def cursor_changed(self):
         '''cursor changed to trans'''
+        print(int(self.input_box.textCursor().position()))
+        if self.last_selection[0] <= int(self.input_box.textCursor().position())\
+                                    <= self.last_selection[1]:
+            return
+        else:
+            self.trans_pos(int(self.input_box.textCursor().position()))
+
+
+    def trans_pos(self, message_pos):
+        '''trans message in position'''
         for row in self.find_dict:
             # print(row)
-            if row['span'][0] <= int(self.input_box.textCursor().position()) <= row['span'][1]:
+            if row['span'][0] <= message_pos <= row['span'][1]:
                 self.start_trans(row['message'])
                 cursor = self.input_box.textCursor()
                 cursor.setPosition(row['span'][0])
                 cursor.setPosition(row['span'][1], QtGui.QTextCursor.KeepAnchor)
                 self.input_box.setTextCursor(cursor)
+                self.last_selection = row['span']
                 break
         else:
             self.output_box.setText('请点选一条报文')
+            self.last_selection = (0, 0)
 
 
     def take_input_text(self):
@@ -158,12 +171,12 @@ class TransWindow(QtGui.QMainWindow, QtGui.QWidget, Ui_TransWindow):
             self.start_trans(self.find_dict[0]['message'])
 
 
-    def start_trans(self, input_text, with_level=True):
+    def start_trans(self, input_text):
         '''start_trans'''
         brief_trans = Translate()
         brief = brief_trans.get_brief(input_text)
         full_trans = Translate()
-        full = full_trans.get_full(input_text)
+        full = full_trans.get_full(input_text, self.is_show_level)
         self.output_box.setText(r'<b>【概览】</b>%s<hr><b>【完整】</b>%s'%(brief, full))
         # print('Kay, ', self.output_box.toHtml())
 
@@ -175,8 +188,8 @@ class TransWindow(QtGui.QMainWindow, QtGui.QWidget, Ui_TransWindow):
 
     def set_level_visible(self):
         '''set_level_visible'''
-        config.show_level = self.show_level_cb.isChecked()
-        self.start_trans()
+        self.is_show_level = self.show_level_cb.isChecked()
+        self.trans_pos(int(self.input_box.textCursor().position()))
 
 
     def set_always_top(self):
@@ -201,4 +214,4 @@ class TransWindow(QtGui.QMainWindow, QtGui.QWidget, Ui_TransWindow):
 
     def show_about_window(self):
         '''show_about_window'''
-        config.about_window.show()
+        config.ABOUT_WINDOW.show()
