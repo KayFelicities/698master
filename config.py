@@ -17,3 +17,5 @@ if getattr(sys, 'frozen', False):
     SORTWARE_PATH = sys._MEIPASS
 else:
     SORTWARE_PATH = os.path.split(os.path.realpath(__file__))[0]
+
+M_PRIORITY_COLOR = {0: 'grey', 1: 'black', 2: 'blue', 3: 'red'}

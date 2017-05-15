@@ -3,6 +3,7 @@ import traceback
 import trans.common as commonfun
 import trans.linklayer as linklayer_do
 import trans.service as applayer_do
+import config
 
 class Translate():
     '''translate class'''
@@ -48,7 +49,7 @@ class Translate():
             res_text += '<tr style="{color}">\
                             <td style="{padding} padding-right: 5px;">{messagerow}</td>\
                             <td>{brief}{value}{unit}{dtype}</td></tr>'\
-                .format(color='color: blue;' if row['dtype'] in ['OAD', 'OMD'] else '',\
+                .format(color='color: %s;'%config.M_PRIORITY_COLOR[row['priority']],\
                 padding='padding-left: %d px;'%(row['depth'] * 10) if is_show_level else '',\
                 messagerow=commonfun.list2text(temp_row['m_list']+row['m_list']\
                                                 if temp_row else row['m_list']),\
@@ -68,7 +69,7 @@ class Translate():
         res_list, is_success = self.trans_all(m_list)
 
         m_chk = [byte for row in res_list for byte in row['m_list']]
-        if is_success == False or m_chk != m_list:
+        if is_success is False or m_chk != m_list:
             return '<p style="color: red">无效报文</p>'
 
         depth0_list = [row for row in res_list if row['depth'] == 0]
@@ -80,7 +81,6 @@ class Translate():
             brief = {'dir': '应答' if service_type[0] == '0' else '主动'}
         else:
             brief = {'dir': '申请' if service_type[0] in ['0', '1'] else '回复'}
-        print('Kay', brief)
         if service_type[1] in ['1']:
             brief['service'] = '预连接'
             if brief['dir'] == '申请':

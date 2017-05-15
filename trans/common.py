@@ -90,10 +90,10 @@ class TransRes():
         self.trans_res = []
 
 
-    def add_row(self, m_list, brief='', dtype='', value='', unit='', conversion=0, depth=0):
+    def add_row(self, m_list, brief='', dtype='', value='', unit='', conversion=0, depth=0, priority=1):
         '''add trans result row'''
         self.trans_res += [{'m_list': m_list, 'brief': brief, 'dtype': dtype, 'value': value,\
-                            'unit': unit, 'conversion': conversion, 'depth': depth}]
+                    'unit': unit, 'conversion': conversion, 'depth': depth, 'priority': priority}]
 
 
     def get_res(self):

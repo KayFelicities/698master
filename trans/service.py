@@ -118,11 +118,11 @@ class Service():
         if re_data_choice == '00':
             offset += self.typedo.take_DAR(m_list[offset:], '错误信息', depth=depth)
         elif re_data_choice == '01':  # M条记录
-            record_num = int(m_list[offset], 16)
+            num = int(m_list[offset], 16)
             self.trans_res.add_row(m_list[offset: offset+1], 'M条记录',\
-                                    'SEQUENCE OF A-RecordRow', record_num, depth=depth)
+                                    'SEQUENCE OF A-RecordRow[%d]'%num, num, depth=depth)
             offset += 1
-            for _ in range(record_num):
+            for _ in range(num):
                 for csd_count in range(csd_num):
                     offset += self.typedo.take_Data(m_list[offset:],\
                                     '第%d列数据'%(csd_count+1), depth=depth+1)
@@ -243,7 +243,7 @@ class Service():
         offset = 0
         offset += self.typedo.take_PIID(m_list[offset:], '服务序号-优先级')
         num = int(m_list[offset], 16)
-        self.trans_res.add_row(m_list[offset: offset+1], '若干个对象属性描述符', 'SEQUENCE OF OAD', num)
+        self.trans_res.add_row(m_list[offset: offset+1], '若干个对象属性描述符', 'SEQUENCE OF OAD[%d]'%num, num)
         offset += 1
         for _ in range(num):
             offset += self.typedo.take_OAD(m_list[offset:], depth=1)
@@ -264,7 +264,7 @@ class Service():
         offset += self.typedo.take_PIID(m_list[offset:], '服务序号-优先级')
         num = int(m_list[offset], 16)
         self.trans_res.add_row(m_list[offset: offset+1], '读取若干个记录型对象属性',\
-                                'SEQUENCE OF GetRecord', num)
+                                'SEQUENCE OF GetRecord[%d]'%num, num)
         offset += 1
         for _ in range(num):
             offset += self.typedo.take_OAD(m_list[offset:], '对象属性描述符', depth=1)
@@ -299,7 +299,7 @@ class Service():
         offset += self.typedo.take_PIID_ACD(m_list[offset:], '服务序号-优先级-ACD')
         num = int(m_list[offset], 16)
         self.trans_res.add_row(m_list[offset: offset+1], '若干个对象属性及其结果',\
-                                'SEQUENCE OF A_ResultNormal', num)
+                                'SEQUENCE OF A_ResultNormal[%d]'%num, num)
         offset += 1
         for _ in range(num):
             offset += self.take_A_ResultNormal(m_list[offset:], depth=1)
@@ -318,7 +318,7 @@ class Service():
         offset += self.typedo.take_PIID_ACD(m_list[offset:], '服务序号-优先级-ACD')
         num = int(m_list[offset], 16)
         self.trans_res.add_row(m_list[offset: offset+1],\
-                '若干个记录型对象属性及其结果', 'SEQUENCE OF A_ResultNormal', num)
+                '若干个记录型对象属性及其结果', 'SEQUENCE OF A_ResultNormal[%d]'%num, num)
         offset += 1
         for _ in range(num):
             offset += self.take_A_ResultRecord(m_list[offset:], depth=1)
@@ -338,14 +338,14 @@ class Service():
         elif re_m_list_choice == '01':  # SEQUENCE OF A-ResultNormal
             num = int(m_list[offset], 16)
             self.trans_res.add_row(m_list[offset: offset+1],\
-                    '对象属性', 'SEQUENCE OF A_ResultNormal', num)
+                    '对象属性', 'SEQUENCE OF A_ResultNormal[%d]'%num, num)
             offset += 1
             for _ in range(num):
                 offset += self.take_A_ResultNormal(m_list[offset:], depth=1)
         elif re_m_list_choice == '02':  # SEQUENCE OF A-ResultRecord
             num = int(m_list[offset], 16)
             self.trans_res.add_row(m_list[offset: offset+1],\
-                    '记录型对象属性', 'SEQUENCE OF A-ResultRecord', num)
+                    '记录型对象属性', 'SEQUENCE OF A-ResultRecord[%d]'%num, num)
             offset += 1
             for _ in range(num):
                 offset += self.take_A_ResultRecord(m_list[offset:], depth=1)
@@ -802,7 +802,7 @@ class Service():
                 if optional == '01':
                     offset += self.typedo.take_Data(m_list[offset:], '', depth=3)
                 offset += self.typedo.take_OAD(m_list[offset:], '读取的对象属性描述符', depth=2)
-                offset += self.typedo.take_Get_Result(m_list[offset:], '及其读取结果', depth=2)
+                offset += self.take_Get_Result(m_list[offset:], '及其读取结果', depth=2)
         return offset
 
     def ProxyTransCommandResponse(self, m_list):

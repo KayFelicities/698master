@@ -200,10 +200,10 @@ class TypeDo():
     def take_array(self, m_list, brief='', depth=0):
         '''take_array'''
         offset = 0
-        member_num = int(m_list[offset], 16)
+        num = int(m_list[offset], 16)
         offset += 1
-        self.trans_res.add_row(m_list[:offset], brief, 'array', member_num, depth=depth)
-        for _ in range(member_num):
+        self.trans_res.add_row(m_list[:offset], brief, 'array[%d]'%num, num, depth=depth)
+        for _ in range(num):
             offset += self.take_Data(m_list[offset:], depth=depth + 1)
         return offset
 
@@ -211,10 +211,10 @@ class TypeDo():
     def take_structure(self, m_list, brief='', depth=0):
         '''take_structure'''
         offset = 0
-        member_num = int(m_list[offset], 16)
+        num = int(m_list[offset], 16)
         offset += 1
-        self.trans_res.add_row(m_list[:offset], brief, 'structure', member_num, depth=depth)
-        for _ in range(member_num):
+        self.trans_res.add_row(m_list[:offset], brief, 'structure[%d]'%num, num, depth=depth)
+        for _ in range(num):
             offset += self.take_Data(m_list[offset:], depth=depth + 1)
         return offset
 
@@ -242,7 +242,8 @@ class TypeDo():
         offset += byte_len
         bit_value = '空' if byte_len == 0\
                 else str(bin(int(bit_string_text, 16))).split('b')[1].rjust(bit_len, '0')
-        self.trans_res.add_row(m_list[:offset], brief, 'bit-string', bit_value, depth=depth)
+        self.trans_res.add_row(m_list[:offset], brief, 'bit-string[%d]'%bit_len,\
+                                bit_value, depth=depth)
         return offset
 
 
@@ -475,7 +476,7 @@ class TypeDo():
         offset = 0
         explain = database.OAD.get(m_list[offset] + m_list[offset + 1] + '01', '未知OI').split('，')[0]
         offset += 2
-        self.trans_res.add_row(m_list[:offset], brief, 'OI', explain, depth=depth)
+        self.trans_res.add_row(m_list[:offset], brief, 'OI', explain, depth=depth, priority=2)
         return offset
 
 
@@ -488,7 +489,7 @@ class TypeDo():
                     database.OAD.get(''.join(m_list[offset : offset + 2]) + '01',\
                     '未知OAD').split('[')[0] + '[属性%d]'%attr) + '[索引%d]'%index
         offset += 4
-        self.trans_res.add_row(m_list[:offset], brief, 'OAD', explain, depth=depth)
+        self.trans_res.add_row(m_list[:offset], brief, 'OAD', explain, depth=depth, priority=2)
         return offset
 
 
@@ -497,7 +498,7 @@ class TypeDo():
         offset = 0
         offset += self.take_OAD(m_list[offset:], depth=depth)
         oad_num = int(m_list[offset], 16)
-        self.trans_res.add_row(m_list[offset: offset+1], brief, 'ROAD', oad_num, depth=depth)
+        self.trans_res.add_row(m_list[offset: offset+1], brief, 'ROAD[%d]'%oad_num, oad_num, depth=depth)
         offset += 1
         for _ in range(oad_num):
             offset += self.take_OAD(m_list[offset:], depth=depth + 1)
@@ -513,7 +514,7 @@ class TypeDo():
                     database.OMD.get(''.join(m_list[offset : offset + 2]) + '01',\
                     '未知OMD').split('[')[0] + '[方法%d]'%method) + '[操作模式%d]'%mode
         offset += 4
-        self.trans_res.add_row(m_list[:offset], brief, 'OMD', explain, depth=depth)
+        self.trans_res.add_row(m_list[:offset], brief, 'OMD', explain, depth=depth, priority=2)
         return offset
 
 
@@ -547,7 +548,7 @@ class TypeDo():
         else:
             addr_len = 0
         offset += 1 + TSA_len
-        self.trans_res.add_row(m_list[:offset], brief, 'TSA', addr_text, depth=depth)
+        self.trans_res.add_row(m_list[:offset], brief, 'TSA[%d]'%addr_len, addr_text, depth=depth)
         return offset
 
 
@@ -671,7 +672,7 @@ class TypeDo():
         #     offset += self.take_NULL(m_list[offset:], '全部用户地址')
         if MS_choice == '02':  # 一组用户类型
             num = int(m_list[1], 16)
-            self.trans_res.add_row(m_list[offset: offset+1], brief, 'SEQUENCE OF unsigned', num, depth=depth)
+            self.trans_res.add_row(m_list[offset: offset+1], brief, 'SEQUENCE OF unsigned[%d]'%num, num, depth=depth)
             offset += 1
             for _ in range(num):
                 offset += self.take_unsigned(m_list[offset:], '用户类型', depth=depth + 1)
@@ -683,28 +684,28 @@ class TypeDo():
                 offset += self.take_TSA(m_list[offset:], '用户地址', depth=depth + 1)
         elif MS_choice == '04':  # 一组配置序号
             num = int(m_list[1], 16)
-            self.trans_res.add_row(m_list[offset: offset+1], brief, 'SEQUENCE OF long-unsigned', num, depth=depth)
+            self.trans_res.add_row(m_list[offset: offset+1], brief, 'SEQUENCE OF long-unsigned[%d]'%num, num, depth=depth)
             offset += 1
             for _ in range(num):
                 offset += self.take_long_unsigned(m_list[offset:], '配置序号', depth=depth + 1)
         elif MS_choice == '05':  # 一组用户类型区间
             offset = 0
             num = int(m_list[1], 16)
-            self.trans_res.add_row(m_list[offset: offset+1], brief, 'SEQUENCE OF Region', num, depth=depth)
+            self.trans_res.add_row(m_list[offset: offset+1], brief, 'SEQUENCE OF Region[%d]'%num, num, depth=depth)
             offset += 1
             for _ in range(num):
                 offset += self.take_Region(m_list[offset:], '用户类型区间', depth=depth + 1)
         elif MS_choice == '06':  # 一组用户地址区间
             offset = 0
             num = int(m_list[1], 16)
-            self.trans_res.add_row(m_list[offset: offset+1], brief, 'SEQUENCE OF Region', num, depth=depth)
+            self.trans_res.add_row(m_list[offset: offset+1], brief, 'SEQUENCE OF Region[%d]'%num, num, depth=depth)
             offset += 1
             for _ in range(num):
                 offset += self.take_Region(m_list[offset:], '用户地址区间', depth=depth + 1)
         elif MS_choice == '07':  # 一组配置序号区间
             offset = 0
             num = int(m_list[1], 16)
-            self.trans_res.add_row(m_list[offset: offset+1], brief, 'SEQUENCE OF Region', num, depth=depth)
+            self.trans_res.add_row(m_list[offset: offset+1], brief, 'SEQUENCE OF Region[%d]'%num, num, depth=depth)
             offset += 1
             for _ in range(num):
                 offset += self.take_Region(m_list[offset:], '配置序号区间:', depth=depth + 1)
@@ -759,9 +760,9 @@ class TypeDo():
     def take_RCSD(self, m_list, brief='', depth=0):
         '''take_RCSD'''
         offset = 0
-        csd_num = int(m_list[offset], 16)
+        num = int(m_list[offset], 16)
         offset += 1
-        self.trans_res.add_row(m_list[:offset], brief, 'SEQUENCE OF CSD', csd_num, depth=depth)
-        for _ in range(csd_num):
+        self.trans_res.add_row(m_list[:offset], brief, 'SEQUENCE OF CSD[%d]'%num, num, depth=depth)
+        for _ in range(num):
             offset += self.take_CSD(m_list[offset:], depth=depth + 1)
         return offset
