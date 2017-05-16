@@ -4,9 +4,9 @@ block_cipher = None
 
 
 a = Analysis(['__main__.py'],
-             pathex=['F:\\python\\698master'],
+             pathex=[],
              binaries=[],
-             datas=[],
+             datas =[],
              hiddenimports=[],
              hookspath=[],
              runtime_hooks=[],
@@ -21,8 +21,8 @@ exe = EXE(pyz,
           a.binaries,
           a.zipfiles,
           a.datas,
-          name='__main__',
+          name='698',
           debug=False,
           strip=False,
           upx=True,
-          console=True )
+          console=False , icon='UI\\698.ico')
