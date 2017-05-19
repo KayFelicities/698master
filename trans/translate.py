@@ -37,7 +37,7 @@ class Translate():
         res_list, is_success = self.trans_all(m_list)
         m_chk = [byte for row in res_list for byte in row['m_list']]
         if is_success and m_chk == m_list:
-            res_text = '<table>'
+            res_text = '<table style="table-layout:fixed; word-wrap:break-word;">'
         else:
             print('ERROR:\nm_chk: %s\n m_list: %s\n'%(m_chk, m_list))
             res_text = '<p style="color: red">报文解析过程出现问题，请检查报文。若报文无问题请反馈665593，谢谢！</p>'
@@ -46,7 +46,7 @@ class Translate():
             if row['dtype'] in ['Data', 'CSD']:
                 temp_row = row
                 continue
-            res_text += '<tr style="{color}">\
+            res_text += '<tr style="{color};">\
                             <td style="{padding} padding-right: 5px;">{messagerow}</td>\
                             <td>{brief}{value}{unit}{dtype}</td></tr>'\
                 .format(color='color: %s;'%config.M_PRIORITY_COLOR[row['priority']],\

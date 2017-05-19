@@ -145,21 +145,7 @@ class TransWindow(QtGui.QMainWindow, QtGui.QWidget, Ui_TransWindow):
     def take_input_text(self):
         '''handle with input text'''
         input_text = self.input_box.toPlainText()
-        # html_text = input_text
         res = re.compile(r'([0-9a-fA-F]{2} ){5,}[0-9a-fA-F]{2}')
-        # all_match = res.finditer(html_text)
-        # offset = 0
-        # for mes in all_match:
-        #     html_text = html_text[:mes.start()+offset] + '<b>'\
-        #                     + html_text[mes.start()+offset:mes.end()+offset]\
-        #                     + '</b>' + html_text[mes.end()+offset:]
-        #     offset += 7
-        # html_text = '<!DOCTYPE HTML><html><body>'\
-        #                 + html_text.replace('\n', '<br>') + '</body></html>'
-        # self.input_box.textChanged.disconnect(self.take_input_text)
-        # # self.input_box.setText(html_text)
-        # self.input_box.textChanged.connect(self.take_input_text)
-
         all_match = res.finditer(input_text)
         self.find_dict = []
         find_num = 0
@@ -178,7 +164,6 @@ class TransWindow(QtGui.QMainWindow, QtGui.QWidget, Ui_TransWindow):
         full_trans = Translate()
         full = full_trans.get_full(input_text, self.is_show_level)
         self.output_box.setText(r'<b>【概览】</b>%s<hr><b>【完整】</b>%s'%(brief, full))
-        # print('Kay, ', self.output_box.toHtml())
 
 
     def clear_box(self):
