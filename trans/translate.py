@@ -63,6 +63,26 @@ class Translate():
         return res_text
 
 
+    def get_direction(self, m_text):
+        '''get direction'''
+        m_list = commonfun.text2list(m_text)
+        res_list, is_success = self.trans_all(m_list)
+
+        m_chk = [byte for row in res_list for byte in row['m_list']]
+        if is_success is False or m_chk != m_list:
+            print(m_chk, m_list)
+            return '-'
+
+        depth0_list = [row for row in res_list if row['depth'] == 0]
+        service_type = commonfun.list2text(list(filter(lambda row: row['dtype'] == 'service'\
+                                                        , depth0_list))[0]['m_list'])
+        if service_type[1] == '8':
+            return '←'
+        else:
+            return '→'
+
+
+
     def get_brief(self, m_text):
         '''get brief translate'''
         m_list = commonfun.text2list(m_text)
@@ -149,5 +169,5 @@ class Translate():
         elif service_type[1] in ['0']:
             brief['service'] = '安全传输'
 
-        return '<p>%s%s %s</p>'%(brief.get('dir', ''),\
+        return '%s-%s %s'%(brief.get('dir', ''),\
                             brief.get('service', ''), brief.get('content', ''))

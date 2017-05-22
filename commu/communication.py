@@ -3,6 +3,9 @@ import serial
 import threading
 import time
 import traceback
+import struct
+import config
+from trans import common
 
 
 class Communication():
@@ -13,10 +16,18 @@ class Communication():
         self.is_serial_running = False
 
 
-    def connect_serial(self, com, baudrate=9600, parity='E', stopbits=1, timeout=0.05):
+    def send_mes(self, m_text):
+        '''send message'''
+        m_list = common.text2list(m_text)
+        send_b = b''.join(map(lambda x: struct.pack('B', int(x, 16)), m_list))
+        if self.is_serial_running:
+            self.serial_handle.write(send_b)
+
+
+    def connect_serial(self, com, baudrate=9600, bytesize=8, parity='E', stopbits=1, timeout=0.05):
         '''connect serial'''
         try:
-            self.serial_handle = serial.Serial(com, baudrate, parity, stopbits, timeout)
+            self.serial_handle = serial.Serial(com, baudrate, bytesize, parity, stopbits, timeout)
             self.serial_handle.close()
             self.serial_handle.open()
             self.is_serial_running = True
@@ -56,7 +67,7 @@ class Communication():
                 time.sleep(0.03)
                 data_wait = self.serial_handle.inWaiting()
             if re_text != '':
-                config.serial_window._receive_signal.emit(re_text)
+                config.MASTER_WINDOW.receive_signal.emit(re_text)
             if self.is_serial_running is False:
                 print('serial_run quit')
                 break

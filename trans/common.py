@@ -26,6 +26,11 @@ def list2text(m_list, separator=' '):
     return m_text
 
 
+def format_text(m_text, separator=' '):
+    '''format'''
+    return list2text(text2list(m_text), separator=separator)
+
+
 def chk_format(m_list):
     '''chk format'''
     if m_list[0] != '68' or m_list[len(m_list) - 1] != '16':

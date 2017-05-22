@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="698">
     <file>698.ico</file>
+    <file>698_o.ico</file>
   </qresource>
 </RCC>

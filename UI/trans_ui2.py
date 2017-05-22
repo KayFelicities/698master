@@ -163,7 +163,7 @@ class TransWindow(QtGui.QMainWindow, QtGui.QWidget, Ui_TransWindow):
         brief = brief_trans.get_brief(input_text)
         full_trans = Translate()
         full = full_trans.get_full(input_text, self.is_show_level)
-        self.output_box.setText(r'<b>【概览】</b>%s<hr><b>【完整】</b>%s'%(brief, full))
+        self.output_box.setText(r'<b>【概览】</b><p>%s</p><hr><b>【完整】</b>%s'%(brief, full))
 
 
     def clear_box(self):
