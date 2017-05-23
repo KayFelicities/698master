@@ -8,11 +8,12 @@ import config
 from trans import common
 
 
-class Communication():
-    '''communication class'''
-    def __init__(self):
+class Serial():
+    '''serial communication class'''
+    def __init__(self, com, baudrate=9600, bytesize=8, parity='E', stopbits=1, timeout=0.05):
         '''init'''
-        self.serial_handle = None
+        self.port = com
+        self.serial_handle = serial.Serial(com, baudrate, bytesize, parity, stopbits, timeout)
         self.is_serial_running = False
 
 
@@ -22,23 +23,23 @@ class Communication():
         send_b = b''.join(map(lambda x: struct.pack('B', int(x, 16)), m_list))
         if self.is_serial_running:
             self.serial_handle.write(send_b)
+            config.MASTER_WINDOW.send_signal.emit(common.format_text(m_text), self.port)
 
 
-    def connect_serial(self, com, baudrate=9600, bytesize=8, parity='E', stopbits=1, timeout=0.05):
+    def connect(self):
         '''connect serial'''
         try:
-            self.serial_handle = serial.Serial(com, baudrate, bytesize, parity, stopbits, timeout)
             self.serial_handle.close()
             self.serial_handle.open()
             self.is_serial_running = True
-            threading.Thread(target=self.serial_loop).start()
+            threading.Thread(target=self.read_loop).start()
             return 'ok'
         except Exception:
             traceback.print_exc()
             return 'err'
 
 
-    def disconnect_serial(self):
+    def disconnect(self):
         '''stop serial'''
         if self.is_serial_running is False:
             return 'ok'
@@ -51,7 +52,7 @@ class Communication():
             return 'err'
 
 
-    def serial_loop(self):
+    def read_loop(self):
         '''serial loop'''
         while True:
             try:
@@ -67,28 +68,69 @@ class Communication():
                 time.sleep(0.03)
                 data_wait = self.serial_handle.inWaiting()
             if re_text != '':
-                config.MASTER_WINDOW.receive_signal.emit(re_text)
+                config.MASTER_WINDOW.receive_signal.emit(re_text, self.port)
             if self.is_serial_running is False:
                 print('serial_run quit')
                 break
 
 
-    def connect_front_server(self):
-        '''connect_front_server'''
-        pass
+class Server():
+    '''server communication class'''
+    def __init__(self):
+        '''init'''
+        self.server_handle = None
+        self.is_server_running = False
 
 
-    def disconnect_front_server(self):
-        '''stop front_server'''
-        pass
+    def send_mes(self, m_text):
+        '''send message'''
+        m_list = common.text2list(m_text)
+        send_b = b''.join(map(lambda x: struct.pack('B', int(x, 16)), m_list))
+        if self.is_server_running:
+            self.server_handle.write(send_b)
 
 
-    def start_server(self):
+    def start(self, port):
         '''connect server'''
-        pass
+        try:
+            threading.Thread(target=self.read_loop).start()
+            return 'ok'
+        except Exception:
+            traceback.print_exc()
+            return 'err'
 
 
-    def stop_server(self):
+    def stop(self):
         '''stop server'''
-        pass
+        if self.is_server_running is False:
+            return 'ok'
+        try:
+            self.server_handle.close()
+            self.is_server_running = False
+            return 'ok'
+        except Exception:
+            traceback.print_exc()
+            return 'err'
+
+
+    def read_loop(self):
+        '''server loop'''
+        while True:
+            try:
+                data_wait = self.server_handle.inWaiting()
+            except Exception:
+                traceback.print_exc()
+                break
+            re_text = ''
+            while data_wait > 0:
+                re_data = self.server_handle.readline()
+                for re_char in re_data:
+                    re_text += '{0:02X} '.format(re_char)
+                time.sleep(0.03)
+                data_wait = self.server_handle.inWaiting()
+            if re_text != '':
+                config.MASTER_WINDOW.receive_signal.emit(re_text)
+            if self.is_server_running is False:
+                print('server_run quit')
+                break
 

@@ -14,7 +14,7 @@
    <string>MainWindow</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="icon.qrc">
+   <iconset resource="../img/icon.qrc">
     <normaloff>:/698/698.ico</normaloff>:/698/698.ico</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
@@ -93,16 +93,6 @@
         <property name="horizontalScrollMode">
          <enum>QAbstractItemView::ScrollPerPixel</enum>
         </property>
-        <column>
-         <property name="text">
-          <string>终端</string>
-         </property>
-        </column>
-        <column>
-         <property name="text">
-          <string>在线</string>
-         </property>
-        </column>
        </widget>
        <widget class="QTextBrowser" name="textBrowser">
         <property name="sizePolicy">
@@ -139,7 +129,7 @@ p, li { white-space: pre-wrap; }
 &lt;p align=&quot;center&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;欢迎使用&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
        </widget>
-       <widget class="QWidget" name="">
+       <widget class="QWidget" name="layoutWidget">
         <layout class="QHBoxLayout" name="horizontalLayout_3">
          <item>
           <widget class="QPushButton" name="pushButton">
@@ -213,26 +203,6 @@ p, li { white-space: pre-wrap; }
        <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
         <bool>false</bool>
        </attribute>
-       <column>
-        <property name="text">
-         <string>时间</string>
-        </property>
-       </column>
-       <column>
-        <property name="text">
-         <string>方向</string>
-        </property>
-       </column>
-       <column>
-        <property name="text">
-         <string>概览</string>
-        </property>
-       </column>
-       <column>
-        <property name="text">
-         <string>报文</string>
-        </property>
-       </column>
       </widget>
      </widget>
     </item>
@@ -331,7 +301,7 @@ p, li { white-space: pre-wrap; }
   </action>
  </widget>
  <resources>
-  <include location="icon.qrc"/>
+  <include location="../img/icon.qrc"/>
  </resources>
  <connections/>
 </ui>

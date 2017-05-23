@@ -7,9 +7,11 @@ import config
 
 class Translate():
     '''translate class'''
-    def __init__(self):
+    def __init__(self, m_text):
         '''init'''
         self.trans_res = commonfun.TransRes()
+        m_list = commonfun.text2list(m_text)
+        self.res_list, self.is_success = self.trans_all(m_list)
 
 
     def trans_all(self, m_list):
@@ -28,21 +30,23 @@ class Translate():
             return res_list, False
         else:
             res_list = self.trans_res.get_res()
-            return res_list, True
+            m_chk = [byte for row in res_list for byte in row['m_list']]
+            if m_chk == m_list:
+                chk_res = True
+            else:
+                chk_res = False
+                print('chk ERROR:\nm_chk: %s\n m_list: %s\n'%(m_chk, m_list))
+            return res_list, chk_res
 
 
-    def get_full(self, m_text, is_show_level=True):
+    def get_full(self, is_show_level=True):
         '''get full translate'''
-        m_list = commonfun.text2list(m_text)
-        res_list, is_success = self.trans_all(m_list)
-        m_chk = [byte for row in res_list for byte in row['m_list']]
-        if is_success and m_chk == m_list:
+        if self.is_success:
             res_text = '<table style="table-layout:fixed; word-wrap:break-word;">'
         else:
-            print('ERROR:\nm_chk: %s\n m_list: %s\n'%(m_chk, m_list))
             res_text = '<p style="color: red">报文解析过程出现问题，请检查报文。若报文无问题请反馈665593，谢谢！</p>'
         temp_row = None
-        for row in res_list:
+        for row in self.res_list:
             if row['dtype'] in ['Data', 'CSD']:
                 temp_row = row
                 continue
@@ -63,38 +67,28 @@ class Translate():
         return res_text
 
 
-    def get_direction(self, m_text):
+    def get_direction(self):
         '''get direction'''
-        m_list = commonfun.text2list(m_text)
-        res_list, is_success = self.trans_all(m_list)
-
-        m_chk = [byte for row in res_list for byte in row['m_list']]
-        if is_success is False or m_chk != m_list:
-            print(m_chk, m_list)
+        if not self.is_success:
             return '-'
 
-        depth0_list = [row for row in res_list if row['depth'] == 0]
+        depth0_list = [row for row in self.res_list if row['depth'] == 0]
         service_type = commonfun.list2text(list(filter(lambda row: row['dtype'] == 'service'\
                                                         , depth0_list))[0]['m_list'])
-        if service_type[1] == '8':
-            return '←'
-        else:
+        if service_type[0] in ['0', '1']:
             return '→'
+        else:
+            return '←'
 
 
-
-    def get_brief(self, m_text):
+    def get_brief(self):
         '''get brief translate'''
-        m_list = commonfun.text2list(m_text)
-        res_list, is_success = self.trans_all(m_list)
-
-        m_chk = [byte for row in res_list for byte in row['m_list']]
-        if is_success is False or m_chk != m_list:
+        if not self.is_success:
             return '<p style="color: red">无效报文</p>'
 
-        depth0_list = [row for row in res_list if row['depth'] == 0]
-        depth1_list = [row for row in res_list if row['depth'] == 1]
-        depth2_list = [row for row in res_list if row['depth'] == 2]
+        depth0_list = [row for row in self.res_list if row['depth'] == 0]
+        depth1_list = [row for row in self.res_list if row['depth'] == 1]
+        depth2_list = [row for row in self.res_list if row['depth'] == 2]
         service_type = commonfun.list2text(list(filter(lambda row: row['dtype'] == 'service'\
                                                         , depth0_list))[0]['m_list'])
         if service_type[1] == '8':
