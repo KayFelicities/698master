@@ -77,7 +77,7 @@ class TypeDo():
     def take_DAR(self, m_list, brief='', depth=0):
         '''take_DAR'''
         offset = 0
-        explain = database.DAR.get(m_list[0], '无效DAR')
+        explain = database.DAR.get(str(int(m_list[0], 16)), '无效DAR')
         offset += 1
         self.trans_res.add_row(m_list[:offset], brief, 'DAR', explain, depth=depth)
         return offset

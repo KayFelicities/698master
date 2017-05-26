@@ -8,6 +8,7 @@ import time
 from commu import communication
 from trans import common
 from trans.translate import Translate
+from UI.dialog_ui import TransPopDialog
 
 
 class MasterWindow(QtGui.QMainWindow, QtGui.QWidget, Ui_MasterWindow):
@@ -29,6 +30,8 @@ class MasterWindow(QtGui.QMainWindow, QtGui.QWidget, Ui_MasterWindow):
         self.commu = communication.Serial('COM1')
         ret = self.commu.connect()
         print("connect com1: " + ret)
+
+        self.pop = TransPopDialog()
 
 
     def create_tables(self):
@@ -107,5 +110,6 @@ class MasterWindow(QtGui.QMainWindow, QtGui.QWidget, Ui_MasterWindow):
 
     def show_about_window(self):
         '''show_about_window'''
-        config.ABOUT_WINDOW.show()
-        config.TRANS_WINDOW.show()
+        # config.ABOUT_WINDOW.show()
+        # config.TRANS_WINDOW.show()
+        self.pop.show()

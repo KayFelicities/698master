@@ -14,7 +14,7 @@
    <string>关于</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="icon.qrc">
+   <iconset resource="../img/icon.qrc">
     <normaloff>:/698/698.ico</normaloff>
     <normalon>:/698/698.ico</normalon>:/698/698.ico</iconset>
   </property>
@@ -59,7 +59,7 @@
          <string/>
         </property>
         <property name="icon">
-         <iconset resource="icon.qrc">
+         <iconset resource="../img/icon.qrc">
           <normaloff>:/698/698.ico</normaloff>:/698/698.ico</iconset>
         </property>
         <property name="iconSize">
@@ -236,7 +236,7 @@ p, li { white-space: pre-wrap; }
        <enum>Qt::LeftToRight</enum>
       </property>
       <property name="text">
-       <string>Copyrigth(C), 2005-2020,Sanxing Medical &amp; Electric Co.,Ltd.</string>
+       <string>Copyright(C), 2005-2020,Sanxing Medical &amp; Electric Co.,Ltd.</string>
       </property>
       <property name="alignment">
        <set>Qt::AlignCenter</set>
@@ -247,7 +247,7 @@ p, li { white-space: pre-wrap; }
   </widget>
  </widget>
  <resources>
-  <include location="icon.qrc"/>
+  <include location="../img/icon.qrc"/>
  </resources>
  <connections/>
 </ui>
