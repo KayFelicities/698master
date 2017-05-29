@@ -24,6 +24,8 @@ class MasterWindow(QtGui.QMainWindow, QtGui.QWidget, Ui_MasterWindow):
         self.receive_signal.connect(self.re_message)
         self.send_signal.connect(self.se_message)
         self.test_b.clicked.connect(self.test_b_down)
+        self.test_b_2.clicked.connect(self.test_b_2_down)
+        self.mes_table.cellDoubleClicked.connect(self.trans_msg)
         self.about_menu.triggered.connect(self.show_about_window)
         self.always_top_cb.clicked.connect(self.set_always_top)
 
@@ -31,7 +33,7 @@ class MasterWindow(QtGui.QMainWindow, QtGui.QWidget, Ui_MasterWindow):
         ret = self.commu.connect()
         print("connect com1: " + ret)
 
-        self.pop = TransPopDialog()
+        self.pop_dialog = TransPopDialog()
 
 
     def create_tables(self):
@@ -66,6 +68,7 @@ class MasterWindow(QtGui.QMainWindow, QtGui.QWidget, Ui_MasterWindow):
         trans = Translate(m_text)
         brief = trans.get_brief()
         direction = trans.get_direction()
+        server_addr = trans.get_SA()
         text_color = QtGui.QColor(220, 226, 241) if direction == '→' else\
                     QtGui.QColor(227, 237, 205) if direction == '←' else QtGui.QColor(255, 255, 255)
         row_pos = self.mes_table.rowCount()
@@ -74,6 +77,10 @@ class MasterWindow(QtGui.QMainWindow, QtGui.QWidget, Ui_MasterWindow):
         item = QtGui.QTableWidgetItem(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
         # item.setBackgroundColor(text_color)
         self.mes_table.setItem(row_pos, 0, item)
+
+        item = QtGui.QTableWidgetItem(server_addr)
+        # item.setBackgroundColor(text_color)
+        self.mes_table.setItem(row_pos, 1, item)
 
         item = QtGui.QTableWidgetItem(channel + direction)
         item.setBackgroundColor(text_color)
@@ -95,6 +102,22 @@ class MasterWindow(QtGui.QMainWindow, QtGui.QWidget, Ui_MasterWindow):
         test_text = '682100434FAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA10CC1C05010140000200007D1B16'
         self.send_mess(test_text)
 
+    def test_b_2_down(self):
+        '''test'''
+        test_text = '68 7E 00 C3 03 01 00 00 00 10 31 7A 85 02 01 03 45 00 02 00 01 02 0C\
+                     16 00 16 00 16 00 16 00 01 00 0A 06 74 65 73 74 31 32 0A 06 75 73 65\
+                     72 31 32 0A 05 70 77 31 32 33 09 04 00 00 00 00 12 01 00 11 FC 12 01\
+                     2C 45 00 03 00 01 01 01 02 02 09 04 79 28 50 9F 12 4E 73 45 00 04 00\
+                     01 02 03 0A 06 01 02 03 04 05 06 01 01 0A 06 01 02 03 04 05 06 01 01\
+                     0A 06 05 06 07 04 05 06 00 00 DC F5 16'
+        self.send_mess(test_text)
+
+
+    def trans_msg(self, row):
+        '''translate massage'''
+        self.pop_dialog.message_box.setText(self.mes_table.item(row, 4).text())
+        self.pop_dialog.show()
+        self.pop_dialog.activateWindow()
 
     def set_always_top(self):
         '''set_always_top'''
@@ -110,6 +133,5 @@ class MasterWindow(QtGui.QMainWindow, QtGui.QWidget, Ui_MasterWindow):
 
     def show_about_window(self):
         '''show_about_window'''
-        # config.ABOUT_WINDOW.show()
+        config.ABOUT_WINDOW.show()
         # config.TRANS_WINDOW.show()
-        self.pop.show()

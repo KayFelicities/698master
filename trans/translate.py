@@ -81,6 +81,14 @@ class Translate():
             return '←'
 
 
+    def get_SA(self):
+        '''get server address'''
+        for row in self.res_list:
+            if row['dtype'] == 'SA':
+                return row['value'].split('[')[2].split(']')[0]
+        return '-'
+
+
     def get_brief(self):
         '''get brief translate'''
         if not self.is_success:

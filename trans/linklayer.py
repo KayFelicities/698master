@@ -57,10 +57,10 @@ def take_linklayer1(m_list, trans_res):
     server_addr_len = (int(m_list[offset], 16) & 0x0f) + 1
     server_addr_reverse = m_list[offset + server_addr_len: offset: -1]
     server_addr = ''.join(server_addr_reverse)
-    trans_res.add_row(m_list[offset: offset+server_addr_len+1], '服务器地址', '',\
+    trans_res.add_row(m_list[offset: offset+server_addr_len+1], '服务器地址', 'SA',\
                     '逻辑地址[%s], %s[%s]'%(server_logic_addr, server_addr_type, server_addr), priority=0)
     offset += server_addr_len + 1
-    trans_res.add_row(m_list[offset: offset+1], '客户机地址', '', m_list[offset], priority=0)
+    trans_res.add_row(m_list[offset: offset+1], '客户机地址', 'CA', m_list[offset], priority=0)
     offset += 1
 
     # 帧头校验
