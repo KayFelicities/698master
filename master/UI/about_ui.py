@@ -18,13 +18,12 @@ class AboutWindow(QtGui.QDialog):
         self.setWindowIcon(QtGui.QIcon(os.path.join(config.SORTWARE_PATH, 'imgs/698.png')))
 
         self.head_img = QtGui.QLabel()
+        self.head_img.setText('<img src="{logopath}" height="70" width="70"></img>'\
+                            .format(logopath=os.path.join(config.SORTWARE_PATH, 'imgs/698.png')))
         self.head_ver = QtGui.QLabel()
-        about_img = '<img src="imgs/698.png" height="70" width="70"></img>'
-        about_ver = '<p style="font-family: 微软雅黑; font-size: 16px; float: right" align="center">\
-                        <b>698后台_{version}<br>{dt}</b></p>'\
-                        .format(version=config.SOFTWARE_VERSION, dt=config.SOFTWARE_DT)
-        self.head_img.setText(about_img)
-        self.head_ver.setText(about_ver)
+        self.head_ver.setText('<p style="font-family: 微软雅黑; font-size: 16px;" align="center">\
+                                <b>698后台_{version}<br>{dt}</b></p>'\
+                                .format(version=config.SOFTWARE_VERSION, dt=config.SOFTWARE_DT))
         self.head_hbox = QtGui.QHBoxLayout()
         self.head_hbox.addStretch(1)
         self.head_hbox.addWidget(self.head_img)

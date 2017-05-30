@@ -13,6 +13,7 @@ def main():
     config.ABOUT_WINDOW = AboutWindow()
     config.TRANS_WINDOW = TransWindow()
     config.TRANS_WINDOW.show()
+    print(config.SORTWARE_PATH)
     APP.exec_()
     os._exit(0)
 
