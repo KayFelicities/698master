@@ -1,11 +1,11 @@
 '''main'''
 import sys
 import os
-from UI.trans_ui2 import TransWindow
-from UI.about_ui import AboutWindow
-from UI.master_ui import MasterWindow
+from master.UI.trans_ui2 import TransWindow
+from master.UI.about_ui import AboutWindow
+from master.UI.master_ui import MasterWindow
 from PyQt4 import QtGui
-import config
+from master import config
 
 if __name__ == "__main__":
     APP = QtGui.QApplication(sys.argv)

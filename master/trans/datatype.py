@@ -1,5 +1,5 @@
 '''handle with 698 datatypes'''
-import trans.datas as database
+import master.trans.datas as database
 
 
 class TypeDo():

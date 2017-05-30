@@ -1,6 +1,6 @@
 '''handle with 698 service'''
-import trans.datatype as typedo
-import trans.datas as database
+import master.trans.datatype as typedo
+import master.trans.datas as database
 
 def take_applayer(m_list, trans_res):
     '''take_applayer'''

@@ -1,9 +1,9 @@
 '''translate 698 messages'''
 import traceback
-import trans.common as commonfun
-import trans.linklayer as linklayer_do
-import trans.service as applayer_do
-import config
+import master.trans.common as commonfun
+import master.trans.linklayer as linklayer_do
+import master.trans.service as applayer_do
+from master import config
 
 class Translate():
     '''translate class'''

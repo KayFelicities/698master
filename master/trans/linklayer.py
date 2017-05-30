@@ -1,6 +1,6 @@
 '''handle with 698 link layer'''
-import trans.common as commonfun
-import config
+import master.trans.common as commonfun
+from master import config
 
 def take_linklayer1(m_list, trans_res):
     '''translate linklayer'''

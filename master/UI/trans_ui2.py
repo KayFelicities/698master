@@ -6,7 +6,7 @@ from PyQt4 import QtCore
 from PyQt4 import QtGui
 from UI.trans_window2 import Ui_TransWindow
 from trans.translate import Translate
-import config
+from master import config
 import trans.common as commonfun
 
 

@@ -1,8 +1,7 @@
 '''master ui'''
-import config
+from master import config
 from PyQt4 import QtCore
 from PyQt4 import QtGui
-from UI.master_window import Ui_MasterWindow
 import traceback
 import time
 from commu import communication
@@ -11,7 +10,7 @@ from trans.translate import Translate
 from UI.dialog_ui import TransPopDialog
 
 
-class MasterWindow(QtGui.QMainWindow, QtGui.QWidget, Ui_MasterWindow):
+class MasterWindow(QtGui.QMainWindow):
     '''serial window'''
     receive_signal = QtCore.pyqtSignal(str, str)
     send_signal = QtCore.pyqtSignal(str, str)
@@ -34,6 +33,39 @@ class MasterWindow(QtGui.QMainWindow, QtGui.QWidget, Ui_MasterWindow):
         print("connect com1: " + ret)
 
         self.pop_dialog = TransPopDialog()
+
+
+    def setup_ui(self):
+        '''set layout'''
+        # self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+        self.setWindowTitle('详细解析')
+        self.message_box = QtGui.QTextEdit()
+        self.explain_box = QtGui.QTextEdit()
+        self.splitter = QtGui.QSplitter(QtCore.Qt.Vertical)
+        self.splitter.addWidget(self.message_box)
+        self.splitter.addWidget(self.explain_box)
+        self.splitter.setStretchFactor(0, 1)
+        self.splitter.setStretchFactor(1, 6)
+
+        self.always_top_cb = QtGui.QCheckBox()
+        self.always_top_cb.setChecked(True)
+        self.always_top_cb.setText('置顶')
+        self.show_level_cb = QtGui.QCheckBox()
+        self.show_level_cb.setChecked(True)
+        self.show_level_cb.setText('显示结构')
+        self.cb_hbox = QtGui.QHBoxLayout()
+        self.cb_hbox.addStretch(1)
+        self.cb_hbox.addWidget(self.always_top_cb)
+        self.cb_hbox.addWidget(self.show_level_cb)
+
+        self.main_vbox = QtGui.QVBoxLayout()
+        self.main_vbox.setMargin(1)
+        self.main_vbox.setSpacing(1)
+        self.main_vbox.addWidget(self.splitter)
+        self.main_vbox.addLayout(self.cb_hbox)
+        self.setLayout(self.main_vbox)
+        self.resize(500, 700)
+        self.setWindowIcon(QtGui.QIcon('img/698_o.png'))
 
 
     def create_tables(self):

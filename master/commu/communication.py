@@ -4,8 +4,8 @@ import threading
 import time
 import traceback
 import struct
-import config
-from trans import common
+from master import config
+from master.trans import common
 
 
 class Serial():
