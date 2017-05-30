@@ -1,38 +1,97 @@
-'''trans ui'''
+'''log files trans ui'''
 import re
 import os
+import sys
 import threading
-from PyQt4 import QtCore
-from PyQt4 import QtGui
-from master.UI.logfile_trans_window import Ui_TransWindow
+from PyQt4 import QtCore, QtGui
 from master.trans.translate import Translate
 from master import config
 import master.trans.common as commonfun
 
 
-class TransWindow(QtGui.QMainWindow, QtGui.QWidget, Ui_TransWindow):
+class TransWindow(QtGui.QMainWindow):
     '''translate window'''
     load_file = QtCore.pyqtSignal(str)
     set_progress = QtCore.pyqtSignal(int)
+
     def __init__(self):
         super(TransWindow, self).__init__()
-        self.setupUi(self)
+        self.setup_ui()
         self.setAcceptDrops(True)
-        self.proc_bar.setVisible(False)
-        self.setWindowTitle('698解析工具_' + config.SOFTWARE_VERSION + '(' + config.SOFTWARE_DT + ')')
         self.is_show_level = self.show_level_cb.isChecked()
         self.input_box.cursorPositionChanged.connect(self.cursor_changed)
         self.input_box.textChanged.connect(self.take_input_text)
-        self.clear_b.clicked.connect(self.clear_box)
+        self.clr_b.clicked.connect(self.clear_box)
         self.open_b.clicked.connect(self.openfile)
         self.show_level_cb.clicked.connect(self.set_level_visible)
         self.always_top_cb.clicked.connect(self.set_always_top)
-        self.about.triggered.connect(self.show_about_window)
+        self.about_action.triggered.connect(self.show_about_window)
         self.load_file.connect(self.load_text, QtCore.Qt.QueuedConnection)
         self.set_progress.connect(self.set_progressbar, QtCore.Qt.QueuedConnection)
 
         self.find_dict = []
         self.last_selection = (0, 0)
+
+
+    def setup_ui(self):
+        '''set layout'''
+        self.setWindowTitle('698日志解析工具_{ver}'.format(ver=config.WINDOWS_TITLE_ADD))
+        self.setWindowIcon(QtGui.QIcon(os.path.join(config.SORTWARE_PATH, 'imgs/698_o.png')))
+        self.menubar = self.menuBar()
+        self.about_action = QtGui.QAction('&关于', self)
+        self.help_menu = self.menubar.addMenu('&帮助')
+        self.help_menu.addAction(self.about_action)
+
+        self.open_b = QtGui.QPushButton()
+        self.open_b.setText('打开日志...')
+        self.open_b.setMinimumSize(QtCore.QSize(100, 0))
+        self.open_b.setSizePolicy(QtGui.QSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Fixed))
+        self.clr_b = QtGui.QPushButton()
+        self.clr_b.setText('清空')
+        self.btn_hbox = QtGui.QHBoxLayout()
+        self.btn_hbox.addWidget(self.open_b)
+        self.btn_hbox.addWidget(self.clr_b)
+
+        self.input_box = QtGui.QTextEdit()
+        self.output_box = QtGui.QTextEdit()
+        self.main_hsplitter = QtGui.QSplitter(QtCore.Qt.Horizontal)
+        self.main_hsplitter.addWidget(self.input_box)
+        self.main_hsplitter.addWidget(self.output_box)
+        self.main_hsplitter.setStretchFactor(0, 1)
+        self.main_hsplitter.setStretchFactor(1, 1)
+
+        self.show_level_cb = QtGui.QCheckBox()
+        self.show_level_cb.setChecked(True)
+        self.show_level_cb.setText('报文结构')
+        self.always_top_cb = QtGui.QCheckBox()
+        self.always_top_cb.setChecked(False)
+        self.always_top_cb.setText('置顶')
+        self.proc_bar = QtGui.QProgressBar()
+        self.proc_bar.setEnabled(True)
+        self.proc_bar.setMinimumSize(QtCore.QSize(200, 0))
+        self.proc_bar.setSizePolicy(QtGui.QSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Fixed))
+        self.proc_bar.setTextVisible(False)
+        self.proc_bar.setVisible(False)
+
+        self.proc_l = QtGui.QLabel()
+        self.proc_l.setText('就绪')
+        self.foot_hbox = QtGui.QHBoxLayout()
+        self.foot_hbox.addWidget(self.proc_bar)
+        self.foot_hbox.addWidget(self.proc_l)
+        self.foot_hbox.addStretch(1)
+        self.foot_hbox.addWidget(self.show_level_cb)
+        self.foot_hbox.addWidget(self.always_top_cb)
+
+        self.main_vbox = QtGui.QVBoxLayout()
+        self.main_vbox.setMargin(1)
+        self.main_vbox.setSpacing(1)
+        self.main_vbox.addLayout(self.btn_hbox)
+        self.main_vbox.addWidget(self.main_hsplitter)
+        self.main_vbox.addLayout(self.foot_hbox)
+        self.main_widget = QtGui.QWidget()
+        self.main_widget.setLayout(self.main_vbox)
+        self.setCentralWidget(self.main_widget)
+        self.resize(1000, 666)
 
 
     def dragEnterEvent(self, event):
@@ -188,14 +247,15 @@ class TransWindow(QtGui.QMainWindow, QtGui.QWidget, Ui_TransWindow):
         self.move(window_pos)
 
 
-    def calc_len_box(self):
-        '''calc_len_box'''
-        input_text = self.input_box.toPlainText()
-        input_len = commonfun.calc_len(input_text)
-        len_message = str(input_len) + '字节(' + str(hex(input_len)) + ')'
-        self.clear_b.setText('清空(' + len_message + ')')
-
-
     def show_about_window(self):
         '''show_about_window'''
         config.ABOUT_WINDOW.show()
+
+
+
+if __name__ == '__main__':
+    APP = QtGui.QApplication(sys.argv)
+    dialog = TransWindow()
+    dialog.show()
+    APP.exec_()
+    os._exit(0)

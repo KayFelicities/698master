@@ -1,7 +1,7 @@
 '''master app'''
 import sys
 import os
-from master.UI.logfile_trans_ui import TransWindow
+from master.UI.trans_ui import TransWindow
 from master.UI.about_ui import AboutWindow
 from master.UI.master_ui import MasterWindow
 from PyQt4 import QtGui

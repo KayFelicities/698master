@@ -1,7 +1,7 @@
 '''logfile translate'''
 import sys
 import os
-from master.UI.logfile_trans_ui import TransWindow
+from master.UI.trans_ui import TransWindow
 from master.UI.about_ui import AboutWindow
 from PyQt4 import QtGui
 from master import config
