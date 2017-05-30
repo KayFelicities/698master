@@ -1,31 +1,104 @@
 '''master ui'''
+import sys
+import os
 from master import config
-from PyQt4 import QtCore
-from PyQt4 import QtGui
+from PyQt4 import QtCore, QtGui
 import traceback
 import time
-from commu import communication
-from trans import common
-from trans.translate import Translate
-from UI.dialog_ui import TransPopDialog
+from master.commu import communication
+from master.trans import common
+from master.trans.translate import Translate
+from master.UI.dialog_ui import TransPopDialog
 
 
-class MasterWindow(QtGui.QMainWindow):
+class MasterWindowLayout(QtGui.QMainWindow):
+    '''master window layout'''
+    def setup_ui(self, master_window):
+        '''set layout'''
+        master_window.setWindowTitle('698后台_{ver}'.format(ver=config.WINDOWS_TITLE_ADD))
+        master_window.setWindowIcon(QtGui.QIcon(os.path.join(config.SORTWARE_PATH, 'imgs/698.png')))
+        self.menubar = self.menuBar()
+        self.about_action = QtGui.QAction('&关于', self)
+        self.help_menu = self.menubar.addMenu('&帮助')
+        self.help_menu.addAction(self.about_action)
+
+        self.test_b = QtGui.QPushButton()
+        self.test_b.setText('test')
+        self.test_b_2 = QtGui.QPushButton()
+        self.test_b_2.setText('test')
+        self.clr_b = QtGui.QPushButton()
+        self.clr_b.setText('清空')
+        self.btn_hbox = QtGui.QHBoxLayout()
+        self.btn_hbox.addWidget(self.test_b)
+        self.btn_hbox.addWidget(self.test_b_2)
+        self.btn_hbox.addWidget(self.clr_b)
+
+        self.tmn_table = QtGui.QTableWidget()
+        self.info_browser = QtGui.QTextBrowser()
+        self.msg_table = QtGui.QTableWidget()
+
+        self.left_vsplitter = QtGui.QSplitter(QtCore.Qt.Vertical)
+        self.left_vsplitter.addWidget(self.tmn_table)
+        self.left_vsplitter.addWidget(self.info_browser)
+        self.left_vsplitter.setStretchFactor(0, 1)
+        self.left_vsplitter.setStretchFactor(1, 1)
+
+        self.main_hsplitter = QtGui.QSplitter(QtCore.Qt.Horizontal)
+        self.main_hsplitter.addWidget(self.left_vsplitter)
+        self.main_hsplitter.addWidget(self.msg_table)
+        self.main_hsplitter.setStretchFactor(0, 1)
+        self.main_hsplitter.setStretchFactor(1, 3)
+
+        self.always_top_cb = QtGui.QCheckBox()
+        self.always_top_cb.setChecked(True)
+        self.always_top_cb.setText('置顶')
+        self.foot_hbox = QtGui.QHBoxLayout()
+        self.foot_hbox.addStretch(1)
+        self.foot_hbox.addWidget(self.always_top_cb)
+
+        self.main_vbox = QtGui.QVBoxLayout()
+        self.main_vbox.setMargin(1)
+        self.main_vbox.setSpacing(1)
+        self.main_vbox.addLayout(self.btn_hbox)
+        self.main_vbox.addWidget(self.main_hsplitter)
+        self.main_vbox.addLayout(self.foot_hbox)
+        self.main_widget = QtGui.QWidget()
+        self.main_widget.setLayout(self.main_vbox)
+        master_window.setCentralWidget(self.main_widget)
+        master_window.resize(1000, 666)
+
+        self.create_msg_tables()
+
+
+    def create_msg_tables(self):
+        '''create tables'''
+        for count in range(5):
+            self.msg_table.insertColumn(count)
+        self.msg_table.setHorizontalHeaderLabels(['时间', '终端', '通道/方向', '概览', '报文'])
+        self.msg_table.setColumnWidth(0, 130)
+        self.msg_table.setColumnWidth(1, 100)
+        self.msg_table.setColumnWidth(2, 60)
+        self.msg_table.setColumnWidth(3, 200)
+        self.msg_table.setColumnWidth(4, 340)
+
+
+class MasterWindow(MasterWindowLayout, QtGui.QMainWindow):
     '''serial window'''
     receive_signal = QtCore.pyqtSignal(str, str)
     send_signal = QtCore.pyqtSignal(str, str)
 
     def __init__(self):
         super(MasterWindow, self).__init__()
-        self.setupUi(self)
-        self.create_tables()
-        self.setWindowTitle('698后台' + config.WINDOWS_TITLE_ADD)
+        self.setup_ui(self)
+        self.msg_table.setHorizontalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
+        self.msg_table.setVerticalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
+        self.msg_table.setEditTriggers(QtGui.QTableWidget.NoEditTriggers) # 表格不可编辑
         self.receive_signal.connect(self.re_message)
         self.send_signal.connect(self.se_message)
         self.test_b.clicked.connect(self.test_b_down)
         self.test_b_2.clicked.connect(self.test_b_2_down)
-        self.mes_table.cellDoubleClicked.connect(self.trans_msg)
-        self.about_menu.triggered.connect(self.show_about_window)
+        self.msg_table.cellDoubleClicked.connect(self.trans_msg)
+        self.about_action.triggered.connect(self.show_about_window)
         self.always_top_cb.clicked.connect(self.set_always_top)
 
         self.commu = communication.Serial('COM1')
@@ -33,51 +106,6 @@ class MasterWindow(QtGui.QMainWindow):
         print("connect com1: " + ret)
 
         self.pop_dialog = TransPopDialog()
-
-
-    def setup_ui(self):
-        '''set layout'''
-        # self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
-        self.setWindowTitle('详细解析')
-        self.message_box = QtGui.QTextEdit()
-        self.explain_box = QtGui.QTextEdit()
-        self.splitter = QtGui.QSplitter(QtCore.Qt.Vertical)
-        self.splitter.addWidget(self.message_box)
-        self.splitter.addWidget(self.explain_box)
-        self.splitter.setStretchFactor(0, 1)
-        self.splitter.setStretchFactor(1, 6)
-
-        self.always_top_cb = QtGui.QCheckBox()
-        self.always_top_cb.setChecked(True)
-        self.always_top_cb.setText('置顶')
-        self.show_level_cb = QtGui.QCheckBox()
-        self.show_level_cb.setChecked(True)
-        self.show_level_cb.setText('显示结构')
-        self.cb_hbox = QtGui.QHBoxLayout()
-        self.cb_hbox.addStretch(1)
-        self.cb_hbox.addWidget(self.always_top_cb)
-        self.cb_hbox.addWidget(self.show_level_cb)
-
-        self.main_vbox = QtGui.QVBoxLayout()
-        self.main_vbox.setMargin(1)
-        self.main_vbox.setSpacing(1)
-        self.main_vbox.addWidget(self.splitter)
-        self.main_vbox.addLayout(self.cb_hbox)
-        self.setLayout(self.main_vbox)
-        self.resize(500, 700)
-        self.setWindowIcon(QtGui.QIcon('img/698_o.png'))
-
-
-    def create_tables(self):
-        '''create tables'''
-        for count in range(5):
-            self.mes_table.insertColumn(count)
-        self.mes_table.setHorizontalHeaderLabels(['时间', '终端', '通道/方向', '概览', '报文'])
-        self.mes_table.setColumnWidth(0, 130)
-        self.mes_table.setColumnWidth(1, 100)
-        self.mes_table.setColumnWidth(2, 60)
-        self.mes_table.setColumnWidth(3, 200)
-        self.mes_table.setColumnWidth(4, 340)
 
 
     def re_message(self, re_text, channel):
@@ -103,30 +131,30 @@ class MasterWindow(QtGui.QMainWindow):
         server_addr = trans.get_SA()
         text_color = QtGui.QColor(220, 226, 241) if direction == '→' else\
                     QtGui.QColor(227, 237, 205) if direction == '←' else QtGui.QColor(255, 255, 255)
-        row_pos = self.mes_table.rowCount()
-        self.mes_table.insertRow(row_pos)
+        row_pos = self.msg_table.rowCount()
+        self.msg_table.insertRow(row_pos)
 
         item = QtGui.QTableWidgetItem(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
         # item.setBackgroundColor(text_color)
-        self.mes_table.setItem(row_pos, 0, item)
+        self.msg_table.setItem(row_pos, 0, item)
 
         item = QtGui.QTableWidgetItem(server_addr)
         # item.setBackgroundColor(text_color)
-        self.mes_table.setItem(row_pos, 1, item)
+        self.msg_table.setItem(row_pos, 1, item)
 
         item = QtGui.QTableWidgetItem(channel + direction)
         item.setBackgroundColor(text_color)
-        self.mes_table.setItem(row_pos, 2, item)
+        self.msg_table.setItem(row_pos, 2, item)
 
         item = QtGui.QTableWidgetItem(brief)
         # item.setBackgroundColor(text_color)
-        self.mes_table.setItem(row_pos, 3, item)
+        self.msg_table.setItem(row_pos, 3, item)
 
         item = QtGui.QTableWidgetItem(common.format_text(m_text))
         # item.setBackgroundColor(text_color)
-        self.mes_table.setItem(row_pos, 4, item)
+        self.msg_table.setItem(row_pos, 4, item)
 
-        self.mes_table.scrollToBottom()
+        self.msg_table.scrollToBottom()
 
 
     def test_b_down(self):
@@ -147,7 +175,7 @@ class MasterWindow(QtGui.QMainWindow):
 
     def trans_msg(self, row):
         '''translate massage'''
-        self.pop_dialog.message_box.setText(self.mes_table.item(row, 4).text())
+        self.pop_dialog.message_box.setText(self.msg_table.item(row, 4).text())
         self.pop_dialog.show()
         self.pop_dialog.activateWindow()
 
@@ -167,3 +195,11 @@ class MasterWindow(QtGui.QMainWindow):
         '''show_about_window'''
         config.ABOUT_WINDOW.show()
         # config.TRANS_WINDOW.show()
+
+
+if __name__ == '__main__':
+    APP = QtGui.QApplication(sys.argv)
+    dialog = MasterWindow()
+    dialog.show()
+    APP.exec_()
+    os._exit(0)

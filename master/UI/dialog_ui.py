@@ -3,6 +3,7 @@ import sys
 import os
 from PyQt4 import QtGui, QtCore
 from master.trans import translate
+from master import config
 
 
 class TransPopDialog(QtGui.QDialog):
@@ -21,7 +22,7 @@ class TransPopDialog(QtGui.QDialog):
         '''set layout'''
         # self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         self.setWindowTitle('详细解析')
-        self.setWindowIcon(QtGui.QIcon('img/698_o.png'))
+        self.setWindowIcon(QtGui.QIcon(os.path.join(config.SORTWARE_PATH, 'imgs/698_o.png')))
         self.message_box = QtGui.QTextEdit()
         self.explain_box = QtGui.QTextEdit()
         self.splitter = QtGui.QSplitter(QtCore.Qt.Vertical)
@@ -77,5 +78,3 @@ if __name__ == '__main__':
     dialog.show()
     APP.exec_()
     os._exit(0)
-
-

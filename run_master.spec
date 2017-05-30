@@ -3,10 +3,10 @@
 block_cipher = None
 
 
-a = Analysis(['__main__.py'],
+a = Analysis(['run_master.py'],
              pathex=[],
              binaries=[],
-             datas =[],
+             datas=[('imgs\\698_o.png', 'imgs'), ('imgs\\698.png', 'imgs'), ('docs\\dev_log.html', 'docs')],
              hiddenimports=[],
              hookspath=[],
              runtime_hooks=[],
@@ -21,8 +21,9 @@ exe = EXE(pyz,
           a.binaries,
           a.zipfiles,
           a.datas,
-          name='698',
+          name='698master',
           debug=False,
           strip=False,
           upx=True,
-          console=False , icon='UI\\698.ico')
+          console=False ,
+          icon='imgs\\698.ico')

@@ -4,10 +4,10 @@ import os
 import threading
 from PyQt4 import QtCore
 from PyQt4 import QtGui
-from UI.trans_window2 import Ui_TransWindow
-from trans.translate import Translate
+from master.UI.logfile_trans_window import Ui_TransWindow
+from master.trans.translate import Translate
 from master import config
-import trans.common as commonfun
+import master.trans.common as commonfun
 
 
 class TransWindow(QtGui.QMainWindow, QtGui.QWidget, Ui_TransWindow):

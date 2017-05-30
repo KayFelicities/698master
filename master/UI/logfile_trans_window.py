@@ -327,4 +327,4 @@ class Ui_TransWindow(object):
         self.menu.setTitle(_translate("TransWindow", "帮助", None))
         self.about.setText(_translate("TransWindow", "关于", None))
 
-import UI.icon_rc
+import master.UI.icon_rc
