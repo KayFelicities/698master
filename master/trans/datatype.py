@@ -77,7 +77,7 @@ class TypeDo():
     def take_DAR(self, m_list, brief='', depth=0):
         '''take_DAR'''
         offset = 0
-        explain = database.DAR.get(str(int(m_list[0], 16)), '无效DAR')
+        explain = database.DAR.get(int(m_list[0], 16), '无效DAR')
         offset += 1
         self.trans_res.add_row(m_list[:offset], brief, 'DAR', explain, depth=depth)
         return offset
@@ -251,7 +251,7 @@ class TypeDo():
         '''take_double_long'''
         offset = 0
         if int(m_list[offset], 16) >> 7 == 1:  # 负数
-            value = (int(''.join(m_list[offset : offset + 4]), 16) & 0x7fffffff) * (-1)
+            value = -(0x100000000 - int(''.join(m_list[offset : offset + 4]), 16))
         else:
             value = int(''.join(m_list[offset: offset + 4]), 16)
         offset += 4
@@ -316,7 +316,7 @@ class TypeDo():
         '''take_integer'''
         offset = 0
         if int(m_list[offset], 16) >> 7 == 1:  # 负数
-            value = (int(m_list[offset], 16) & 0x7f) * (-1)
+            value = -(0x100 - int(m_list[offset], 16))
         else:
             value = int(m_list[offset], 16)
         offset += 1
@@ -328,7 +328,7 @@ class TypeDo():
         '''take_long'''
         offset = 0
         if int(m_list[offset], 16) >> 7 == 1:  # 负数
-            value = int(str(int(m_list[offset], 16) & 0x7f) + m_list[offset + 1], 16) * (-1)
+            value = -(0x10000 - int(m_list[offset] + m_list[offset + 1], 16))
         else:
             value = int(m_list[offset] + m_list[offset + 1], 16)
         offset += 2
@@ -358,8 +358,7 @@ class TypeDo():
         '''take_long64'''
         offset = 0
         if int(m_list[offset], 16) >> 7 == 1:  # 负数
-            value = int(str(int(m_list[offset], 16) & 0x7f\
-                        + ''.join(m_list[offset + 1 : offset + 8]), 16) * (-1))
+            value = -(0x10000000000000000 - int(''.join(m_list[offset : offset + 8]), 16))
         else:
             value = int(''.join(m_list[offset : offset + 8]), 16)
         offset += 8
@@ -391,7 +390,7 @@ class TypeDo():
         '''take_float32, Kay check!'''
         offset = 0
         if int(m_list[offset], 16) >> 7 == 1:  # 负数
-            value = (int(''.join(m_list[offset : offset + 4]), 16) & 0x7fffffff) * (-1)
+            value = -(0x100000000 - int(''.join(m_list[offset : offset + 4]), 16))
         else:
             value = int(''.join(m_list[offset : offset + 4]), 16)
         offset += 4
@@ -403,8 +402,7 @@ class TypeDo():
         '''take_float64'''
         offset = 0
         if int(m_list[offset], 16) >> 7 == 1:  # 负数
-            value = int(str(int(m_list[offset], 16) & 0x7f)\
-                    + ''.join(m_list[offset + 1 : offset + 8]), 16) * (-1)
+            value = -(0x10000000000000000 - int(''.join(m_list[offset : offset + 8]), 16))
         else:
             value = int(''.join(m_list[offset : offset + 8]), 16)
         offset += 8
@@ -591,8 +589,15 @@ class TypeDo():
     def take_Scaler_Unit(self, m_list, brief='', depth=0):
         '''take_Scaler_Unit'''
         offset = 0
-        offset += self.take_integer(m_list[offset:], '换算', depth=depth)
-        offset += self.take_enum(m_list[offset:], '单位', depth=depth)
+        if int(m_list[offset], 16) >> 7 == 1:  # 负数
+            value = -(0x100 - int(m_list[offset], 16))
+        else:
+            value = int(m_list[offset], 16)
+        offset += 1
+
+        unit = database.UNIT.get(int(m_list[offset], 16), '无效单位')
+        offset += 1
+        self.trans_res.add_row(m_list[:offset], brief, 'Scaler_Unit', value, unit=unit, depth=depth)
         return offset
 
 

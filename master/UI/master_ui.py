@@ -108,6 +108,10 @@ class MasterWindow(MasterWindowLayout, QtGui.QMainWindow):
         self.pop_dialog = TransPopDialog()
 
 
+    def open_serial(self):
+        '''open serial'''
+
+
     def re_message(self, re_text, channel):
         '''recieve text'''
         self.add_mes_row(re_text, channel)
