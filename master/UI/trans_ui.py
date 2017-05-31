@@ -226,6 +226,8 @@ class TransWindow(QtGui.QMainWindow):
 
     def clear_box(self):
         '''clear_box'''
+        self.input_box.setText('')
+        self.output_box.setText('')
         self.input_box.setFocus()
 
 

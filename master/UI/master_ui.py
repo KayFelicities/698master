@@ -11,12 +11,45 @@ from master.trans.translate import Translate
 from master.UI.dialog_ui import TransPopDialog
 
 
-class MasterWindowLayout(QtGui.QMainWindow):
-    '''master window layout'''
+class MasterWindow(QtGui.QMainWindow):
+    '''serial window'''
+    receive_signal = QtCore.pyqtSignal(str, str)
+    send_signal = QtCore.pyqtSignal(str, str)
+
+    def __init__(self):
+        super(MasterWindow, self).__init__()
+        self.setup_ui(self)
+        self.msg_table.setHorizontalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
+        self.msg_table.setVerticalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
+        self.msg_table.setEditTriggers(QtGui.QTableWidget.NoEditTriggers) # 表格不可编辑
+        self.receive_signal.connect(self.re_msg_do)
+        self.send_signal.connect(self.se_msg_do)
+
+        self.serial_combo.addItems(communication.serial_com_scan())
+        self.serial_link_b.clicked.connect(self.connect_serial)
+        self.serial_cut_b.clicked.connect(self.cut_serial)
+        self.frontend_link_b.clicked.connect(self.connect_frontend)
+        self.frontend_cut_b.clicked.connect(self.cut_frontend)
+        self.server_link_b.clicked.connect(self.connect_server)
+        self.server_cut_b.clicked.connect(self.cut_server)
+
+        self.test_b.clicked.connect(self.test_b_down)
+        self.clr_b.clicked.connect(self.clr_table)
+        self.msg_table.cellDoubleClicked.connect(self.trans_msg)
+        self.about_action.triggered.connect(self.show_about_window)
+        self.always_top_cb.clicked.connect(self.set_always_top)
+
+        self.pop_dialog = TransPopDialog()
+
+        self.serial_handle = None
+        self.frontend_handle = None
+        self.server_handle = None
+
+
     def setup_ui(self, master_window):
         '''set layout'''
-        master_window.setWindowTitle('698后台_{ver}'.format(ver=config.WINDOWS_TITLE_ADD))
-        master_window.setWindowIcon(QtGui.QIcon(os.path.join(config.SORTWARE_PATH, 'imgs/698.png')))
+        self.setWindowTitle('698后台_{ver}'.format(ver=config.WINDOWS_TITLE_ADD))
+        self.setWindowIcon(QtGui.QIcon(os.path.join(config.SORTWARE_PATH, 'imgs/698.png')))
         self.menubar = self.menuBar()
         self.about_action = QtGui.QAction('&关于', self)
         self.help_menu = self.menubar.addMenu('&帮助')
@@ -34,12 +67,69 @@ class MasterWindowLayout(QtGui.QMainWindow):
         self.btn_hbox.addWidget(self.clr_b)
 
         self.tmn_table = QtGui.QTableWidget()
-        self.info_browser = QtGui.QTextBrowser()
+
+        self.serial_label = QtGui.QLabel()
+        self.serial_label.setText('串口：')
+        self.serial_combo = QtGui.QComboBox()
+        self.serial_link_b = QtGui.QPushButton()
+        self.serial_link_b.setMaximumWidth(50)
+        self.serial_link_b.setText('连接')
+        self.serial_cut_b = QtGui.QPushButton()
+        self.serial_cut_b.setMaximumWidth(50)
+        self.serial_cut_b.setText('刷新')
+        self.frontend_label = QtGui.QLabel()
+        self.frontend_label.setText('前置机：')
+        self.frontend_box = QtGui.QLineEdit()
+        self.frontend_box.setText('121.40.80.159:20084')
+        self.frontend_link_b = QtGui.QPushButton()
+        self.frontend_link_b.setMaximumWidth(50)
+        self.frontend_link_b.setText('连接')
+        self.frontend_cut_b = QtGui.QPushButton()
+        self.frontend_cut_b.setMaximumWidth(50)
+        self.frontend_cut_b.setText('断开')
+        self.server_label = QtGui.QLabel()
+        self.server_label.setText('服务器：')
+        self.server_box = QtGui.QLineEdit()
+        self.server_box.setText('20083')
+        self.server_link_b = QtGui.QPushButton()
+        self.server_link_b.setMaximumWidth(50)
+        self.server_link_b.setText('启动')
+        self.server_cut_b = QtGui.QPushButton()
+        self.server_cut_b.setMaximumWidth(50)
+        self.server_cut_b.setText('停止')
+        self.commu_panel_w = QtGui.QWidget()
+        self.commu_panel_w.setMinimumHeight(200)
+        self.commu_panel_gbox = QtGui.QGridLayout(self.commu_panel_w)
+        self.commu_panel_gbox.setMargin(1)
+        self.commu_panel_gbox.setSpacing(3)
+        self.commu_panel_gbox.addWidget(self.serial_label, 0, 0)
+        self.commu_panel_gbox.addWidget(self.serial_combo, 1, 0)
+        self.commu_panel_gbox.addWidget(self.serial_link_b, 1, 1)
+        self.commu_panel_gbox.addWidget(self.serial_cut_b, 1, 2)
+        self.commu_panel_gbox.addWidget(self.frontend_label, 3, 0)
+        self.commu_panel_gbox.addWidget(self.frontend_box, 4, 0)
+        self.commu_panel_gbox.addWidget(self.frontend_link_b, 4, 1)
+        self.commu_panel_gbox.addWidget(self.frontend_cut_b, 4, 2)
+        self.commu_panel_gbox.addWidget(self.server_label, 6, 0)
+        self.commu_panel_gbox.addWidget(self.server_box, 7, 0)
+        self.commu_panel_gbox.addWidget(self.server_link_b, 7, 1)
+        self.commu_panel_gbox.addWidget(self.server_cut_b, 7, 2)
+        self.commu_panel_area = QtGui.QScrollArea()
+        self.commu_panel_area.setWidget(self.commu_panel_w)
+
         self.msg_table = QtGui.QTableWidget()
+        for count in range(5):
+            self.msg_table.insertColumn(count)
+        self.msg_table.setHorizontalHeaderLabels(['时间', '终端', '通道/方向', '概览', '报文'])
+        self.msg_table.setColumnWidth(0, 130)
+        self.msg_table.setColumnWidth(1, 100)
+        self.msg_table.setColumnWidth(2, 60)
+        self.msg_table.setColumnWidth(3, 200)
+        self.msg_table.setColumnWidth(4, 340)
 
         self.left_vsplitter = QtGui.QSplitter(QtCore.Qt.Vertical)
         self.left_vsplitter.addWidget(self.tmn_table)
-        self.left_vsplitter.addWidget(self.info_browser)
+        self.left_vsplitter.addWidget(self.commu_panel_area)
         self.left_vsplitter.setStretchFactor(0, 1)
         self.left_vsplitter.setStretchFactor(1, 1)
 
@@ -64,70 +154,81 @@ class MasterWindowLayout(QtGui.QMainWindow):
         self.main_vbox.addLayout(self.foot_hbox)
         self.main_widget = QtGui.QWidget()
         self.main_widget.setLayout(self.main_vbox)
-        master_window.setCentralWidget(self.main_widget)
-        master_window.resize(1000, 666)
-
-        self.create_msg_tables()
+        self.setCentralWidget(self.main_widget)
+        self.resize(1000, 666)
 
 
-    def create_msg_tables(self):
-        '''create tables'''
-        for count in range(5):
-            self.msg_table.insertColumn(count)
-        self.msg_table.setHorizontalHeaderLabels(['时间', '终端', '通道/方向', '概览', '报文'])
-        self.msg_table.setColumnWidth(0, 130)
-        self.msg_table.setColumnWidth(1, 100)
-        self.msg_table.setColumnWidth(2, 60)
-        self.msg_table.setColumnWidth(3, 200)
-        self.msg_table.setColumnWidth(4, 340)
-
-
-class MasterWindow(MasterWindowLayout, QtGui.QMainWindow):
-    '''serial window'''
-    receive_signal = QtCore.pyqtSignal(str, str)
-    send_signal = QtCore.pyqtSignal(str, str)
-
-    def __init__(self):
-        super(MasterWindow, self).__init__()
-        self.setup_ui(self)
-        self.msg_table.setHorizontalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
-        self.msg_table.setVerticalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
-        self.msg_table.setEditTriggers(QtGui.QTableWidget.NoEditTriggers) # 表格不可编辑
-        self.receive_signal.connect(self.re_message)
-        self.send_signal.connect(self.se_message)
-        self.test_b.clicked.connect(self.test_b_down)
-        self.test_b_2.clicked.connect(self.test_b_2_down)
-        self.msg_table.cellDoubleClicked.connect(self.trans_msg)
-        self.about_action.triggered.connect(self.show_about_window)
-        self.always_top_cb.clicked.connect(self.set_always_top)
-
-        self.commu = communication.Serial('COM1')
-        ret = self.commu.connect()
-        print("connect com1: " + ret)
-
-        self.pop_dialog = TransPopDialog()
-
-
-    def open_serial(self):
+    def connect_serial(self):
         '''open serial'''
+        serial_com = self.serial_combo.currentText()
+        self.serial_handle = communication.Serial(serial_com)
+        if self.serial_handle.connect() == 'ok':
+            self.serial_link_b.setText('已连接')
+            self.serial_link_b.setEnabled(False)
+            self.serial_combo.setEnabled(False)
+            self.serial_cut_b.setText('断开')
 
 
-    def re_message(self, re_text, channel):
+    def cut_serial(self):
+        '''close serial'''
+        if self.serial_link_b.isEnabled() is False:
+            if self.serial_handle.disconnect() == 'ok':
+                self.serial_link_b.setText('连接')
+                self.serial_link_b.setEnabled(True)
+                self.serial_combo.setEnabled(True)
+                self.serial_cut_b.setText('刷新')
+        else:
+            self.serial_combo.clear()
+            self.serial_combo.addItems(communication.serial_com_scan())
+
+
+    def connect_frontend(self):
+        '''open frontend'''
+        frontend_addr = self.frontend_box.text().replace(' ', '')
+        self.frontend_handle = communication.Frontend(frontend_addr)
+        if self.frontend_handle.connect() == 'ok':
+            self.frontend_link_b.setText('已连接')
+            self.frontend_link_b.setEnabled(False)
+            self.frontend_box.setEnabled(False)
+
+
+    def cut_frontend(self):
+        '''close frontend'''
+        if self.frontend_handle.disconnect() == 'ok':
+            self.frontend_link_b.setText('连接')
+            self.frontend_link_b.setEnabled(True)
+            self.frontend_box.setEnabled(True)
+
+
+    def connect_server(self):
+        '''open server'''
+        server_port = self.server_box.text().replace(' ', '')
+        self.server_handle = communication.Server(int(server_port))
+        if self.server_handle.start() == 'ok':
+            self.server_link_b.setText('已启动')
+            self.server_link_b.setEnabled(False)
+            self.server_box.setEnabled(False)
+
+
+    def cut_server(self):
+        '''close server'''
+        if self.server_handle.stop() == 'ok':
+            self.server_link_b.setText('启动')
+            self.server_link_b.setEnabled(True)
+            self.server_box.setEnabled(True)
+
+
+    def re_msg_do(self, re_text, channel):
         '''recieve text'''
-        self.add_mes_row(re_text, channel)
+        self.add_msg_row(re_text, channel)
 
 
-    def se_message(self, re_text, channel):
+    def se_msg_do(self, re_text, channel):
         '''recieve text'''
-        self.add_mes_row(re_text, channel)
+        self.add_msg_row(re_text, channel)
 
 
-    def send_mess(self, se_text):
-        '''test'''
-        self.commu.send_mes(se_text)
-
-
-    def add_mes_row(self, m_text, channel):
+    def add_msg_row(self, m_text, channel):
         '''add message row'''
         trans = Translate(m_text)
         brief = trans.get_brief()
@@ -164,17 +265,12 @@ class MasterWindow(MasterWindowLayout, QtGui.QMainWindow):
     def test_b_down(self):
         '''test'''
         test_text = '682100434FAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA10CC1C05010140000200007D1B16'
-        self.send_mess(test_text)
-
-    def test_b_2_down(self):
-        '''test'''
-        test_text = '68 7E 00 C3 03 01 00 00 00 10 31 7A 85 02 01 03 45 00 02 00 01 02 0C\
-                     16 00 16 00 16 00 16 00 01 00 0A 06 74 65 73 74 31 32 0A 06 75 73 65\
-                     72 31 32 0A 05 70 77 31 32 33 09 04 00 00 00 00 12 01 00 11 FC 12 01\
-                     2C 45 00 03 00 01 01 01 02 02 09 04 79 28 50 9F 12 4E 73 45 00 04 00\
-                     01 02 03 0A 06 01 02 03 04 05 06 01 01 0A 06 01 02 03 04 05 06 01 01\
-                     0A 06 05 06 07 04 05 06 00 00 DC F5 16'
-        self.send_mess(test_text)
+        if self.serial_handle:
+            self.serial_handle.send_msg(test_text)
+        if self.frontend_handle:
+            self.frontend_handle.send_msg(test_text)
+        if self.server_handle:
+            self.server_handle.send_msg(test_text)
 
 
     def trans_msg(self, row):
@@ -182,6 +278,12 @@ class MasterWindow(MasterWindowLayout, QtGui.QMainWindow):
         self.pop_dialog.message_box.setText(self.msg_table.item(row, 4).text())
         self.pop_dialog.show()
         self.pop_dialog.activateWindow()
+
+
+    def clr_table(self):
+        '''clear table widget'''
+        self.msg_table.setRowCount(0)
+
 
     def set_always_top(self):
         '''set_always_top'''

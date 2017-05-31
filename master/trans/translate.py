@@ -75,7 +75,7 @@ class Translate():
         depth0_list = [row for row in self.res_list if row['depth'] == 0]
         service_type = commonfun.list2text(list(filter(lambda row: row['dtype'] == 'service'\
                                                         , depth0_list))[0]['m_list'])
-        if service_type[0] in ['0', '1']:
+        if service_type[0] in ['0', '1'] and service_type != '01':
             return '→'
         else:
             return '←'

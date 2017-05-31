@@ -3,17 +3,13 @@ import os
 import sys
 
 
-SOFTWARE_VERSION = 'V5.0Beta1'
+SOFTWARE_VERSION = 'V5.0Beta2'
 SOFTWARE_DT = '2017.05'
 WINDOWS_TITLE_ADD = '_%s(%s)'%(SOFTWARE_VERSION, SOFTWARE_DT)
 
 TRANS_WINDOW = None
 ABOUT_WINDOW = None
 MASTER_WINDOW = None
-
-GOOD_L = None
-GOOD_HCS = None
-GOOD_FCS = None
 
 if getattr(sys, 'frozen', False):
     SORTWARE_PATH = sys._MEIPASS
