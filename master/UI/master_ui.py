@@ -8,7 +8,7 @@ import time
 from master.commu import communication
 from master.trans import common
 from master.trans.translate import Translate
-from master.UI.dialog_ui import TransPopDialog, CommuDialog
+from master.UI import dialog_ui
 
 
 class MasterWindow(QtGui.QMainWindow):
@@ -19,6 +19,7 @@ class MasterWindow(QtGui.QMainWindow):
     def __init__(self):
         super(MasterWindow, self).__init__()
         self.setup_ui(self)
+        self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint if self.always_top_cb.isChecked() else QtCore.Qt.Widget)
         self.receive_signal.connect(self.re_msg_do)
         self.send_signal.connect(self.se_msg_do)
 
@@ -27,10 +28,12 @@ class MasterWindow(QtGui.QMainWindow):
         self.msg_table.cellDoubleClicked.connect(self.trans_msg)
         self.about_action.triggered.connect(self.show_about_window)
         self.link_action.triggered.connect(self.show_commu_window)
+        self.msg_diy_action.triggered.connect(self.show_msg_diy_window)
         self.always_top_cb.clicked.connect(self.set_always_top)
 
-        self.pop_dialog = TransPopDialog()
-        self.commu_dialog = CommuDialog()
+        self.pop_dialog = dialog_ui.TransPopDialog()
+        self.commu_dialog = dialog_ui.CommuDialog()
+        self.msg_diy_dialog = dialog_ui.MsgDiyDialog()
 
         config.COMMU = communication.CommuPanel()
 
@@ -44,8 +47,12 @@ class MasterWindow(QtGui.QMainWindow):
         self.about_action = QtGui.QAction('&关于', self)
         self.link_action = QtGui.QAction('&通信设置', self)
         self.link_action.setShortcut('F1')
+        self.msg_diy_action = QtGui.QAction('&自定义报文', self)
+        self.msg_diy_action.setShortcut('F2')
         self.commu_menu = self.menubar.addMenu('&通信')
         self.commu_menu.addAction(self.link_action)
+        self.msg_menu = self.menubar.addMenu('&报文')
+        self.msg_menu.addAction(self.msg_diy_action)
         self.help_menu = self.menubar.addMenu('&帮助')
         self.help_menu.addAction(self.about_action)
 
@@ -98,7 +105,6 @@ class MasterWindow(QtGui.QMainWindow):
         self.main_hsplitter.setStretchFactor(1, 3)
 
         self.always_top_cb = QtGui.QCheckBox()
-        self.always_top_cb.setChecked(True)
         self.always_top_cb.setText('置顶')
         self.foot_hbox = QtGui.QHBoxLayout()
         self.foot_hbox.addStretch(1)
@@ -195,7 +201,7 @@ class MasterWindow(QtGui.QMainWindow):
 
     def trans_msg(self, row):
         '''translate massage'''
-        self.pop_dialog.message_box.setText(self.msg_table.item(row, 4).text())
+        self.pop_dialog.msg_box.setText(self.msg_table.item(row, 4).text())
         self.pop_dialog.show()
         self.pop_dialog.activateWindow()
 
@@ -226,6 +232,12 @@ class MasterWindow(QtGui.QMainWindow):
     def show_commu_window(self):
         '''show_commu_window'''
         self.commu_dialog.show()
+        # config.TRANS_WINDOW.show()
+
+
+    def show_msg_diy_window(self):
+        '''msg_diy_dialog'''
+        self.msg_diy_dialog.show()
         # config.TRANS_WINDOW.show()
 
 

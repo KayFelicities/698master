@@ -2,6 +2,7 @@
 import master.trans.common as commonfun
 from master import config
 
+
 def take_linklayer1(m_list, trans_res):
     '''translate linklayer'''
     offset = 0
@@ -87,6 +88,7 @@ def take_linklayer1(m_list, trans_res):
         offset += 2
     return offset
 
+
 def take_linklayer2(m_list, offset, trans_res):
     '''take_linklayer2'''
     offset_temp = offset
@@ -103,3 +105,24 @@ def take_linklayer2(m_list, offset, trans_res):
     trans_res.add_row(m_list[offset: offset+1], '结束符', value=16, priority=0)
     offset += 1
     return offset - offset_temp
+
+
+def add_linkLayer(m_list, CA_text='00', SA_text='00000001', logic_addr=0, C_text='43'):
+    '''add linklayer'''
+    SA_list = commonfun.text2list(SA_text)
+    SA_list.reverse()  # 小端
+    SA_text = ''.join(SA_list)
+    if len(SA_text) % 2 == 1:
+        SA_text += '0'
+    L_text = '{0:04X}'.format(len(SA_text) // 2 + 9 + len(m_list))
+    L_text = L_text[2:4] + L_text[0:2]
+    SA_param_text = '{0:02X}'.format((len(SA_text) // 2 - 1) | ((logic_addr & 0x03) << 4))
+    hcs_clac_aera_text = L_text + C_text + SA_param_text + SA_text + CA_text
+    hcs_calc = commonfun.get_fcs(commonfun.text2list(hcs_clac_aera_text))
+    hcs_calc = ((hcs_calc << 8) | (hcs_calc >> 8)) & 0xffff  # 低位在前
+    fcs_calc_aera_text = hcs_clac_aera_text + '{0:04X}'.format(hcs_calc) + commonfun.list2text(m_list)
+    fcs_calc = commonfun.get_fcs(commonfun.text2list(fcs_calc_aera_text))
+    fcs_calc = ((fcs_calc << 8) | (fcs_calc >> 8)) & 0xffff  # 低位在前
+
+    return commonfun.format_text('68' + fcs_calc_aera_text + '{0:04X}'.format(fcs_calc) + '16')
+
