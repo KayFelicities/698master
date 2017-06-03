@@ -4,12 +4,12 @@ import os
 from PyQt4 import QtGui, QtCore
 from master.trans import translate
 from master import config
+from master.commu import communication
 
 
 class TransPopDialog(QtGui.QDialog):
     '''translate window'''
     def __init__(self):
-        # QtGui.QDialog.__init__(self, parent)
         super(TransPopDialog, self).__init__()
         self.setup_ui()
         self.message_box.textChanged.connect(self.trans_msg)
@@ -72,9 +72,137 @@ class TransPopDialog(QtGui.QDialog):
         self.move(window_pos)
 
 
+class CommuDialog(QtGui.QDialog):
+    '''communication config window'''
+    def __init__(self):
+        super(CommuDialog, self).__init__()
+        self.setup_ui()
+        self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
+        # self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+
+        self.serial_combo.addItems(communication.serial_com_scan())
+        self.serial_link_b.clicked.connect(self.connect_serial)
+        self.serial_cut_b.clicked.connect(self.cut_serial)
+        self.frontend_link_b.clicked.connect(self.connect_frontend)
+        self.frontend_cut_b.clicked.connect(self.cut_frontend)
+        self.server_link_b.clicked.connect(self.connect_server)
+        self.server_cut_b.clicked.connect(self.cut_server)
+
+
+    def setup_ui(self):
+        '''set layout'''
+        self.setWindowTitle('通信控制面板')
+        self.setWindowIcon(QtGui.QIcon(os.path.join(config.SORTWARE_PATH, 'imgs/698_o.png')))
+        self.serial_label = QtGui.QLabel()
+        self.serial_label.setText('串口：')
+        self.serial_combo = QtGui.QComboBox()
+        self.serial_link_b = QtGui.QPushButton()
+        self.serial_link_b.setMaximumWidth(50)
+        self.serial_link_b.setText('连接')
+        self.serial_cut_b = QtGui.QPushButton()
+        self.serial_cut_b.setMaximumWidth(50)
+        self.serial_cut_b.setText('刷新')
+        self.frontend_label = QtGui.QLabel()
+        self.frontend_label.setText('前置机：')
+        self.frontend_box = QtGui.QLineEdit()
+        self.frontend_box.setText('121.40.80.159:20084')
+        self.frontend_link_b = QtGui.QPushButton()
+        self.frontend_link_b.setMaximumWidth(50)
+        self.frontend_link_b.setText('连接')
+        self.frontend_cut_b = QtGui.QPushButton()
+        self.frontend_cut_b.setMaximumWidth(50)
+        self.frontend_cut_b.setText('断开')
+        self.server_label = QtGui.QLabel()
+        self.server_label.setText('服务器：')
+        self.server_box = QtGui.QLineEdit()
+        self.server_box.setText('20083')
+        self.server_link_b = QtGui.QPushButton()
+        self.server_link_b.setMaximumWidth(50)
+        self.server_link_b.setText('启动')
+        self.server_cut_b = QtGui.QPushButton()
+        self.server_cut_b.setMaximumWidth(50)
+        self.server_cut_b.setText('停止')
+        self.dummy_l = QtGui.QLabel()
+        self.commu_panel_gbox = QtGui.QGridLayout()
+        self.commu_panel_gbox.setMargin(15)
+        self.commu_panel_gbox.setSpacing(3)
+        self.commu_panel_gbox.addWidget(self.serial_label, 0, 0)
+        self.commu_panel_gbox.addWidget(self.serial_combo, 1, 0)
+        self.commu_panel_gbox.addWidget(self.serial_link_b, 1, 1)
+        self.commu_panel_gbox.addWidget(self.serial_cut_b, 1, 2)
+        self.commu_panel_gbox.addWidget(self.dummy_l, 2, 0)
+        self.commu_panel_gbox.addWidget(self.frontend_label, 3, 0)
+        self.commu_panel_gbox.addWidget(self.frontend_box, 4, 0)
+        self.commu_panel_gbox.addWidget(self.frontend_link_b, 4, 1)
+        self.commu_panel_gbox.addWidget(self.frontend_cut_b, 4, 2)
+        self.commu_panel_gbox.addWidget(self.dummy_l, 5, 0)
+        self.commu_panel_gbox.addWidget(self.server_label, 6, 0)
+        self.commu_panel_gbox.addWidget(self.server_box, 7, 0)
+        self.commu_panel_gbox.addWidget(self.server_link_b, 7, 1)
+        self.commu_panel_gbox.addWidget(self.server_cut_b, 7, 2)
+        self.setLayout(self.commu_panel_gbox)
+
+    def connect_serial(self):
+        '''open serial'''
+        serial_com = self.serial_combo.currentText()
+        if config.COMMU.serial_connect(serial_com) == 'ok':
+            self.serial_link_b.setText('已连接')
+            self.serial_link_b.setEnabled(False)
+            self.serial_combo.setEnabled(False)
+            self.serial_cut_b.setText('断开')
+
+
+    def cut_serial(self):
+        '''close serial'''
+        if self.serial_link_b.isEnabled() is False:
+            if config.COMMU.serial_disconnect() == 'ok':
+                self.serial_link_b.setText('连接')
+                self.serial_link_b.setEnabled(True)
+                self.serial_combo.setEnabled(True)
+                self.serial_cut_b.setText('刷新')
+        else:
+            self.serial_combo.clear()
+            self.serial_combo.addItems(communication.serial_com_scan())
+
+
+    def connect_frontend(self):
+        '''open frontend'''
+        frontend_addr = self.frontend_box.text().replace(' ', '')
+        if config.COMMU.frontend_connect(frontend_addr) == 'ok':
+            self.frontend_link_b.setText('已连接')
+            self.frontend_link_b.setEnabled(False)
+            self.frontend_box.setEnabled(False)
+
+
+    def cut_frontend(self):
+        '''close frontend'''
+        if config.COMMU.frontend_disconnect() == 'ok':
+            self.frontend_link_b.setText('连接')
+            self.frontend_link_b.setEnabled(True)
+            self.frontend_box.setEnabled(True)
+
+
+    def connect_server(self):
+        '''open server'''
+        server_port = self.server_box.text().replace(' ', '')
+        if config.COMMU.server_start(int(server_port)) == 'ok':
+            self.server_link_b.setText('已启动')
+            self.server_link_b.setEnabled(False)
+            self.server_box.setEnabled(False)
+
+
+    def cut_server(self):
+        '''close server'''
+        if config.COMMU.server_stop() == 'ok':
+            self.server_link_b.setText('启动')
+            self.server_link_b.setEnabled(True)
+            self.server_box.setEnabled(True)
+
+
+
 if __name__ == '__main__':
     APP = QtGui.QApplication(sys.argv)
-    dialog = TransPopDialog()
+    dialog = CommuDialog()
     dialog.show()
     APP.exec_()
     os._exit(0)

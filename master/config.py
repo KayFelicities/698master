@@ -11,6 +11,8 @@ TRANS_WINDOW = None
 ABOUT_WINDOW = None
 MASTER_WINDOW = None
 
+COMMU = None
+
 if getattr(sys, 'frozen', False):
     SORTWARE_PATH = sys._MEIPASS
 else:
