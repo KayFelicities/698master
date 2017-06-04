@@ -88,6 +88,7 @@ class CommuDialog(QtGui.QDialog):
         self.frontend_cut_b.clicked.connect(self.cut_frontend)
         self.server_link_b.clicked.connect(self.connect_server)
         self.server_cut_b.clicked.connect(self.cut_server)
+        self.close_b.clicked.connect(self.close_window)
 
 
     def setup_ui(self):
@@ -123,6 +124,8 @@ class CommuDialog(QtGui.QDialog):
         self.server_cut_b = QtGui.QPushButton()
         self.server_cut_b.setMaximumWidth(50)
         self.server_cut_b.setText('停止')
+        self.close_b = QtGui.QPushButton()
+        self.close_b.setText('关闭')
         self.dummy_l = QtGui.QLabel()
         self.commu_panel_gbox = QtGui.QGridLayout()
         self.commu_panel_gbox.setMargin(15)
@@ -141,6 +144,8 @@ class CommuDialog(QtGui.QDialog):
         self.commu_panel_gbox.addWidget(self.server_box, 7, 0)
         self.commu_panel_gbox.addWidget(self.server_link_b, 7, 1)
         self.commu_panel_gbox.addWidget(self.server_cut_b, 7, 2)
+        self.commu_panel_gbox.addWidget(self.dummy_l, 8, 0)
+        self.commu_panel_gbox.addWidget(self.close_b, 9, 0, 1, 3)
         self.setLayout(self.commu_panel_gbox)
 
     def connect_serial(self):
@@ -200,6 +205,11 @@ class CommuDialog(QtGui.QDialog):
             self.server_box.setEnabled(True)
 
 
+    def close_window(self):
+        '''close window'''
+        self.close()
+
+
 class MsgDiyDialog(QtGui.QDialog):
     '''message DIY dialog class'''
     def __init__(self):
@@ -210,6 +220,7 @@ class MsgDiyDialog(QtGui.QDialog):
         self.send_b.clicked.connect(self.send_msg)
 
         self.msg_box.textChanged.connect(self.trans_msg)
+        self.chk_valid_cb.stateChanged.connect(self.trans_msg)
         self.show_level_cb.stateChanged.connect(self.trans_msg)
         self.always_top_cb.stateChanged.connect(self.set_always_top)
         self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint if self.always_top_cb.isChecked() else QtCore.Qt.Widget)
@@ -223,13 +234,19 @@ class MsgDiyDialog(QtGui.QDialog):
 
         self.clr_b = QtGui.QPushButton()
         self.clr_b.setText('清空')
-        self.logic_addr_box = QtGui.QLineEdit()
-        self.logic_addr_box.setText('0')
+        self.logic_addr_l = QtGui.QLabel()
+        self.logic_addr_l.setText('逻辑地址:')
+        self.logic_addr_box = QtGui.QSpinBox()
+        self.logic_addr_box.setRange(0, 3)
         self.send_b = QtGui.QPushButton()
         self.send_b.setText('发送')
+        self.send_b.setEnabled(False)
         self.btn_hbox = QtGui.QHBoxLayout()
         self.btn_hbox.addWidget(self.clr_b)
+        self.btn_hbox.addStretch(1)
+        self.btn_hbox.addWidget(self.logic_addr_l)
         self.btn_hbox.addWidget(self.logic_addr_box)
+        self.btn_hbox.addStretch(1)
         self.btn_hbox.addWidget(self.send_b)
 
         self.msg_box = QtGui.QTextEdit()
@@ -240,6 +257,9 @@ class MsgDiyDialog(QtGui.QDialog):
         self.splitter.setStretchFactor(0, 1)
         self.splitter.setStretchFactor(1, 6)
 
+        self.chk_valid_cb = QtGui.QCheckBox()
+        self.chk_valid_cb.setChecked(True)
+        self.chk_valid_cb.setText('检查合法性')
         self.always_top_cb = QtGui.QCheckBox()
         self.always_top_cb.setChecked(True)
         self.always_top_cb.setText('置顶')
@@ -248,6 +268,7 @@ class MsgDiyDialog(QtGui.QDialog):
         self.show_level_cb.setText('显示结构')
         self.cb_hbox = QtGui.QHBoxLayout()
         self.cb_hbox.addStretch(1)
+        self.cb_hbox.addWidget(self.chk_valid_cb)
         self.cb_hbox.addWidget(self.always_top_cb)
         self.cb_hbox.addWidget(self.show_level_cb)
 
@@ -267,17 +288,23 @@ class MsgDiyDialog(QtGui.QDialog):
         trans = translate.Translate(msg_text)
         full = trans.get_full(self.show_level_cb.isChecked())
         self.explain_box.setText(r'%s'%full)
+        if self.chk_valid_cb.isChecked():
+            self.send_b.setEnabled(True if trans.is_success else False)
+        else:
+            self.send_b.setEnabled(True)
 
 
     def send_msg(self):
         '''send message'''
         msg_text = self.msg_box.toPlainText()
-        config.COMMU.send_msg(linklayer.add_linkLayer(commonfun.text2list(msg_text), SA_text='17370000'))
+        logic_addr = self.logic_addr_box.value()
+        config.MASTER_WINDOW.se_apdu_signal.emit(msg_text, logic_addr, 'all')
 
 
     def clr_box(self):
         '''clear input&output box'''
         self.msg_box.setText('')
+
 
     def set_always_top(self):
         '''set_always_top'''

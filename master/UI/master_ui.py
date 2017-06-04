@@ -6,7 +6,7 @@ from PyQt4 import QtCore, QtGui
 import traceback
 import time
 from master.commu import communication
-from master.trans import common
+from master.trans import common, linklayer
 from master.trans.translate import Translate
 from master.UI import dialog_ui
 
@@ -15,6 +15,8 @@ class MasterWindow(QtGui.QMainWindow):
     '''serial window'''
     receive_signal = QtCore.pyqtSignal(str, str)
     send_signal = QtCore.pyqtSignal(str, str)
+    se_apdu_signal = QtCore.pyqtSignal(str, int, str)
+
 
     def __init__(self):
         super(MasterWindow, self).__init__()
@@ -22,6 +24,7 @@ class MasterWindow(QtGui.QMainWindow):
         self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint if self.always_top_cb.isChecked() else QtCore.Qt.Widget)
         self.receive_signal.connect(self.re_msg_do)
         self.send_signal.connect(self.se_msg_do)
+        self.se_apdu_signal.connect(self.send_apdu)
 
         self.test_b.clicked.connect(self.test_b_down)
         self.clr_b.clicked.connect(self.clr_table)
@@ -124,12 +127,12 @@ class MasterWindow(QtGui.QMainWindow):
 
     def re_msg_do(self, re_text, channel):
         '''recieve text'''
-        self.add_msg_table_row(re_text, channel)
+        self.add_msg_table_row(re_text, channel, '←')
 
 
     def se_msg_do(self, re_text, channel):
         '''recieve text'''
-        self.add_msg_table_row(re_text, channel)
+        self.add_msg_table_row(re_text, channel, '→')
 
 
     def add_tmn_table_row(self, tmn_addr, channel):
@@ -150,20 +153,20 @@ class MasterWindow(QtGui.QMainWindow):
         self.tmn_table.scrollToBottom()
 
 
-    def add_msg_table_row(self, m_text, channel):
+    def add_msg_table_row(self, m_text, channel, direction):
         '''add message row'''
         trans = Translate(m_text)
         brief = trans.get_brief()
-        direction = trans.get_direction()
+        # direction = trans.get_direction()
         server_addr = trans.get_SA()
 
         # chk to add tmn addr to table
-        if direction == '←':
-            for row_num in range(self.tmn_table.rowCount()):
-                if server_addr == self.tmn_table.item(row_num, 1).text():
-                    break
-            else:
-                self.add_tmn_table_row(server_addr, channel)
+        # if direction == '←':
+        #     for row_num in range(self.tmn_table.rowCount()):
+        #         if server_addr == self.tmn_table.item(row_num, 1).text():
+        #             break
+        #     else:
+        #         self.add_tmn_table_row(server_addr, channel)
 
         text_color = QtGui.QColor(220, 226, 241) if direction == '→' else\
                     QtGui.QColor(227, 237, 205) if direction == '←' else QtGui.QColor(255, 255, 255)
@@ -183,7 +186,8 @@ class MasterWindow(QtGui.QMainWindow):
         self.msg_table.setItem(row_pos, 2, item)
 
         item = QtGui.QTableWidgetItem(brief)
-        # item.setBackgroundColor(text_color)
+        if brief == '无效报文':
+            item.setTextColor(QtCore.Qt.red)
         self.msg_table.setItem(row_pos, 3, item)
 
         item = QtGui.QTableWidgetItem(common.format_text(m_text))
@@ -191,6 +195,13 @@ class MasterWindow(QtGui.QMainWindow):
         self.msg_table.setItem(row_pos, 4, item)
 
         self.msg_table.scrollToBottom()
+
+
+    def send_apdu(self, apdu_text, logic_addr=0, chanel='all'):
+        '''apdu to compelete msg to send'''
+        compelete_msg = linklayer.add_linkLayer(common.text2list(apdu_text),\
+                            logic_addr=logic_addr, SA_text='17370000')
+        config.COMMU.send_msg(compelete_msg, chanel)
 
 
     def test_b_down(self):

@@ -92,7 +92,7 @@ class Translate():
     def get_brief(self):
         '''get brief translate'''
         if not self.is_success:
-            return '<p style="color: red">无效报文</p>'
+            return '无效报文'
 
         depth0_list = [row for row in self.res_list if row['depth'] == 0]
         depth1_list = [row for row in self.res_list if row['depth'] == 1]
