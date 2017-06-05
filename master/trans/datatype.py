@@ -620,9 +620,10 @@ class TypeDo():
             offset += self.take_Data(m_list[offset:], '结束值', depth=depth + 1)
             offset += self.take_Data(m_list[offset:], '数据间隔', depth=depth + 1)
         elif selector == '03':
-            selector2_count = int(m_list[offset], 16)
+            selector2_num = int(m_list[offset], 16)
+            self.trans_res.add_row(m_list[offset: offset+1], '', 'SEQUENCE OF Selector2[%d]'%selector2_num, selector2_num)
             offset += 1
-            for _ in range(selector2_count):
+            for _ in range(selector2_num):
                 offset += self.take_OAD(m_list[offset:], '对象属性描述符', depth=depth + 1)
                 offset += self.take_Data(m_list[offset:], '起始值', depth=depth + 1)
                 offset += self.take_Data(m_list[offset:], '结束值', depth=depth + 1)
