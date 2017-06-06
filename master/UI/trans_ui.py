@@ -153,6 +153,8 @@ class TransWindow(QtGui.QMainWindow):
             self.open_b.setEnabled(False)
             self.setAcceptDrops(False)
             self.proc_l.setText('处理中')
+            self.setWindowTitle('698日志解析工具_{ver} - {file}'.\
+                        format(ver=config.WINDOWS_TITLE_ADD, file=filepath))
             threading.Thread(target=self.read_file,\
                                 args=(filepath,)).start()
 
@@ -228,6 +230,7 @@ class TransWindow(QtGui.QMainWindow):
         '''clear_box'''
         self.input_box.setText('')
         self.output_box.setText('')
+        self.setWindowTitle('698日志解析工具_{ver}'.format(ver=config.WINDOWS_TITLE_ADD))
         self.input_box.setFocus()
 
 

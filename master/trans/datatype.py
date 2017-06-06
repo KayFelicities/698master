@@ -655,11 +655,15 @@ class TypeDo():
         offset = 0
         csd_choice = m_list[offset]
         offset += 1
-        self.trans_res.add_row(m_list[:offset], brief, 'CSD', 'OAD' if csd_choice == '00' else 'ROAD', depth=depth)
+        print('csd: ', csd_choice)
         if csd_choice == '00':
+            self.trans_res.add_row(m_list[:offset], brief, 'CSD', 'OAD', depth=depth)
             offset += self.take_OAD(m_list[offset:], '对象属性描述符', depth=depth)
         elif csd_choice == '01':
+            self.trans_res.add_row(m_list[:offset], brief, 'CSD', 'ROAD', depth=depth)
             offset += self.take_ROAD(m_list[offset:], '记录型对象属性描述符', depth=depth)
+        else:
+            self.trans_res.add_row(m_list[:offset], brief, 'CSD', '未知CSD CHOICE', depth=depth)
         return offset
 
 
