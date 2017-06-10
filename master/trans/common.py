@@ -39,6 +39,25 @@ def chk_format(m_list):
         return True
 
 
+def search_msg(m_list):
+    '''search full msg and return msg text list'''
+    offset = 0
+    print("kay, re msg:", m_list)
+    msg_list = []
+    while offset < len(m_list):
+        if m_list[offset] == '68':
+            msg_len = int(m_list[offset + 2] + m_list[offset + 1], 16)
+            if m_list[offset + msg_len + 1] == '16':
+                msg_list.append(list2text(m_list[offset: offset + msg_len + 2]))
+                offset += msg_len + 2
+            else:
+                offset += 1
+        else:
+            offset += 1
+    print("kay, msg list:", msg_list)
+    return msg_list
+
+
 def calc_len(m_text):
     '''calculate input text length'''
     m_list = text2list(m_text)

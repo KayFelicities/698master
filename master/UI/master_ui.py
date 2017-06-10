@@ -32,11 +32,13 @@ class MasterWindow(QtGui.QMainWindow):
         self.about_action.triggered.connect(self.show_about_window)
         self.link_action.triggered.connect(self.show_commu_window)
         self.msg_diy_action.triggered.connect(self.show_msg_diy_window)
+        self.remote_update_action.triggered.connect(self.show_remote_update_window)
         self.always_top_cb.clicked.connect(self.set_always_top)
 
         self.pop_dialog = dialog_ui.TransPopDialog()
         self.commu_dialog = dialog_ui.CommuDialog()
         self.msg_diy_dialog = dialog_ui.MsgDiyDialog()
+        self.remote_update_dialog = dialog_ui.RemoteUpdateDialog()
 
         config.COMMU = communication.CommuPanel()
 
@@ -52,10 +54,13 @@ class MasterWindow(QtGui.QMainWindow):
         self.link_action.setShortcut('F1')
         self.msg_diy_action = QtGui.QAction('&自定义报文', self)
         self.msg_diy_action.setShortcut('F2')
+        self.remote_update_action = QtGui.QAction('&远程升级', self)
+        self.remote_update_action.setShortcut('F11')
         self.commu_menu = self.menubar.addMenu('&通信')
         self.commu_menu.addAction(self.link_action)
         self.msg_menu = self.menubar.addMenu('&报文')
         self.msg_menu.addAction(self.msg_diy_action)
+        self.msg_menu.addAction(self.remote_update_action)
         self.help_menu = self.menubar.addMenu('&帮助')
         self.help_menu.addAction(self.about_action)
 
@@ -127,7 +132,10 @@ class MasterWindow(QtGui.QMainWindow):
 
     def re_msg_do(self, re_text, channel):
         '''recieve text'''
-        self.add_msg_table_row(re_text, channel, '←')
+        re_list = common.text2list(re_text)
+        msgs = common.search_msg(re_list)
+        for msg in msgs:
+            self.add_msg_table_row(msg, channel, '←')
 
 
     def se_msg_do(self, re_text, channel):
@@ -200,7 +208,7 @@ class MasterWindow(QtGui.QMainWindow):
     def send_apdu(self, apdu_text, logic_addr=0, chanel='all'):
         '''apdu to compelete msg to send'''
         compelete_msg = linklayer.add_linkLayer(common.text2list(apdu_text),\
-                            logic_addr=logic_addr, SA_text='17370000')
+                            logic_addr=logic_addr, SA_text='00000001')
         config.COMMU.send_msg(compelete_msg, chanel)
 
 
@@ -243,13 +251,16 @@ class MasterWindow(QtGui.QMainWindow):
     def show_commu_window(self):
         '''show_commu_window'''
         self.commu_dialog.show()
-        # config.TRANS_WINDOW.show()
 
 
     def show_msg_diy_window(self):
         '''msg_diy_dialog'''
         self.msg_diy_dialog.show()
-        # config.TRANS_WINDOW.show()
+
+
+    def show_remote_update_window(self):
+        '''remote_update_dialog'''
+        self.remote_update_dialog.show()
 
 
 if __name__ == '__main__':
