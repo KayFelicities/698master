@@ -233,12 +233,11 @@ class TypeDo():
         '''take_bit_string'''
         offset = 0
         if bit_len is None:
-            bit_len = int(m_list[offset], 16)
-            offset += 1
-        byte_len = bit_len // 8 if bit_len % 8 == 0 else bit_len // 8 + 1
-        bit_string_text = ''
-        for count in range(byte_len):
-            bit_string_text += m_list[offset + count]
+            res = self.take_axdr_len(m_list[offset:])
+            offset += res['offset']
+            bit_len = res['len']
+        byte_len = (bit_len + 7) // 8
+        bit_string_text = ''.join(m_list[offset: offset + byte_len])
         offset += byte_len
         bit_value = '空' if byte_len == 0\
                 else str(bin(int(bit_string_text, 16))).split('b')[1].rjust(bit_len, '0')

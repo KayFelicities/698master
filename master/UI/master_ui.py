@@ -27,13 +27,16 @@ class MasterWindow(QtGui.QMainWindow):
         self.se_apdu_signal.connect(self.send_apdu)
 
         self.test_b.clicked.connect(self.test_b_down)
-        self.clr_b.clicked.connect(self.clr_table)
+        self.clr_b.clicked.connect(lambda: self.clr_table(self.msg_table))
         self.msg_table.cellDoubleClicked.connect(self.trans_msg)
         self.about_action.triggered.connect(self.show_about_window)
         self.link_action.triggered.connect(self.show_commu_window)
         self.msg_diy_action.triggered.connect(self.show_msg_diy_window)
         self.remote_update_action.triggered.connect(self.show_remote_update_window)
         self.always_top_cb.clicked.connect(self.set_always_top)
+
+        self.tmn_table_add_b.clicked.connect(lambda: self.add_tmn_table_row('000000000001', '', is_checked=True))
+        self.tmn_table_clr_b.clicked.connect(lambda: self.clr_table(self.tmn_table))
 
         self.pop_dialog = dialog_ui.TransPopDialog()
         self.commu_dialog = dialog_ui.CommuDialog()
@@ -64,26 +67,38 @@ class MasterWindow(QtGui.QMainWindow):
         self.help_menu = self.menubar.addMenu('&帮助')
         self.help_menu.addAction(self.about_action)
 
+        self.btn_hbox = QtGui.QHBoxLayout()
         self.test_b = QtGui.QPushButton()
         self.test_b.setText('test')
         self.test_b_2 = QtGui.QPushButton()
         self.test_b_2.setText('test')
         self.clr_b = QtGui.QPushButton()
         self.clr_b.setText('清空')
-        self.btn_hbox = QtGui.QHBoxLayout()
         self.btn_hbox.addWidget(self.test_b)
         self.btn_hbox.addWidget(self.test_b_2)
         self.btn_hbox.addWidget(self.clr_b)
 
-        self.tmn_table = QtGui.QTableWidget()
-        for count in range(3):
+        self.tmn_list_w = QtGui.QWidget()
+        self.tmn_table_vbox = QtGui.QVBoxLayout(self.tmn_list_w)
+        self.tmn_table = QtGui.QTableWidget(self.tmn_list_w)
+        for count in range(4):
             self.tmn_table.insertColumn(count)
-        self.tmn_table.setHorizontalHeaderLabels(['', '终端地址', '通道'])
+        self.tmn_table.setHorizontalHeaderLabels(['', '终端地址', '通道', ''])
         self.tmn_table.setColumnWidth(0, 20)
-        self.tmn_table.setColumnWidth(1, 120)
+        self.tmn_table.setColumnWidth(1, 100)
         self.tmn_table.setColumnWidth(2, 70)
+        self.tmn_table.setColumnWidth(3, 25)
         self.tmn_table.setHorizontalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
         self.tmn_table.setVerticalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
+        self.tmn_table_add_b = QtGui.QPushButton()
+        self.tmn_table_add_b.setText('添加')
+        self.tmn_table_clr_b = QtGui.QPushButton()
+        self.tmn_table_clr_b.setText('清空')
+        self.tmn_table_btns_hbox = QtGui.QHBoxLayout()
+        self.tmn_table_btns_hbox.addWidget(self.tmn_table_add_b)
+        self.tmn_table_btns_hbox.addWidget(self.tmn_table_clr_b)
+        self.tmn_table_vbox.addWidget(self.tmn_table)
+        self.tmn_table_vbox.addLayout(self.tmn_table_btns_hbox)
 
         self.info_view_box = QtGui.QTextBrowser()
 
@@ -101,7 +116,7 @@ class MasterWindow(QtGui.QMainWindow):
         self.msg_table.setEditTriggers(QtGui.QTableWidget.NoEditTriggers) # 表格不可编辑
 
         self.left_vsplitter = QtGui.QSplitter(QtCore.Qt.Vertical)
-        self.left_vsplitter.addWidget(self.tmn_table)
+        self.left_vsplitter.addWidget(self.tmn_list_w)
         self.left_vsplitter.addWidget(self.info_view_box)
         self.left_vsplitter.setStretchFactor(0, 1)
         self.left_vsplitter.setStretchFactor(1, 1)
@@ -143,22 +158,38 @@ class MasterWindow(QtGui.QMainWindow):
         self.add_msg_table_row(re_text, channel, '→')
 
 
-    def add_tmn_table_row(self, tmn_addr, channel):
+    def add_tmn_table_row(self, tmn_addr='000000000001', channel='', is_checked=False):
         '''add message row'''
         row_pos = self.tmn_table.rowCount()
         self.tmn_table.insertRow(row_pos)
 
-        tmn_cb = QtGui.QCheckBox()
-        tmn_cb.setChecked(True)
-        self.tmn_table.setCellWidget(row_pos, 0, tmn_cb)
+        tmn_enable_cb = QtGui.QCheckBox()
+        tmn_enable_cb.setChecked(is_checked)
+        self.tmn_table.setCellWidget(row_pos, 0, tmn_enable_cb)
 
         item = QtGui.QTableWidgetItem(tmn_addr)
         self.tmn_table.setItem(row_pos, 1, item)
 
-        item = QtGui.QTableWidgetItem(channel)
-        self.tmn_table.setItem(row_pos, 2, item)
+        channel_cb = QtGui.QComboBox()
+        channel_cb.addItems(('串口', '前置机', '服务器'))
+        channel_cb.setCurrentIndex(0 if channel == 'serial' else\
+                                    1 if channel == 'frontend' else\
+                                    2 if channel == 'server' else -1)
+        self.tmn_table.setCellWidget(row_pos, 2, channel_cb)
+
+        self.tmn_remove_cb = QtGui.QPushButton()
+        self.tmn_remove_cb.setText('删')
+        self.tmn_table.setCellWidget(row_pos, 3, self.tmn_remove_cb)
+        self.tmn_remove_cb.clicked.connect(self.tmn_table_remove)
 
         self.tmn_table.scrollToBottom()
+
+
+    def tmn_table_remove(self):
+        '''remove row in tmn table'''
+        button = self.sender()
+        index = self.tmn_table.indexAt(button.pos())
+        self.tmn_table.removeRow(index.row())
 
 
     def add_msg_table_row(self, m_text, channel, direction):
@@ -169,12 +200,12 @@ class MasterWindow(QtGui.QMainWindow):
         server_addr = trans.get_SA()
 
         # chk to add tmn addr to table
-        # if direction == '←':
-        #     for row_num in range(self.tmn_table.rowCount()):
-        #         if server_addr == self.tmn_table.item(row_num, 1).text():
-        #             break
-        #     else:
-        #         self.add_tmn_table_row(server_addr, channel)
+        if direction == '←':
+            for row_num in range(self.tmn_table.rowCount()):
+                if server_addr == self.tmn_table.item(row_num, 1).text():
+                    break
+            else:
+                self.add_tmn_table_row(server_addr, channel)
 
         text_color = QtGui.QColor(220, 226, 241) if direction == '→' else\
                     QtGui.QColor(227, 237, 205) if direction == '←' else QtGui.QColor(255, 255, 255)
@@ -207,9 +238,14 @@ class MasterWindow(QtGui.QMainWindow):
 
     def send_apdu(self, apdu_text, logic_addr=0, chanel='all'):
         '''apdu to compelete msg to send'''
-        compelete_msg = linklayer.add_linkLayer(common.text2list(apdu_text),\
-                            logic_addr=logic_addr, SA_text='00000001')
-        config.COMMU.send_msg(compelete_msg, chanel)
+        for row in [x for x in range(self.tmn_table.rowCount())\
+                        if self.tmn_table.cellWidget(x, 0).isChecked()]:
+            compelete_msg = linklayer.add_linkLayer(common.text2list(apdu_text),\
+                                logic_addr=logic_addr,\
+                                SA_text=self.tmn_table.item(row, 1).text())
+            send_channel = {0: 'serial', 1: 'frontend', 2: 'server'}\
+                            .get(self.tmn_table.cellWidget(row, 2).currentIndex(), '')
+            config.COMMU.send_msg(compelete_msg, send_channel)
 
 
     def test_b_down(self):
@@ -225,9 +261,9 @@ class MasterWindow(QtGui.QMainWindow):
         self.pop_dialog.activateWindow()
 
 
-    def clr_table(self):
+    def clr_table(self, table):
         '''clear table widget'''
-        self.msg_table.setRowCount(0)
+        table.setRowCount(0)
 
 
     def set_always_top(self):

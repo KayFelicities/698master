@@ -50,7 +50,7 @@ class CommuPanel():
         if self.is_server_running and chanel in ['all', 'server']:
             for client_handle, client_addr in self.client_list:
                 send_to_client(client_handle, client_addr)
-            config.MASTER_WINDOW.send_signal.emit(common.format_text(m_text), 'server')
+            config.MASTER_WINDOW.send_signal.emit(common.format_text(m_text), '服务器')
 
 
     def serial_connect(self, com, baudrate=9600, bytesize=8, parity='E', stopbits=1, timeout=0.05):
