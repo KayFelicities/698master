@@ -8,6 +8,7 @@ from master.trans import translate, linklayer
 import master.trans.common as commonfun
 from master import config
 from master.commu import communication
+from master.datas import get_set_oads
 
 
 class TransPopDialog(QtGui.QDialog):
@@ -163,6 +164,8 @@ class CommuDialog(QtGui.QDialog):
             self.serial_link_b.setEnabled(False)
             self.serial_combo.setEnabled(False)
             self.serial_cut_b.setText('断开')
+        else:
+            self.serial_link_b.setText('失败')
 
 
     def cut_serial(self):
@@ -176,6 +179,7 @@ class CommuDialog(QtGui.QDialog):
         else:
             self.serial_combo.clear()
             self.serial_combo.addItems(communication.serial_com_scan())
+            self.serial_link_b.setText('连接')
 
 
     def connect_frontend(self):
@@ -185,6 +189,8 @@ class CommuDialog(QtGui.QDialog):
             self.frontend_link_b.setText('已连接')
             self.frontend_link_b.setEnabled(False)
             self.frontend_box.setEnabled(False)
+        else:
+            self.frontend_link_b.setText('失败')
 
 
     def cut_frontend(self):
@@ -202,6 +208,8 @@ class CommuDialog(QtGui.QDialog):
             self.server_link_b.setText('已启动')
             self.server_link_b.setEnabled(False)
             self.server_box.setEnabled(False)
+        else:
+            self.server_link_b.setText('失败')
 
 
     def cut_server(self):
@@ -241,18 +249,11 @@ class MsgDiyDialog(QtGui.QDialog):
 
         self.clr_b = QtGui.QPushButton()
         self.clr_b.setText('清空')
-        self.logic_addr_l = QtGui.QLabel()
-        self.logic_addr_l.setText('逻辑地址:')
-        self.logic_addr_box = QtGui.QSpinBox()
-        self.logic_addr_box.setRange(0, 3)
         self.send_b = QtGui.QPushButton()
         self.send_b.setText('发送')
         self.send_b.setEnabled(False)
         self.btn_hbox = QtGui.QHBoxLayout()
         self.btn_hbox.addWidget(self.clr_b)
-        self.btn_hbox.addStretch(1)
-        self.btn_hbox.addWidget(self.logic_addr_l)
-        self.btn_hbox.addWidget(self.logic_addr_box)
         self.btn_hbox.addStretch(1)
         self.btn_hbox.addWidget(self.send_b)
 
@@ -304,8 +305,199 @@ class MsgDiyDialog(QtGui.QDialog):
     def send_msg(self):
         '''send message'''
         msg_text = self.msg_box.toPlainText()
-        logic_addr = self.logic_addr_box.value()
-        config.MASTER_WINDOW.se_apdu_signal.emit(msg_text, logic_addr, 'all')
+        config.MASTER_WINDOW.se_apdu_signal.emit(msg_text)
+
+
+    def clr_box(self):
+        '''clear input&output box'''
+        self.msg_box.setText('')
+
+
+    def set_always_top(self):
+        '''set_always_top'''
+        window_pos = self.pos()
+        if self.always_top_cb.isChecked():
+            self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
+            self.show()
+        else:
+            self.setWindowFlags(QtCore.Qt.Widget)
+            self.show()
+        self.move(window_pos)
+
+
+class GetSetServiceDialog(QtGui.QDialog):
+    '''get service dialog class'''
+    def __init__(self):
+        super(GetSetServiceDialog, self).__init__()
+        self.setup_ui()
+
+        self.object_table_add_b.clicked.connect(self.add_object_table_row)
+        self.object_table_read_b.clicked.connect(self.send_read_apdu)
+
+        self.chk_valid_cb.stateChanged.connect(self.trans_msg)
+        self.show_level_cb.stateChanged.connect(self.trans_msg)
+        self.always_top_cb.stateChanged.connect(self.set_always_top)
+        self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint if self.always_top_cb.isChecked() else QtCore.Qt.Widget)
+
+
+    def setup_ui(self):
+        '''set layout'''
+        # self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+        self.setWindowTitle('Get/Set Service')
+        self.setWindowIcon(QtGui.QIcon(os.path.join(config.SORTWARE_PATH, 'imgs/698.png')))
+
+        self.object_table_w = QtGui.QWidget()
+        self.object_table_vbox = QtGui.QVBoxLayout(self.object_table_w)
+        self.object_table_vbox.setMargin(1)
+        self.object_table_vbox.setSpacing(0)
+        self.object_table = QtGui.QTableWidget(self.object_table_w)
+        self.object_table.setEditTriggers(QtGui.QTableWidget.NoEditTriggers) # 表格不可编辑
+        self.object_table.verticalHeader().setVisible(False)
+        self.object_table.horizontalHeader().setVisible(False)
+        self.object_table.insertColumn(0)
+        self.object_table.insertColumn(1)
+        self.object_table.insertColumn(2)
+        self.object_table.setColumnWidth(0, 70)
+        self.object_table.setColumnWidth(1, 350)
+        self.object_table.setColumnWidth(2, 30)
+        self.object_table.setHorizontalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
+        self.object_table.setVerticalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
+        self.object_table_add_b = QtGui.QPushButton()
+        self.object_table_add_b.setText('新增')
+        self.object_table_add_b.setMaximumWidth(150)
+        self.object_table_read_b = QtGui.QPushButton()
+        self.object_table_read_b.setText('读取')
+        self.object_table_btns_hbox = QtGui.QHBoxLayout()
+        self.object_table_btns_hbox.addWidget(self.object_table_add_b)
+        self.object_table_btns_hbox.addWidget(self.object_table_read_b)
+        self.object_table_vbox.addWidget(self.object_table)
+        self.object_table_vbox.addLayout(self.object_table_btns_hbox)
+
+        self.object_table.insertRow(0)
+        class_cb = QtGui.QComboBox()
+        class_cb.addItems(('常用',))
+        class_cb.setCurrentIndex(0)
+        self.object_table.setCellWidget(0, 0, class_cb)
+        oad_cb = QtGui.QComboBox()
+        oad_cb.addItems(get_set_oads.ACTIVE_OADS)
+        oad_cb.setCurrentIndex(0)
+        self.object_table.setCellWidget(0, 1, oad_cb)
+
+        self.re_table_w = QtGui.QWidget()
+        self.re_table_vbox = QtGui.QVBoxLayout(self.re_table_w)
+        self.re_table_vbox.setMargin(1)
+        self.re_table_vbox.setSpacing(0)
+        self.re_table = QtGui.QTableWidget(self.re_table_w)
+        self.re_table.verticalHeader().setVisible(False)
+        self.re_table.horizontalHeader().setVisible(False)
+        self.re_table.insertColumn(0)
+        self.re_table.insertColumn(1)
+        self.re_table.setColumnWidth(0, 100)
+        self.re_table.setColumnWidth(1, 350)
+        self.re_table.setHorizontalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
+        self.re_table.setVerticalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
+        self.re_table_clr_b = QtGui.QPushButton()
+        self.re_table_clr_b.setText('清空')
+        self.re_table_clr_b.setMaximumWidth(150)
+        self.re_table_set_b = QtGui.QPushButton()
+        self.re_table_set_b.setText('设置')
+        self.re_table_btns_hbox = QtGui.QHBoxLayout()
+        self.re_table_btns_hbox.addWidget(self.re_table_clr_b)
+        self.re_table_btns_hbox.addWidget(self.re_table_set_b)
+        self.re_table_vbox.addWidget(self.re_table)
+        self.re_table_vbox.addLayout(self.re_table_btns_hbox)
+
+        self.splitter = QtGui.QSplitter(QtCore.Qt.Vertical)
+        self.splitter.addWidget(self.object_table_w)
+        self.splitter.addWidget(self.re_table_w)
+        self.splitter.setStretchFactor(0, 1)
+        self.splitter.setStretchFactor(1, 3)
+
+        self.chk_valid_cb = QtGui.QCheckBox()
+        self.chk_valid_cb.setChecked(True)
+        self.chk_valid_cb.setText('检查合法性')
+        self.always_top_cb = QtGui.QCheckBox()
+        self.always_top_cb.setChecked(True)
+        self.always_top_cb.setText('置顶')
+        self.show_level_cb = QtGui.QCheckBox()
+        self.show_level_cb.setChecked(True)
+        self.show_level_cb.setText('显示结构')
+        self.cb_hbox = QtGui.QHBoxLayout()
+        self.cb_hbox.addStretch(1)
+        self.cb_hbox.addWidget(self.chk_valid_cb)
+        self.cb_hbox.addWidget(self.always_top_cb)
+        self.cb_hbox.addWidget(self.show_level_cb)
+
+        self.main_vbox = QtGui.QVBoxLayout()
+        self.main_vbox.setMargin(1)
+        self.main_vbox.setSpacing(1)
+        self.main_vbox.addWidget(self.splitter)
+        self.main_vbox.addLayout(self.cb_hbox)
+        self.setLayout(self.main_vbox)
+        self.resize(500, 700)
+
+
+    def add_object_table_row(self):
+        '''add object row'''
+        row_pos = self.object_table.rowCount()
+        self.object_table.insertRow(row_pos)
+
+        class_cb = QtGui.QComboBox()
+        class_cb.addItems(('常用',))
+        class_cb.setCurrentIndex(0)
+        self.object_table.setCellWidget(row_pos, 0, class_cb)
+        oad_cb = QtGui.QComboBox()
+        oad_cb.addItems(get_set_oads.ACTIVE_OADS)
+        oad_cb.setCurrentIndex(0)
+        self.object_table.setCellWidget(row_pos, 1, oad_cb)
+        self.object_remove_cb = QtGui.QPushButton()
+        self.object_remove_cb.setText('删')
+        self.object_table.setCellWidget(row_pos, 2, self.object_remove_cb)
+        self.object_remove_cb.clicked.connect(self.object_table_remove)
+
+        self.object_table.scrollToBottom()
+
+
+    def object_table_remove(self):
+        '''remove row in object table'''
+        button = self.sender()
+        index = self.object_table.indexAt(button.pos())
+        self.object_table.removeRow(index.row())
+
+
+    def send_read_apdu(self):
+        '''send_read_apdu'''
+        oads = []
+        for row in range(self.object_table.rowCount()):
+            oads.append(self.object_table.cellWidget(row, 1).currentText()[:8])
+        print('oads', oads)
+        if not oads:
+            return
+        service = '0501' if len(oads) == 1 else '0502'
+        apdu_text = '{service}{piid:02X}{array}{oad}00'\
+                        .format(service=service, piid=0,\
+                                array='' if len(oads) == 1 else '%02X'%len(oads),\
+                                oad=''.join(oads))
+        print('apdu_text: ', apdu_text)
+        config.MASTER_WINDOW.se_apdu_signal.emit(apdu_text)
+
+
+    def trans_msg(self):
+        '''translate'''
+        msg_text = self.msg_box.toPlainText()
+        trans = translate.Translate(msg_text)
+        full = trans.get_full(self.show_level_cb.isChecked())
+        self.explain_box.setText(r'%s'%full)
+        if self.chk_valid_cb.isChecked():
+            self.send_b.setEnabled(True if trans.is_success else False)
+        else:
+            self.send_b.setEnabled(True)
+
+
+    def send_msg(self):
+        '''send message'''
+        msg_text = self.msg_box.toPlainText()
+        config.MASTER_WINDOW.se_apdu_signal.emit(msg_text)
 
 
     def clr_box(self):
@@ -359,11 +551,6 @@ class RemoteUpdateDialog(QtGui.QDialog):
         self.file_path_box.setEnabled(False)
         self.file_path_box.setPlaceholderText('请选择或拖入文件')
 
-        self.logic_addr_l = QtGui.QLabel()
-        self.logic_addr_l.setText('逻辑地址:')
-        self.logic_addr_box = QtGui.QSpinBox()
-        self.logic_addr_box.setRange(0, 3)
-
         self.block_size_label = QtGui.QLabel()
         self.block_size_label.setText('传输块大小:')
         self.block_size_combo = QtGui.QComboBox()
@@ -399,10 +586,8 @@ class RemoteUpdateDialog(QtGui.QDialog):
 
         self.remote_update_gbox.addWidget(self.dummy_l, 3, 0)
 
-        self.remote_update_gbox.addWidget(self.logic_addr_l, 4, 0)
-        self.remote_update_gbox.addWidget(self.logic_addr_box, 4, 1)
-        self.remote_update_gbox.addWidget(self.block_size_label, 4, 3)
-        self.remote_update_gbox.addWidget(self.block_size_combo, 4, 4)
+        self.remote_update_gbox.addWidget(self.block_size_label, 4, 0)
+        self.remote_update_gbox.addWidget(self.block_size_combo, 4, 1)
 
         self.remote_update_gbox.addWidget(self.dummy_l, 5, 0)
 
@@ -478,19 +663,18 @@ class RemoteUpdateDialog(QtGui.QDialog):
     def start_update(self):
         '''start update'''
         filepath = self.file_path_box.text()
-        logic_addr = self.logic_addr_box.value()
         block_size = int(self.block_size_combo.currentText().replace('字节', ''))
         if filepath:
             threading.Thread(target=self.send_file,\
-                        args=(filepath, logic_addr, block_size)).start()
+                        args=(filepath, block_size)).start()
 
 
-    def send_file(self, filepath, logic_addr, block_size):
+    def send_file(self, filepath, block_size):
         '''send file thread'''
         start_apdu_text = '070100 f0010700 0203 0206 0a00 0a00 06 {filesize:08X}\
                         0403e0 0a00 1600 12 {blocksize:04X} 0202 1600 0900 00'\
                         .format(filesize=os.path.getsize(filepath), blocksize=block_size)
-        config.MASTER_WINDOW.se_apdu_signal.emit(start_apdu_text, logic_addr, 'all')
+        config.MASTER_WINDOW.se_apdu_signal.emit(start_apdu_text)
         time.sleep(6)
         self.start_update_b.setEnabled(False)
         self.stop_update_b.setEnabled(True)
@@ -508,7 +692,7 @@ class RemoteUpdateDialog(QtGui.QDialog):
                                     .format(piid=block_no % 64, blockno=block_no)\
                                     + ('%02X'%send_len if send_len < 128\
                                         else '82%04X'%send_len) + block_text + '00'
-                config.MASTER_WINDOW.se_apdu_signal.emit(send_apdu_text, logic_addr, 'all')
+                config.MASTER_WINDOW.se_apdu_signal.emit(send_apdu_text)
                 self.update_signal.emit(block_no + 1, block_num)
                 time.sleep(2)
                 if not self.is_updating:

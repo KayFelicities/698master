@@ -57,8 +57,8 @@ class CommuPanel():
         '''connect serial'''
         if self.is_serial_running:
             return 'err'
-        self.serial_handle = serial.Serial(com, baudrate, bytesize, parity, stopbits, timeout)
         try:
+            self.serial_handle = serial.Serial(com, baudrate, bytesize, parity, stopbits, timeout)
             self.serial_handle.close()
             self.serial_handle.open()
             self.is_serial_running = True
@@ -111,8 +111,8 @@ class CommuPanel():
             return 'err'
         port = int(addr.split(':')[1])
         frontend_addr = (addr.split(':')[0], port)
-        self.frontend_handle = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
+            self.frontend_handle = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             print(frontend_addr)
             self.frontend_handle.connect(frontend_addr)
             self.is_frontend_running = True
@@ -156,9 +156,9 @@ class CommuPanel():
         '''connect server'''
         if self.is_server_running:
             return 'err'
-        self.server_handle = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.server_handle.bind(('0.0.0.0', server_port))
         try:
+            self.server_handle = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self.server_handle.bind(('0.0.0.0', server_port))
             self.server_handle.listen(1)
             self.is_server_running = True
             threading.Thread(target=self.server_accept).start()

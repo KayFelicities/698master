@@ -89,6 +89,14 @@ class Translate():
         return '-'
 
 
+    def get_logic_addr(self):
+        '''get logic address'''
+        for row in self.res_list:
+            if row['dtype'] == 'SA':
+                return int(row['value'].split('[')[1].split(']')[0])
+        return 0
+
+
     def get_brief(self):
         '''get brief translate'''
         if not self.is_success:

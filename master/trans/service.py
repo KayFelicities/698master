@@ -1,6 +1,6 @@
 '''handle with 698 service'''
 import master.trans.datatype as typedo
-import master.trans.datas as database
+from master.datas import services
 
 def take_applayer(m_list, trans_res):
     '''take_applayer'''
@@ -22,10 +22,10 @@ class Service():
         service_type = m_list[offset]
         if service_type not in ['01', '02', '03', '10', '81', '82', '83', '84', '90']:
             service_type += m_list[offset + 1]
-            explain = database.SERVICE.get(service_type, '未知服务')
+            explain = services.SERVICE.get(service_type, '未知服务')
             offset += 2
         else:
-            explain = database.SERVICE.get(service_type, '未知服务')
+            explain = services.SERVICE.get(service_type, '未知服务')
             offset += 1
         self.trans_res.add_row(m_list[:offset], '服务类型', 'service', explain, '', 0, 0)
         offset += {

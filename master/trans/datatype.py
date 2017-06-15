@@ -1,5 +1,5 @@
 '''handle with 698 datatypes'''
-import master.trans.datas as database
+from master.datas import oads, omds, units, dars
 
 
 class TypeDo():
@@ -77,7 +77,7 @@ class TypeDo():
     def take_DAR(self, m_list, brief='', depth=0):
         '''take_DAR'''
         offset = 0
-        explain = database.DAR.get(int(m_list[0], 16), '无效DAR')
+        explain = dars.DAR.get(int(m_list[0], 16), '无效DAR')
         offset += 1
         self.trans_res.add_row(m_list[:offset], brief, 'DAR', explain, depth=depth)
         return offset
@@ -470,7 +470,7 @@ class TypeDo():
     def take_OI(self, m_list, brief='', depth=0):
         '''take_OI'''
         offset = 0
-        explain = database.OAD.get(m_list[offset] + m_list[offset + 1] + '01', '未知OI').split('，')[0]
+        explain = oads.OAD.get(m_list[offset] + m_list[offset + 1] + '01', '未知OI').split('，')[0]
         offset += 2
         self.trans_res.add_row(m_list[:offset], brief, 'OI', explain, depth=depth, priority=2)
         return offset
@@ -481,8 +481,8 @@ class TypeDo():
         offset = 0
         attr = int(m_list[offset + 2], 16)
         index = int(m_list[offset + 3], 16)
-        explain = database.OAD.get(''.join(m_list[offset : offset + 3]),\
-                    database.OAD.get(''.join(m_list[offset : offset + 2]) + '01',\
+        explain = oads.OAD.get(''.join(m_list[offset : offset + 3]),\
+                    oads.OAD.get(''.join(m_list[offset : offset + 2]) + '01',\
                     '未知OAD').split('[')[0] + '[属性%d]'%attr) + '[索引%d]'%index
         offset += 4
         self.trans_res.add_row(m_list[:offset], brief, 'OAD', explain, depth=depth, priority=2)
@@ -506,8 +506,8 @@ class TypeDo():
         offset = 0
         method = int(m_list[offset + 2], 16)
         mode = int(m_list[offset + 3], 16)
-        explain = database.OMD.get(''.join(m_list[offset : offset + 3]),\
-                    database.OMD.get(''.join(m_list[offset : offset + 2]) + '01',\
+        explain = omds.OMD.get(''.join(m_list[offset : offset + 3]),\
+                    omds.OMD.get(''.join(m_list[offset : offset + 2]) + '01',\
                     '未知OMD').split('[')[0] + '[方法%d]'%method) + '[操作模式%d]'%mode
         offset += 4
         self.trans_res.add_row(m_list[:offset], brief, 'OMD', explain, depth=depth, priority=2)
@@ -594,7 +594,7 @@ class TypeDo():
             value = int(m_list[offset], 16)
         offset += 1
 
-        unit = database.UNIT.get(int(m_list[offset], 16), '无效单位')
+        unit = units.UNIT.get(int(m_list[offset], 16), '无效单位')
         offset += 1
         self.trans_res.add_row(m_list[:offset], brief, 'Scaler_Unit', value, unit=unit, depth=depth)
         return offset
