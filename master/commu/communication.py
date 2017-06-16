@@ -2,6 +2,7 @@
 import socket
 import threading
 import time
+import random
 import traceback
 import struct
 import serial
@@ -25,6 +26,8 @@ class CommuPanel():
         self.server_handle = None
         self.is_server_running = False
         self.client_list = []
+
+        self.master_addr = '%02X'%random.randint(0, 255)
 
 
     def send_msg(self, m_text, chanel='all'):

@@ -89,6 +89,14 @@ class Translate():
         return '-'
 
 
+    def get_CA(self):
+        '''get client address'''
+        for row in self.res_list:
+            if row['dtype'] == 'CA':
+                return row['value']
+        return '-'
+
+
     def get_logic_addr(self):
         '''get logic address'''
         for row in self.res_list:

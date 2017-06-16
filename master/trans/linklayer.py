@@ -107,7 +107,7 @@ def take_linklayer2(m_list, offset, trans_res):
     return offset - offset_temp
 
 
-def add_linkLayer(m_list, CA_text='00', SA_text='00000001', logic_addr=0, C_text='43'):
+def add_linkLayer(m_list, CA_text='00', SA_text='00000001', logic_addr=0, SA_type=0, C_text='43'):
     '''add linklayer'''
     SA_list = commonfun.text2list(SA_text)
     SA_list.reverse()  # 小端
@@ -116,7 +116,7 @@ def add_linkLayer(m_list, CA_text='00', SA_text='00000001', logic_addr=0, C_text
         SA_text += '0'
     L_text = '{0:04X}'.format(len(SA_text) // 2 + 9 + len(m_list))
     L_text = L_text[2:4] + L_text[0:2]
-    SA_param_text = '{0:02X}'.format((len(SA_text) // 2 - 1) | ((logic_addr & 0x03) << 4))
+    SA_param_text = '{0:02X}'.format(((len(SA_text) // 2 - 1) & 0x0f) | ((logic_addr & 0x03) << 4) | ((SA_type & 0x03) << 6))
     hcs_clac_aera_text = L_text + C_text + SA_param_text + SA_text + CA_text
     hcs_calc = commonfun.get_fcs(commonfun.text2list(hcs_clac_aera_text))
     hcs_calc = ((hcs_calc << 8) | (hcs_calc >> 8)) & 0xffff  # 低位在前

@@ -5,10 +5,11 @@ from master import config
 from PyQt4 import QtCore, QtGui
 import traceback
 import time
-from master.commu import communication
+
 from master.trans import common, linklayer
 from master.trans.translate import Translate
 from master.UI import dialog_ui
+from master import config
 
 
 class MasterWindow(QtGui.QMainWindow):
@@ -47,7 +48,6 @@ class MasterWindow(QtGui.QMainWindow):
         self.msg_diy_dialog = dialog_ui.MsgDiyDialog()
         self.remote_update_dialog = dialog_ui.RemoteUpdateDialog()
 
-        config.COMMU = communication.CommuPanel()
         self.show_commu_window()
 
 
@@ -229,6 +229,10 @@ class MasterWindow(QtGui.QMainWindow):
         trans = Translate(m_text)
         brief = trans.get_brief()
         # direction = trans.get_direction()
+        client_addr = trans.get_CA()
+        if client_addr != config.COMMU.master_addr:
+            print('kay, CA 不匹配')
+            return
         server_addr = trans.get_SA()
         logic_addr = trans.get_logic_addr()
 
@@ -276,7 +280,8 @@ class MasterWindow(QtGui.QMainWindow):
                         if self.tmn_table.cellWidget(x, 0).isChecked()]:
             compelete_msg = linklayer.add_linkLayer(common.text2list(apdu_text),\
                                 logic_addr=self.tmn_table.cellWidget(row, 2).value(),\
-                                SA_text=self.tmn_table.item(row, 1).text())
+                                SA_text=self.tmn_table.item(row, 1).text(),\
+                                CA_text=config.COMMU.master_addr)
             send_channel = {0: 'serial', 1: 'frontend', 2: 'server'}\
                             .get(self.tmn_table.cellWidget(row, 3).currentIndex(), '')
             config.COMMU.send_msg(compelete_msg, send_channel)
@@ -284,8 +289,14 @@ class MasterWindow(QtGui.QMainWindow):
 
     def tmn_scan(self):
         '''scan terminal'''
-        test_text = '682100434FAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA10CC1C05010140000200007D1B16'
-        config.COMMU.send_msg(test_text)
+        wild_apdu = '05010140000200'
+        compelete_msg = linklayer.add_linkLayer(common.text2list(wild_apdu),\
+                                SA_text='AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',\
+                                SA_type=1,\
+                                CA_text=config.COMMU.master_addr,\
+                                C_text='43')
+        print('scan msg: ', compelete_msg)
+        config.COMMU.send_msg(compelete_msg)
 
 
     def trans_msg(self, row):
