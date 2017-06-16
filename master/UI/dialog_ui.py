@@ -3,9 +3,10 @@ import sys
 import os
 import threading
 import time
+import re
 from PyQt4 import QtGui, QtCore
 from master.trans import translate, linklayer
-import master.trans.common as commonfun
+from master.trans import common
 from master import config
 from master.commu import communication
 from master.datas import get_set_oads
@@ -343,10 +344,11 @@ class GetSetServiceDialog(QtGui.QDialog):
         self.setup_ui()
 
         self.object_table_add_b.clicked.connect(self.add_object_table_row)
+        self.object_table_read_b.clicked.connect(self.clr_re_table)
         self.object_table_read_b.clicked.connect(self.send_read_apdu)
+        self.re_table_clr_b.clicked.connect(self.clr_re_table)
 
-        self.chk_valid_cb.stateChanged.connect(self.trans_msg)
-        self.show_level_cb.stateChanged.connect(self.trans_msg)
+        # self.show_level_cb.stateChanged.connect(self.trans_msg)
         self.always_top_cb.stateChanged.connect(self.set_always_top)
         self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint if self.always_top_cb.isChecked() else QtCore.Qt.Widget)
 
@@ -491,29 +493,37 @@ class GetSetServiceDialog(QtGui.QDialog):
                                 oad=''.join(oads))
         print('apdu_text: ', apdu_text)
         config.MASTER_WINDOW.se_apdu_signal.emit(apdu_text)
+        config.MASTER_WINDOW.receive_signal.connect(self.re_msg)
 
 
-    def trans_msg(self):
-        '''translate'''
-        msg_text = self.msg_box.toPlainText()
-        trans = translate.Translate(msg_text)
-        full = trans.get_full(self.show_level_cb.isChecked())
-        self.explain_box.setText(r'%s'%full)
-        if self.chk_valid_cb.isChecked():
-            self.send_b.setEnabled(True if trans.is_success else False)
-        else:
-            self.send_b.setEnabled(True)
+    def re_msg(self, re_text, channel):
+        '''recieve text'''
+        re_list = common.text2list(re_text)
+        msgs = common.search_msg(re_list)
+        trans = translate.Translate(msgs[0])
+        res_list = trans.get_res_list()
+        for row in res_list:
+            if row['dtype'] == 'date_time_s':
+                value = row['value']
+                break
+        table_row_num = self.re_table.rowCount()
+        self.re_table.insertRow(table_row_num)
+        item = QtGui.QTableWidgetItem('date_time_s')
+        self.re_table.setItem(table_row_num, 0, item)
+        self.dt_w = QtGui.QDateTimeEdit()
+        time = re.split('-|:| ', value)
+        print('time: ', time)
+        dt_read = QtCore.QDateTime(
+            int(time[0]), int(time[1]), int(time[2]), int(time[3]), int(time[4]), int(time[5])
+        )
+        self.dt_w.setDateTime(dt_read)
+        self.re_table.setCellWidget(table_row_num, 1, self.dt_w)
+        config.MASTER_WINDOW.receive_signal.disconnect(self.re_msg)
 
 
-    def send_msg(self):
-        '''send message'''
-        msg_text = self.msg_box.toPlainText()
-        config.MASTER_WINDOW.se_apdu_signal.emit(msg_text)
-
-
-    def clr_box(self):
-        '''clear input&output box'''
-        self.msg_box.setText('')
+    def clr_re_table(self):
+        '''clear re msg table'''
+        self.re_table.setRowCount(0)
 
 
     def set_always_top(self):

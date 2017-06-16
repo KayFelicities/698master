@@ -39,6 +39,11 @@ class Translate():
             return res_list, chk_res
 
 
+    def get_res_list(self):
+        '''get result list'''
+        return self.res_list
+
+
     def get_full(self, is_show_level=True):
         '''get full translate'''
         if self.is_success:
