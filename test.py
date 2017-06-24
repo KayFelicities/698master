@@ -153,3 +153,6 @@ if __name__ == '__main__':
     s = StringListDlg(fruit)  
     s.show()  
     app.exec_()  
+
+    
+

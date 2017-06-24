@@ -23,7 +23,7 @@ class AboutWindow(QtGui.QDialog):
         self.head_ver = QtGui.QLabel()
         self.head_ver.setText('<p style="font-family: 微软雅黑; font-size: 16px;" align="center">\
                                 <b>698后台_{version}<br>{dt}</b></p>'\
-                                .format(version=config.SOFTWARE_VERSION, dt=config.SOFTWARE_DT))
+                                .format(version=config.MASTER_SOFTWARE_VERSION, dt=config.MASTER_SOFTWARE_DT))
         self.head_hbox = QtGui.QHBoxLayout()
         self.head_hbox.addStretch(1)
         self.head_hbox.addWidget(self.head_img)

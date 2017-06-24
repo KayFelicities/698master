@@ -10,6 +10,7 @@ from master.trans import common
 from master import config
 from master.commu import communication
 from master.datas import get_set_oads
+from master.trans import loadtype
 
 
 class TransPopDialog(QtGui.QDialog):
@@ -499,25 +500,12 @@ class GetSetServiceDialog(QtGui.QDialog):
     def re_msg(self, re_text, channel):
         '''recieve text'''
         re_list = common.text2list(re_text)
-        msgs = common.search_msg(re_list)
-        trans = translate.Translate(msgs[0])
-        res_list = trans.get_res_list()
-        for row in res_list:
-            if row['dtype'] == 'date_time_s':
-                value = row['value']
-                break
-        table_row_num = self.re_table.rowCount()
-        self.re_table.insertRow(table_row_num)
-        item = QtGui.QTableWidgetItem('date_time_s')
-        self.re_table.setItem(table_row_num, 0, item)
-        self.dt_w = QtGui.QDateTimeEdit()
-        time = re.split('-|:| ', value)
-        print('time: ', time)
-        dt_read = QtCore.QDateTime(
-            int(time[0]), int(time[1]), int(time[2]), int(time[3]), int(time[4]), int(time[5])
-        )
-        self.dt_w.setDateTime(dt_read)
-        self.re_table.setCellWidget(table_row_num, 1, self.dt_w)
+        m_text = common.search_msg(re_list)[0]
+        m_list = common.text2list(m_text)
+        apdu_list = common.get_apdu_list(m_list)
+        print('apdu_list', apdu_list)
+        re_data_list = apdu_list[8:]
+        loadtype.data2table(re_data_list, self.re_table)
         config.MASTER_WINDOW.receive_signal.disconnect(self.re_msg)
 
 

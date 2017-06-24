@@ -53,7 +53,7 @@ class MasterWindow(QtGui.QMainWindow):
 
     def setup_ui(self, master_window):
         '''set layout'''
-        self.setWindowTitle('698后台_{ver}'.format(ver=config.WINDOWS_TITLE_ADD))
+        self.setWindowTitle('698后台_{ver}'.format(ver=config.MASTER_WINDOW_TITLE_ADD))
         self.setWindowIcon(QtGui.QIcon(os.path.join(config.SORTWARE_PATH, 'imgs/698.png')))
         self.menubar = self.menuBar()
 

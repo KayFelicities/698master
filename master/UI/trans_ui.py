@@ -35,7 +35,7 @@ class TransWindow(QtGui.QMainWindow):
 
     def setup_ui(self):
         '''set layout'''
-        self.setWindowTitle('698日志解析工具_{ver}'.format(ver=config.WINDOWS_TITLE_ADD))
+        self.setWindowTitle('698日志解析工具_{ver}'.format(ver=config.TRANS_WINDOW_TITLE_ADD))
         self.setWindowIcon(QtGui.QIcon(os.path.join(config.SORTWARE_PATH, 'imgs/698_o.png')))
         self.menubar = self.menuBar()
         self.about_action = QtGui.QAction('&关于', self)
@@ -154,7 +154,7 @@ class TransWindow(QtGui.QMainWindow):
             self.setAcceptDrops(False)
             self.proc_l.setText('处理中')
             self.setWindowTitle('698日志解析工具_{ver} - {file}'.\
-                        format(ver=config.WINDOWS_TITLE_ADD, file=filepath))
+                        format(ver=config.MASTER_WINDOW_TITLE_ADD, file=filepath))
             threading.Thread(target=self.read_file,\
                                 args=(filepath,)).start()
 
@@ -230,7 +230,7 @@ class TransWindow(QtGui.QMainWindow):
         '''clear_box'''
         self.input_box.setText('')
         self.output_box.setText('')
-        self.setWindowTitle('698日志解析工具_{ver}'.format(ver=config.WINDOWS_TITLE_ADD))
+        self.setWindowTitle('698日志解析工具_{ver}'.format(ver=config.MASTER_WINDOW_TITLE_ADD))
         self.input_box.setFocus()
 
 
