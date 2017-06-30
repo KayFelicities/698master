@@ -54,7 +54,7 @@ def search_msg(m_list):
                 offset += 1
         else:
             offset += 1
-    print("kay, msg list:", msg_list)
+    # print("kay, msg list:", msg_list)
     return msg_list
 
 

@@ -30,14 +30,14 @@ class CommuPanel():
         self.master_addr = '%02X'%random.randint(0, 255)
 
 
-    def send_msg(self, m_text, chanel='all'):
+    def send_msg(self, m_text, chanel='全部'):
         '''send message'''
         m_list = common.text2list(m_text)
         send_b = b''.join(map(lambda x: struct.pack('B', int(x, 16)), m_list))
-        if self.is_serial_running and chanel in ['all', 'serial']:
+        if self.is_serial_running and chanel in ['全部', '串口']:
             self.serial_handle.write(send_b)
             config.MASTER_WINDOW.send_signal.emit(common.format_text(m_text), '串口')
-        if self.is_frontend_running and chanel in ['all', 'frontend']:
+        if self.is_frontend_running and chanel in ['全部', '前置机']:
             self.frontend_handle.sendall(send_b)
             config.MASTER_WINDOW.send_signal.emit(common.format_text(m_text), '前置机')
 
@@ -50,7 +50,7 @@ class CommuPanel():
                 self.client_list.remove((client_handle, client_addr))
                 print('del client', client_addr)
 
-        if self.is_server_running and chanel in ['all', 'server']:
+        if self.is_server_running and chanel in ['全部', '服务器']:
             for client_handle, client_addr in self.client_list:
                 send_to_client(client_handle, client_addr)
             config.MASTER_WINDOW.send_signal.emit(common.format_text(m_text), '服务器')
@@ -99,7 +99,7 @@ class CommuPanel():
                 re_data = self.serial_handle.readline()
                 for re_char in re_data:
                     re_text += '{0:02X} '.format(re_char)
-                time.sleep(0.03)
+                time.sleep(0.3)
                 data_wait = self.serial_handle.inWaiting()
             if re_text != '':
                 config.MASTER_WINDOW.receive_signal.emit(re_text, '串口')
@@ -212,7 +212,7 @@ class CommuPanel():
                 self.client_list.remove((client_handle, client_addr))
                 break
             if re_text != '':
-                config.MASTER_WINDOW.receive_signal.emit(re_text, 'server')
+                config.MASTER_WINDOW.receive_signal.emit(re_text, '服务器')
             if self.is_server_running is False:
                 print(client_addr, 'client quit')
                 self.client_list.remove((client_handle, client_addr))

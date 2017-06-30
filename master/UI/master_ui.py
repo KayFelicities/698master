@@ -6,10 +6,12 @@ from PyQt4 import QtCore, QtGui
 import traceback
 import time
 
-from master.trans import common, linklayer
+from master.trans import common
+from master.trans import linklayer
 from master.trans.translate import Translate
 from master.UI import dialog_ui
 from master import config
+from master.reply import reply
 
 
 class MasterWindow(QtGui.QMainWindow):
@@ -31,6 +33,7 @@ class MasterWindow(QtGui.QMainWindow):
         self.clr_b.clicked.connect(lambda: self.clr_table(self.msg_table))
         self.msg_table.cellDoubleClicked.connect(self.trans_msg)
         self.always_top_cb.clicked.connect(self.set_always_top)
+        self.reply_link_cb.clicked.connect(self.set_reply_link)
 
         self.about_action.triggered.connect(self.show_about_window)
         self.link_action.triggered.connect(self.show_commu_window)
@@ -47,6 +50,8 @@ class MasterWindow(QtGui.QMainWindow):
         self.get_set_service_dialog = dialog_ui.GetSetServiceDialog()
         self.msg_diy_dialog = dialog_ui.MsgDiyDialog()
         self.remote_update_dialog = dialog_ui.RemoteUpdateDialog()
+
+        self.is_reply_link = True
 
         self.show_commu_window()
 
@@ -73,7 +78,7 @@ class MasterWindow(QtGui.QMainWindow):
         self.commu_menu.addAction(self.action_service_action)
         self.commu_menu.addAction(self.proxy_service_action)
 
-        self.msg_diy_action = QtGui.QAction('&自定义报文', self)
+        self.msg_diy_action = QtGui.QAction('&自定义APDU', self)
         self.msg_diy_action.setShortcut('F10')
         self.remote_update_action = QtGui.QAction('&远程升级', self)
         self.remote_update_action.setShortcut('F11')
@@ -154,10 +159,14 @@ class MasterWindow(QtGui.QMainWindow):
         self.main_hsplitter.setStretchFactor(0, 1)
         self.main_hsplitter.setStretchFactor(1, 3)
 
+        self.reply_link_cb = QtGui.QCheckBox()
+        self.reply_link_cb.setText('维护登录/心跳')
+        self.reply_link_cb.setChecked(True)
         self.always_top_cb = QtGui.QCheckBox()
         self.always_top_cb.setText('置顶')
         self.foot_hbox = QtGui.QHBoxLayout()
         self.foot_hbox.addStretch(1)
+        self.foot_hbox.addWidget(self.reply_link_cb)
         self.foot_hbox.addWidget(self.always_top_cb)
 
         self.main_vbox = QtGui.QVBoxLayout()
@@ -230,7 +239,7 @@ class MasterWindow(QtGui.QMainWindow):
         brief = trans.get_brief()
         # direction = trans.get_direction()
         client_addr = trans.get_CA()
-        if client_addr != config.COMMU.master_addr:
+        if client_addr != '00' and client_addr != config.COMMU.master_addr:
             print('kay, CA 不匹配')
             return
         server_addr = trans.get_SA()
@@ -273,23 +282,36 @@ class MasterWindow(QtGui.QMainWindow):
 
         self.msg_table.scrollToBottom()
 
+        if trans.get_service() == '01' and self.is_reply_link:
+            reply_apdu_text = reply.get_link_replay_apdu(trans)
+            self.send_apdu(reply_apdu_text, tmn_addr=server_addr,\
+                            logic_addr=logic_addr, channel=channel, C_text='01')
 
-    def send_apdu(self, apdu_text):
+
+    def send_apdu(self, apdu_text, tmn_addr='', logic_addr=-1, channel='', C_text='43'):
         '''apdu to compelete msg to send'''
         for row in [x for x in range(self.tmn_table.rowCount())\
                         if self.tmn_table.cellWidget(x, 0).isChecked()]:
+            if tmn_addr and tmn_addr != self.tmn_table.item(row, 1).text():
+                continue
+            if logic_addr != -1 and logic_addr != self.tmn_table.cellWidget(row, 2).value():
+                continue
+            if channel and channel != {0: '串口', 1: '前置机', 2: '服务器'}\
+                                        .get(self.tmn_table.cellWidget(row, 3).currentIndex(), ''):
+                continue
+
             compelete_msg = linklayer.add_linkLayer(common.text2list(apdu_text),\
                                 logic_addr=self.tmn_table.cellWidget(row, 2).value(),\
                                 SA_text=self.tmn_table.item(row, 1).text(),\
-                                CA_text=config.COMMU.master_addr)
-            send_channel = {0: 'serial', 1: 'frontend', 2: 'server'}\
+                                CA_text=config.COMMU.master_addr, C_text=C_text)
+            send_channel = {0: '串口', 1: '前置机', 2: '服务器'}\
                             .get(self.tmn_table.cellWidget(row, 3).currentIndex(), '')
             config.COMMU.send_msg(compelete_msg, send_channel)
 
 
     def tmn_scan(self):
         '''scan terminal'''
-        wild_apdu = '05010140000200'
+        wild_apdu = '0501014000020000'
         compelete_msg = linklayer.add_linkLayer(common.text2list(wild_apdu),\
                                 SA_text='AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',\
                                 SA_type=1,\
@@ -323,30 +345,39 @@ class MasterWindow(QtGui.QMainWindow):
         self.move(window_pos)
 
 
+    def set_reply_link(self):
+        '''set_reply_link'''
+        self.is_reply_link = True if self.reply_link_cb.isChecked() else False
+
+
     def show_about_window(self):
         '''show_about_window'''
         config.ABOUT_WINDOW.show()
-        # config.TRANS_WINDOW.show()
+        config.ABOUT_WINDOW.activateWindow()
 
 
     def show_commu_window(self):
         '''show_commu_window'''
         self.commu_dialog.show()
+        self.commu_dialog.activateWindow()
 
 
     def show_get_service_window(self):
         '''show_get_service_window'''
         self.get_set_service_dialog.show()
+        self.get_set_service_dialog.activateWindow()
 
 
     def show_msg_diy_window(self):
         '''msg_diy_dialog'''
         self.msg_diy_dialog.show()
+        self.msg_diy_dialog.activateWindow()
 
 
     def show_remote_update_window(self):
         '''remote_update_dialog'''
         self.remote_update_dialog.show()
+        self.remote_update_dialog.activateWindow()
 
 
 if __name__ == '__main__':

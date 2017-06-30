@@ -12,6 +12,7 @@ class Translate():
         self.trans_res = commonfun.TransRes()
         m_list = commonfun.text2list(m_text)
         self.res_list, self.is_success = self.trans_all(m_list)
+        self.is_full_msg = False
 
 
     def trans_all(self, m_list):
@@ -22,7 +23,9 @@ class Translate():
                 offset += linklayer_do.take_linklayer1(m_list[offset:], self.trans_res)
                 offset += applayer_do.take_applayer(m_list[offset:], self.trans_res)
                 offset += linklayer_do.take_linklayer2(m_list[:], offset, self.trans_res)
+                self.is_full_msg = True
             else:
+                self.is_full_msg = False
                 offset += applayer_do.take_applayer(m_list[offset:], self.trans_res)
         except Exception:
             traceback.print_exc()
@@ -72,6 +75,13 @@ class Translate():
         return res_text
 
 
+    def get_apdu_text(self):
+        '''get_apdu_text'''
+        apdu_text = ''.join([commonfun.list2text(row['m_list'])\
+                                for row in self.res_list if row['priority'] > 0])
+        return apdu_text
+
+
     def get_direction(self):
         '''get direction'''
         if not self.is_success:
@@ -108,6 +118,18 @@ class Translate():
             if row['dtype'] == 'SA':
                 return int(row['value'].split('[')[1].split(']')[0])
         return 0
+
+
+    def get_service(self):
+        '''get service'''
+        return commonfun.list2text(list(filter(lambda row: row['dtype'] == 'service'\
+                                    , self.res_list))[0]['m_list']).replace(' ', '')
+
+
+    def get_piid(self):
+        '''get_piid'''
+        return commonfun.list2text(list(filter(lambda row: row['dtype'] in ['PIID', 'PIID_ACD']\
+                            , self.res_list))[0]['m_list']).replace(' ', '')
 
 
     def get_brief(self):

@@ -16,7 +16,7 @@ class TypeDo():
         service_priority = '一般的' if piid >> 7 == 0 else '高级的'
         invoke_id = piid & 0x3f
         offset += 1
-        self.trans_res.add_row(m_list[:offset], brief, '',\
+        self.trans_res.add_row(m_list[:offset], brief, 'PIID',\
                 '服务优先级:%s, 服务序号:%d'%(service_priority, invoke_id), depth=depth)
         return offset
 
@@ -29,7 +29,7 @@ class TypeDo():
         acd_text = '不请求' if (piid_acd >> 6) & 0x01 == 0 else '请求'
         invoke_id = piid_acd & 0x3f
         offset += 1
-        self.trans_res.add_row(m_list[:offset], brief, '',\
+        self.trans_res.add_row(m_list[:offset], brief, 'PIID_ACD',\
                 '服务优先级:%s, 请求访问(ACD):%s, 服务序号:%d'%(service_priority, acd_text, invoke_id), depth=depth)
         return offset
 
@@ -56,8 +56,8 @@ class TypeDo():
         return offset
 
 
-    def take_axdr_len(self, m_list):
         '''take_axdr_len'''
+    def take_axdr_len(self, m_list):
         offset = 0
         len_flag = int(m_list[offset], 16)
         offset += 1

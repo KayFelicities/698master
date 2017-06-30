@@ -4,6 +4,7 @@ import os
 import threading
 import time
 import re
+import random
 from PyQt4 import QtGui, QtCore
 from master.trans import translate, linklayer
 from master.trans import common
@@ -87,6 +88,8 @@ class CommuDialog(QtGui.QDialog):
         self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
         # self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
 
+        self.master_addr_change_b.clicked.connect(self.switch_master_addr)
+        self.master_addr_box.textChanged.connect(self.apply_master_addr)
         self.serial_combo.addItems(communication.serial_com_scan())
         self.serial_link_b.clicked.connect(self.connect_serial)
         self.serial_cut_b.clicked.connect(self.cut_serial)
@@ -168,6 +171,14 @@ class CommuDialog(QtGui.QDialog):
         self.commu_panel_gbox.addWidget(self.dummy_l, 10, 0)
         self.commu_panel_gbox.addWidget(self.close_b, 11, 0, 1, 4)
         self.setLayout(self.commu_panel_gbox)
+
+    def switch_master_addr(self):
+        '''switch'''
+        self.master_addr_box.setText('%02X'%random.randint(0, 255))
+
+    def apply_master_addr(self):
+        '''apply'''
+        config.COMMU.master_addr = self.master_addr_box.text()
 
     def connect_serial(self):
         '''open serial'''
@@ -253,11 +264,13 @@ class MsgDiyDialog(QtGui.QDialog):
         self.always_top_cb.stateChanged.connect(self.set_always_top)
         self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint if self.always_top_cb.isChecked() else QtCore.Qt.Widget)
 
+        self.apdu_text = ''
+
 
     def setup_ui(self):
         '''set layout'''
         # self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
-        self.setWindowTitle('自定义报文')
+        self.setWindowTitle('自定义APDU')
         self.setWindowIcon(QtGui.QIcon(os.path.join(config.SORTWARE_PATH, 'imgs/698.png')))
 
         self.clr_b = QtGui.QPushButton()
@@ -313,17 +326,20 @@ class MsgDiyDialog(QtGui.QDialog):
             self.send_b.setEnabled(True if trans.is_success else False)
         else:
             self.send_b.setEnabled(True)
+        if self.send_b.isEnabled():
+            self.apdu_text = trans.get_apdu_text()
+            print('self.apdu_text:', self.apdu_text)
 
 
     def send_msg(self):
         '''send message'''
-        msg_text = self.msg_box.toPlainText()
-        config.MASTER_WINDOW.se_apdu_signal.emit(msg_text)
+        config.MASTER_WINDOW.se_apdu_signal.emit(self.apdu_text)
 
 
     def clr_box(self):
         '''clear input&output box'''
         self.msg_box.setText('')
+        self.msg_box.setFocus()
 
 
     def set_always_top(self):
