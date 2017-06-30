@@ -10,6 +10,7 @@ from master.trans import common
 from master.trans import linklayer
 from master.trans.translate import Translate
 from master.UI import dialog_ui
+from master.UI import param_ui
 from master import config
 from master.reply import reply
 
@@ -37,6 +38,7 @@ class MasterWindow(QtGui.QMainWindow):
 
         self.about_action.triggered.connect(self.show_about_window)
         self.link_action.triggered.connect(self.show_commu_window)
+        self.general_cmd_action.triggered.connect(self.show_general_cmd_window)
         self.get_set_service_action.triggered.connect(self.show_get_service_window)
         self.msg_diy_action.triggered.connect(self.show_msg_diy_window)
         self.remote_update_action.triggered.connect(self.show_remote_update_window)
@@ -50,6 +52,7 @@ class MasterWindow(QtGui.QMainWindow):
         self.get_set_service_dialog = dialog_ui.GetSetServiceDialog()
         self.msg_diy_dialog = dialog_ui.MsgDiyDialog()
         self.remote_update_dialog = dialog_ui.RemoteUpdateDialog()
+        self.general_cmd_dialog = param_ui.ParamWindow()
 
         self.is_reply_link = True
 
@@ -67,13 +70,16 @@ class MasterWindow(QtGui.QMainWindow):
         self.commu_menu = self.menubar.addMenu('&通信')
         self.commu_menu.addAction(self.link_action)
 
+        self.general_cmd_action = QtGui.QAction('&常用命令', self)
+        self.general_cmd_action.setShortcut('F5')
         self.get_set_service_action = QtGui.QAction('&读取/设置', self)
-        self.get_set_service_action.setShortcut('F5')
+        self.get_set_service_action.setShortcut('F6')
         self.action_service_action = QtGui.QAction('&操作', self)
         self.action_service_action.setShortcut('F7')
         self.proxy_service_action = QtGui.QAction('&代理', self)
         self.proxy_service_action.setShortcut('F9')
         self.commu_menu = self.menubar.addMenu('&服务')
+        self.commu_menu.addAction(self.general_cmd_action)
         self.commu_menu.addAction(self.get_set_service_action)
         self.commu_menu.addAction(self.action_service_action)
         self.commu_menu.addAction(self.proxy_service_action)
@@ -366,6 +372,12 @@ class MasterWindow(QtGui.QMainWindow):
         '''show_get_service_window'''
         self.get_set_service_dialog.show()
         self.get_set_service_dialog.activateWindow()
+
+
+    def show_general_cmd_window(self):
+        '''show_general_cmd_window'''
+        self.general_cmd_dialog.show()
+        self.general_cmd_dialog.activateWindow()
 
 
     def show_msg_diy_window(self):
