@@ -195,6 +195,8 @@ class Translate():
             brief['service'] = '上报'
             brief['content'] = ','.join([row['value'].split('[索引')[0]\
                                 for row in depth1_list if row['dtype'] == 'OAD'])
+            if service_type[-1] == '3':
+                brief['content'] = '透明数据'
 
         elif service_type[1] in ['9']:
             brief['service'] = {'1': '代理读取', '2': '代理读取记录', '3': '代理设置', '4': '代理设置后读取',\

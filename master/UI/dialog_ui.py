@@ -25,7 +25,6 @@ class TransPopDialog(QtGui.QDialog):
         self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint if self.always_top_cb.isChecked() else QtCore.Qt.Widget)
 
 
-
     def setup_ui(self):
         '''set layout'''
         # self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
@@ -40,10 +39,10 @@ class TransPopDialog(QtGui.QDialog):
         self.splitter.setStretchFactor(1, 6)
 
         self.always_top_cb = QtGui.QCheckBox()
-        self.always_top_cb.setChecked(True)
+        # self.always_top_cb.setChecked(True)
         self.always_top_cb.setText('置顶')
         self.show_level_cb = QtGui.QCheckBox()
-        # self.show_level_cb.setChecked(True)
+        self.show_level_cb.setChecked(True)
         self.show_level_cb.setText('显示结构')
         self.cb_hbox = QtGui.QHBoxLayout()
         self.cb_hbox.addStretch(1)
@@ -295,10 +294,10 @@ class MsgDiyDialog(QtGui.QDialog):
         self.chk_valid_cb.setChecked(True)
         self.chk_valid_cb.setText('检查合法性')
         self.always_top_cb = QtGui.QCheckBox()
-        self.always_top_cb.setChecked(True)
+        # self.always_top_cb.setChecked(True)
         self.always_top_cb.setText('置顶')
         self.show_level_cb = QtGui.QCheckBox()
-        # self.show_level_cb.setChecked(True)
+        self.show_level_cb.setChecked(True)
         self.show_level_cb.setText('显示结构')
         self.cb_hbox = QtGui.QHBoxLayout()
         self.cb_hbox.addStretch(1)
@@ -447,10 +446,10 @@ class GetSetServiceDialog(QtGui.QDialog):
         self.chk_valid_cb.setChecked(True)
         self.chk_valid_cb.setText('检查合法性')
         self.always_top_cb = QtGui.QCheckBox()
-        self.always_top_cb.setChecked(True)
+        # self.always_top_cb.setChecked(True)
         self.always_top_cb.setText('置顶')
         self.show_level_cb = QtGui.QCheckBox()
-        # self.show_level_cb.setChecked(True)
+        self.show_level_cb.setChecked(True)
         self.show_level_cb.setText('显示结构')
         self.cb_hbox = QtGui.QHBoxLayout()
         self.cb_hbox.addStretch(1)

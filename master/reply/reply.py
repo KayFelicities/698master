@@ -17,5 +17,16 @@ def get_link_replay_apdu(trans_object):
 
 def get_rpt_replay_apdu(trans_object):
     '''get_rpt_replay_apdu'''
-    reply_test = '00'
-    return reply_test
+    piid = trans_object.get_piid()
+    service_choice = trans_object.get_service()[-2:]
+    print('service_choice:', service_choice)
+    if service_choice in ['01', '02']:
+        oad_list = list(map(lambda x: common.list2text(x['m_list']),\
+                        list(filter(lambda row: row['dtype'] == 'OAD' and row['depth'] == 1\
+                                                , trans_object.res_list))))
+        print('oad_list:', oad_list)
+        oad_num = len(oad_list)
+        reply_text = '08%s %s %02X %s 00'%(service_choice, piid, oad_num, ''.join(oad_list))
+    if service_choice == '03':
+        reply_text = '0803%s 00'%piid
+    return reply_text

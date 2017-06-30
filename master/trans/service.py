@@ -61,8 +61,10 @@ class Service():
             '8703': self.ActionThenGetResponseNormalList,
             '0801': self.ReportResponseList,
             '0802': self.ReportResponseRecordList,
+            '0803': self.ReportResponseTransData,
             '8801': self.ReportNotificationList,
             '8802': self.ReportNotificationRecordList,
+            '8803': self.ReportNotificationTransData,
             '0901': self.proxy_get_request_list,
             '0902': self.ProxyGetRequestRecord,
             '0903': self.ProxySetRequestList,
@@ -522,7 +524,7 @@ class Service():
     def ReportResponseList(self, m_list):
         '''ReportResponseList'''
         offset = 0
-        offset += self.typedo.take_PIID_ACD(m_list[offset:], '服务序号-优先级-ACD')
+        offset += self.typedo.take_PIID(m_list[offset:], '服务序号-优先级')
         num = int(m_list[offset], 16)
         self.trans_res.add_row(m_list[offset: offset+1],\
                     '对应上报的若干个对象属性描述符', 'SEQUENCE OF OAD[%d]'%num, num)
@@ -534,6 +536,12 @@ class Service():
     def ReportResponseRecordList(self, m_list):
         '''ReportResponseRecordList'''
         return self.ReportResponseList(m_list)
+
+    def ReportResponseTransData(self, m_list):
+        '''ReportResponseTransData'''
+        offset = 0
+        offset += self.typedo.take_PIID(m_list[offset:], '服务序号-优先级')
+        return offset
 
     def ReportNotificationList(self, m_list):
         '''ReportNotificationList'''
@@ -557,6 +565,19 @@ class Service():
         offset += 1
         for _ in range(num):
             offset += self.take_A_ResultRecord(m_list[offset:], depth=1)
+        return offset
+
+    def ReportNotificationTransData(self, m_list):
+        '''ReportNotificationTransData'''
+        offset = 0
+        offset += self.typedo.take_PIID_ACD(m_list[offset:], '服务序号-优先级-ACD')
+        offset += self.typedo.take_OAD(m_list[offset:], '数据来源端口')
+        num = int(m_list[offset], 16)
+        self.trans_res.add_row(m_list[offset: offset+1],\
+                    '透明数据', 'SEQUENCE OF octet-string[%d]'%num, num)
+        offset += 1
+        for _ in range(num):
+            offset += self.typedo.take_octect_string(m_list[offset:], depth=1)
         return offset
 
     def proxy_get_request_list(self, m_list):

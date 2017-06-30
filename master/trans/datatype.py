@@ -654,7 +654,7 @@ class TypeDo():
         offset = 0
         csd_choice = m_list[offset]
         offset += 1
-        print('csd: ', csd_choice)
+        # print('csd: ', csd_choice)
         if csd_choice == '00':
             self.trans_res.add_row(m_list[:offset], brief, 'CSD', 'OAD', depth=depth)
             offset += self.take_OAD(m_list[offset:], '对象属性描述符', depth=depth)

@@ -214,12 +214,22 @@ class ParamWindow(QtGui.QMainWindow, QtGui.QWidget, Ui_ParamWindow):
 
     def ip_set(self, DT):
         self.res_b.setText('')
-        gprs_ip_text = param.format_ip(self.S_ip_box.text())
-        gprs_port_text = '%04X' % int(self.S_port_box.text().replace(' ', ''))
-        eth_ip_text = param.format_ip(self.S_ip_box_2.text())
-        eth_port_text = '%04X' % int(self.S_port_box_2.text().replace(' ', ''))
-        apdu_text = '060200 02 45000300 0101 0202 0904' + gprs_ip_text + '12' + gprs_port_text\
-                        + '45100300 0101 0202 0904' + eth_ip_text + '12' + eth_port_text
+        gprs_ip_text = self.S_ip_box.text()
+        if gprs_ip_text:
+            gprs_ip_text = param.format_ip(gprs_ip_text)
+            gprs_port_text = '%04X' % int(self.S_port_box.text().replace(' ', ''))
+        eth_ip_text = self.S_ip_box_2.text()
+        if eth_ip_text:
+            eth_ip_text = param.format_ip(eth_ip_text)
+            eth_port_text = '%04X' % int(self.S_port_box_2.text().replace(' ', ''))
+
+        if gprs_ip_text and (not eth_ip_text):
+            apdu_text = '060100 45000300 0101 0202 0904' + gprs_ip_text + '12' + gprs_port_text
+        if (not gprs_ip_text) and eth_ip_text:
+            apdu_text = '060100 45100300 0101 0202 0904' + eth_ip_text + '12' + eth_port_text
+        if gprs_ip_text and eth_ip_text:
+            apdu_text = '060200 02 45000300 0101 0202 0904' + gprs_ip_text + '12' + gprs_port_text\
+                            + '45100300 0101 0202 0904' + eth_ip_text + '12' + eth_port_text
         config.MASTER_WINDOW.se_apdu_signal.emit(apdu_text)
         config.MASTER_WINDOW.receive_signal.connect(self.read_res)
 
@@ -229,29 +239,26 @@ class ParamWindow(QtGui.QMainWindow, QtGui.QWidget, Ui_ParamWindow):
         data = common.get_apdu_list(m_data)
         gprs_pos = common.list2text(data).replace(' ', '').find('45000300') // 2
         eth_pos = common.list2text(data).replace(' ', '').find('45100300') // 2
-        offset = gprs_pos + 4
-        if data[offset] == '01':
-            self.res_b.setStyleSheet('color: green')
-            self.res_b.setText('成功')
-            offset += 7
-            ip_text = param.get_ip(data[offset:])
-            self.S_ip_box.setText(ip_text)
-            port_text = str(int(data[offset + 5] + data[offset + 6], 16))
-            self.S_port_box.setText(port_text)
-        else:
-            self.S_ip_box.setText('失败：' + dars.DAR.get(int(data[offset + 1], 16), '无效DAR'))
-
-        offset = eth_pos + 4
-        if data[offset] == '01':
-            self.res_b.setStyleSheet('color: green')
-            self.res_b.setText('成功')
-            offset += 7
-            ip_text = param.get_ip(data[offset:])
-            self.S_ip_box_2.setText(ip_text)
-            port_text = str(int(data[offset + 5] + data[offset + 6], 16))
-            self.S_port_box_2.setText(port_text)
-        else:
-            self.S_ip_box.setText('失败：' + dars.DAR.get(int(data[offset + 1], 16), '无效DAR'))
+        if gprs_pos >= 0:
+            offset = gprs_pos + 4
+            if data[offset] == '01':
+                self.res_b.setStyleSheet('color: green')
+                self.res_b.setText('成功')
+                offset += 7
+                ip_text = param.get_ip(data[offset:])
+                self.S_ip_box.setText(ip_text)
+                port_text = str(int(data[offset + 5] + data[offset + 6], 16))
+                self.S_port_box.setText(port_text)
+        if eth_pos >= 0:
+            offset = eth_pos + 4
+            if data[offset] == '01':
+                self.res_b.setStyleSheet('color: green')
+                self.res_b.setText('成功')
+                offset += 7
+                ip_text = param.get_ip(data[offset:])
+                self.S_ip_box_2.setText(ip_text)
+                port_text = str(int(data[offset + 5] + data[offset + 6], 16))
+                self.S_port_box_2.setText(port_text)
         config.MASTER_WINDOW.receive_signal.disconnect(self.re_ip)
 
 
@@ -395,57 +402,55 @@ class ParamWindow(QtGui.QMainWindow, QtGui.QWidget, Ui_ParamWindow):
     def re_esam_info(self, re_text):
         m_data = common.text2list(re_text)
         data = common.get_apdu_list(m_data)
-        offset = 4
-        res_sum = True
-        offset += 4
+        offset = common.list2text(data).replace(' ', '').find('F1000200') // 2 + 4
         if data[offset] == '01':
             offset += 1
             ret = param.get_octet(data[offset:])
             self.esam_no_box.setText(ret['octet'])
             offset += ret['offset']
         else:
-            offset += 1
             res_sum = False
             self.esam_no_box.setText('失败：' + dars.DAR.get(int(data[offset + 1], 16), '无效DAR'))
-        offset += 4
+
+        offset = common.list2text(data).replace(' ', '').find('F1000300') // 2 + 4
         if data[offset] == '01':
             offset += 1
             ret = param.get_octet(data[offset:])
             self.esam_ver_box.setText(ret['octet'])
             offset += ret['offset']
         else:
-            offset += 1
             res_sum = False
             self.esam_ver_box.setText('失败：' + dars.DAR.get(int(data[offset + 1], 16), '无效DAR'))
-        offset += 4
+
+        offset = common.list2text(data).replace(' ', '').find('F1000400') // 2 + 4
         if data[offset] == '01':
             offset += 1
             ret = param.get_octet(data[offset:])
             self.esam_key_box.setText(ret['octet'])
             offset += ret['offset']
         else:
-            offset += 1
             res_sum = False
             self.esam_key_box.setText('失败：' + dars.DAR.get(int(data[offset + 1], 16), '无效DAR'))
-        offset += 4
+
+        offset = common.list2text(data).replace(' ', '').find('F1000500') // 2 + 4
         if data[offset] == '01':
             offset += 1
             self.esam_dialog_tm_box.setText(str(param.get_double_long_unsigned(data[offset:])))
             offset += 5
         else:
-            offset += 1
             res_sum = False
             self.esam_dialog_tm_box.setText('失败：' + dars.DAR.get(int(data[offset + 1], 16), '无效DAR'))
-        offset += 4
+
+        offset = common.list2text(data).replace(' ', '').find('F1000600') // 2 + 4
         if data[offset] == '01':
             offset += 1
             self.esam_dialog_remain_box.setText(str(param.get_double_long_unsigned(data[offset:])))
             offset += 5
         else:
-            offset += 1
             res_sum = False
             self.esam_dialog_remain_box.setText('失败：' + dars.DAR.get(int(data[offset + 1], 16), '无效DAR'))
-        offset += 4
+
+        offset = common.list2text(data).replace(' ', '').find('F1000700') // 2 + 4
         if data[offset] == '01':
             offset += 3
             self.esam_addr_ctr_box.setText(str(param.get_double_long_unsigned(data[offset:])))
@@ -455,12 +460,12 @@ class ParamWindow(QtGui.QMainWindow, QtGui.QWidget, Ui_ParamWindow):
             self.esam_app_radio_box.setText(str(param.get_double_long_unsigned(data[offset:])))
             offset += 5
         else:
-            offset += 1
             res_sum = False
             self.esam_addr_ctr_box.setText('失败：' + dars.DAR.get(int(data[offset + 1], 16), '无效DAR'))
             self.esam_rpt_ctr_box.setText('失败：' + dars.DAR.get(int(data[offset + 1], 16), '无效DAR'))
             self.esam_app_radio_box.setText('失败：' + dars.DAR.get(int(data[offset + 1], 16), '无效DAR'))
-        offset += 4
+
+        offset = common.list2text(data).replace(' ', '').find('F1000800') // 2 + 4
         if data[offset] == '01':
             offset += 3
             ret = param.get_octet(data[offset:])
@@ -470,7 +475,6 @@ class ParamWindow(QtGui.QMainWindow, QtGui.QWidget, Ui_ParamWindow):
             self.esam_host_ver_box.setText(ret['octet'])
             offset += ret['offset']
         else:
-            offset += 1
             res_sum = False
             self.esam_terminal_ver_box.setText('失败：' + dars.DAR.get(int(data[offset + 1], 16), '无效DAR'))
             self.esam_host_ver_box.setText('失败：' + dars.DAR.get(int(data[offset + 1], 16), '无效DAR'))
@@ -505,7 +509,7 @@ class ParamWindow(QtGui.QMainWindow, QtGui.QWidget, Ui_ParamWindow):
         else:
             offset += 1
             res_sum = False
-            self.esam_certi_ver_box.setText('失败：' + dars.DAR.get(int(data[offset + 1], 16), '无效DAR'))
+            self.esam_certi_ver_box.setText('失败：' + dars.DAR.get(int(data[offset], 16), '无效DAR'))
         offset += 4
         if data[offset] == '01':
             offset += 1
@@ -516,7 +520,7 @@ class ParamWindow(QtGui.QMainWindow, QtGui.QWidget, Ui_ParamWindow):
         else:
             offset += 1
             res_sum = False
-            self.esam_certi_box.setText('失败：' + dars.DAR.get(int(data[offset + 1], 16), '无效DAR'))
+            self.esam_certi_box.setText('失败：' + dars.DAR.get(int(data[offset], 16), '无效DAR'))
         if res_sum is True:
             self.res_b.setStyleSheet('color: green')
             self.res_b.setText('成功')

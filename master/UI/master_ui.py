@@ -35,6 +35,7 @@ class MasterWindow(QtGui.QMainWindow):
         self.msg_table.cellDoubleClicked.connect(self.trans_msg)
         self.always_top_cb.clicked.connect(self.set_always_top)
         self.reply_link_cb.clicked.connect(self.set_reply_link)
+        self.reply_rpt_cb.clicked.connect(self.set_reply_rpt)
 
         self.about_action.triggered.connect(self.show_about_window)
         self.link_action.triggered.connect(self.show_commu_window)
@@ -55,6 +56,7 @@ class MasterWindow(QtGui.QMainWindow):
         self.general_cmd_dialog = param_ui.ParamWindow()
 
         self.is_reply_link = True
+        self.is_reply_rpt = True
 
         self.show_commu_window()
 
@@ -165,6 +167,9 @@ class MasterWindow(QtGui.QMainWindow):
         self.main_hsplitter.setStretchFactor(0, 1)
         self.main_hsplitter.setStretchFactor(1, 3)
 
+        self.reply_rpt_cb = QtGui.QCheckBox()
+        self.reply_rpt_cb.setText('回复上报')
+        self.reply_rpt_cb.setChecked(True)
         self.reply_link_cb = QtGui.QCheckBox()
         self.reply_link_cb.setText('维护登录/心跳')
         self.reply_link_cb.setChecked(True)
@@ -172,6 +177,7 @@ class MasterWindow(QtGui.QMainWindow):
         self.always_top_cb.setText('置顶')
         self.foot_hbox = QtGui.QHBoxLayout()
         self.foot_hbox.addStretch(1)
+        self.foot_hbox.addWidget(self.reply_rpt_cb)
         self.foot_hbox.addWidget(self.reply_link_cb)
         self.foot_hbox.addWidget(self.always_top_cb)
 
@@ -254,7 +260,10 @@ class MasterWindow(QtGui.QMainWindow):
         # chk to add tmn addr to table
         if direction == '←':
             for row_num in range(self.tmn_table.rowCount()):
-                if server_addr == self.tmn_table.item(row_num, 1).text():
+                if server_addr == self.tmn_table.item(row_num, 1).text()\
+                and logic_addr == self.tmn_table.cellWidget(row_num, 2).value()\
+                and channel == {0: '串口', 1: '前置机', 2: '服务器'}.\
+                                get(self.tmn_table.cellWidget(row_num, 3).currentIndex()):
                     break
             else:
                 self.add_tmn_table_row(tmn_addr=server_addr, logic_addr=logic_addr,\
@@ -288,8 +297,14 @@ class MasterWindow(QtGui.QMainWindow):
 
         self.msg_table.scrollToBottom()
 
-        if trans.get_service() == '01' and self.is_reply_link:
+        service = trans.get_service()
+        print('service: ', service)
+        if service == '01' and self.is_reply_link:
             reply_apdu_text = reply.get_link_replay_apdu(trans)
+            self.send_apdu(reply_apdu_text, tmn_addr=server_addr,\
+                            logic_addr=logic_addr, channel=channel, C_text='01')
+        if service[:2] == '88' and self.is_reply_rpt:
+            reply_apdu_text = reply.get_rpt_replay_apdu(trans)
             self.send_apdu(reply_apdu_text, tmn_addr=server_addr,\
                             logic_addr=logic_addr, channel=channel, C_text='01')
 
@@ -354,6 +369,11 @@ class MasterWindow(QtGui.QMainWindow):
     def set_reply_link(self):
         '''set_reply_link'''
         self.is_reply_link = True if self.reply_link_cb.isChecked() else False
+
+
+    def set_reply_rpt(self):
+        '''set_reply_rpt'''
+        self.is_reply_rpt = True if self.reply_rpt_cb.isChecked() else False
 
 
     def show_about_window(self):
