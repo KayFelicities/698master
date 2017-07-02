@@ -39,6 +39,7 @@ class MasterWindow(QtGui.QMainWindow):
 
         self.tmn_table_scan_b.clicked.connect(self.tmn_scan)
         self.clr_b.clicked.connect(lambda: self.clr_table(self.msg_table))
+        self.open_log_b.clicked.connect(self.open_log_dir)
         self.msg_table.cellDoubleClicked.connect(self.trans_msg)
         self.always_top_cb.clicked.connect(self.set_always_top)
         self.reply_link_cb.clicked.connect(self.set_reply_link)
@@ -185,8 +186,12 @@ class MasterWindow(QtGui.QMainWindow):
         self.msg_btn_hbox = QtGui.QHBoxLayout()
         self.clr_b = QtGui.QPushButton()
         self.clr_b.setText('清空报文')
+        self.clr_b.setMaximumWidth(60)
+        self.open_log_b = QtGui.QPushButton()
+        self.open_log_b.setText('查看日志')
         self.msg_btn_hbox.addWidget(self.clr_b)
         self.msg_btn_hbox.addStretch(1)
+        self.msg_btn_hbox.addWidget(self.open_log_b)
         self.msg_table_vbox.addWidget(self.msg_table)
         self.msg_table_vbox.addLayout(self.msg_btn_hbox)
 
@@ -392,6 +397,11 @@ class MasterWindow(QtGui.QMainWindow):
         for _ in range(table.rowCount()):
             table.removeRow(0)
         # table.setRowCount(0)
+
+
+    def open_log_dir(self):
+        '''open_log_dir'''
+        os.system('start {dir}'.format(dir=config.MSG_LOG_DIR))
 
 
     def set_always_top(self):
