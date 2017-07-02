@@ -52,7 +52,7 @@ class TransWindow(QtGui.QMainWindow):
         self.btn_hbox.addWidget(self.open_b)
         self.btn_hbox.addWidget(self.clr_b)
 
-        self.input_box = QtGui.QTextEdit()
+        self.input_box = QtGui.QPlainTextEdit()
         self.output_box = QtGui.QTextEdit()
         self.main_hsplitter = QtGui.QSplitter(QtCore.Qt.Horizontal)
         self.main_hsplitter.addWidget(self.input_box)
@@ -129,7 +129,7 @@ class TransWindow(QtGui.QMainWindow):
         self.proc_bar.setVisible(False)
         self.open_b.setEnabled(True)
         self.setAcceptDrops(True)
-        self.input_box.setText(file_text)
+        self.input_box.setPlainText(file_text)
 
 
     def set_progressbar(self, percent):

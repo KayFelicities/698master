@@ -12,6 +12,7 @@ from master import config
 from master.commu import communication
 from master.datas import get_set_oads
 from master.trans import loadtype
+from master.others import master_config
 
 
 class TransPopDialog(QtGui.QDialog):
@@ -30,7 +31,7 @@ class TransPopDialog(QtGui.QDialog):
         # self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         self.setWindowTitle('详细解析')
         self.setWindowIcon(QtGui.QIcon(os.path.join(config.SORTWARE_PATH, 'imgs/698.png')))
-        self.msg_box = QtGui.QTextEdit()
+        self.msg_box = QtGui.QPlainTextEdit()
         self.explain_box = QtGui.QTextEdit()
         self.splitter = QtGui.QSplitter(QtCore.Qt.Vertical)
         self.splitter.addWidget(self.msg_box)
@@ -87,6 +88,13 @@ class CommuDialog(QtGui.QDialog):
         self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
         # self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
 
+        # apply config
+        apply_config = master_config.MasterConfig()
+        self.master_addr_box.setText(apply_config.get_master_addr())
+        self.serial_baud.setCurrentIndex(apply_config.get_serial_baud_index())
+        self.frontend_box.setText(apply_config.get_frontend_ip())
+        self.server_box.setText(apply_config.get_server_port())
+
         self.master_addr_change_b.clicked.connect(self.switch_master_addr)
         self.master_addr_box.textChanged.connect(self.apply_master_addr)
         self.serial_combo.addItems(communication.serial_com_scan())
@@ -114,8 +122,8 @@ class CommuDialog(QtGui.QDialog):
         self.serial_label.setText('串口：')
         self.serial_combo = QtGui.QComboBox()
         self.serial_baud = QtGui.QComboBox()
-        self.serial_baud.addItems(('1200', '2400', '9600', '115200'))
-        self.serial_baud.setCurrentIndex(2)
+        self.serial_baud.addItems(('1200', '2400', '4800', '9600', '19200', '115200'))
+        self.serial_baud.setCurrentIndex(3)
         self.serial_link_b = QtGui.QPushButton()
         self.serial_link_b.setMaximumWidth(50)
         self.serial_link_b.setText('连接')
@@ -186,6 +194,7 @@ class CommuDialog(QtGui.QDialog):
             self.serial_link_b.setText('已连接')
             self.serial_link_b.setEnabled(False)
             self.serial_combo.setEnabled(False)
+            self.serial_baud.setEnabled(False)
             self.serial_cut_b.setText('断开')
         else:
             self.serial_link_b.setText('失败')
@@ -248,6 +257,18 @@ class CommuDialog(QtGui.QDialog):
         self.close()
 
 
+    def closeEvent(self, event):
+        '''close event'''
+        # save config
+        save_config = master_config.MasterConfig()
+        save_config.set_master_addr(self.master_addr_box.text())
+        save_config.set_serial_baud_index(self.serial_baud.currentIndex())
+        save_config.set_frontend_ip(self.frontend_box.text())
+        save_config.set_server_port(self.server_box.text())
+        save_config.commit()
+        event.accept()
+
+
 class MsgDiyDialog(QtGui.QDialog):
     '''message DIY dialog class'''
     def __init__(self):
@@ -256,6 +277,7 @@ class MsgDiyDialog(QtGui.QDialog):
 
         self.clr_b.clicked.connect(self.clr_box)
         self.send_b.clicked.connect(self.send_msg)
+        self.read_oad_b.clicked.connect(self.send_read_oad)
 
         self.msg_box.textChanged.connect(self.trans_msg)
         self.chk_valid_cb.stateChanged.connect(self.trans_msg)
@@ -274,15 +296,26 @@ class MsgDiyDialog(QtGui.QDialog):
 
         self.clr_b = QtGui.QPushButton()
         self.clr_b.setText('清空')
+        self.oad_l = QtGui.QLabel()
+        self.oad_l.setText('OAD')
+        self.oad_box = QtGui.QLineEdit()
+        self.oad_box.setMaximumWidth(70)
+        self.read_oad_b = QtGui.QPushButton()
+        self.read_oad_b.setMaximumWidth(35)
+        self.read_oad_b.setText('读取')
         self.send_b = QtGui.QPushButton()
         self.send_b.setText('发送')
         self.send_b.setEnabled(False)
         self.btn_hbox = QtGui.QHBoxLayout()
         self.btn_hbox.addWidget(self.clr_b)
         self.btn_hbox.addStretch(1)
+        self.btn_hbox.addWidget(self.oad_l)
+        self.btn_hbox.addWidget(self.oad_box)
+        self.btn_hbox.addWidget(self.read_oad_b)
+        self.btn_hbox.addStretch(1)
         self.btn_hbox.addWidget(self.send_b)
 
-        self.msg_box = QtGui.QTextEdit()
+        self.msg_box = QtGui.QPlainTextEdit()
         self.explain_box = QtGui.QTextEdit()
         self.splitter = QtGui.QSplitter(QtCore.Qt.Vertical)
         self.splitter.addWidget(self.msg_box)
@@ -335,9 +368,16 @@ class MsgDiyDialog(QtGui.QDialog):
         config.MASTER_WINDOW.se_apdu_signal.emit(self.apdu_text)
 
 
+    def send_read_oad(self):
+        '''send message'''
+        oad_text = self.oad_box.text()
+        apdu_text = '050100 %s 00'%oad_text
+        config.MASTER_WINDOW.se_apdu_signal.emit(apdu_text)
+
+
     def clr_box(self):
         '''clear input&output box'''
-        self.msg_box.setText('')
+        self.msg_box.setPlainText('')
         self.msg_box.setFocus()
 
 

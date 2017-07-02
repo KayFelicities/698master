@@ -17,6 +17,7 @@ def main():
     config.TRANS_WINDOW = TransWindow()
     config.MASTER_WINDOW = MasterWindow()
     config.MASTER_WINDOW.show()
+    config.MASTER_WINDOW.show_commu_window()
     APP.exec_()
     os._exit(0)
 

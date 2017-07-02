@@ -27,7 +27,7 @@ class CommuPanel():
         self.is_server_running = False
         self.client_list = []
 
-        self.master_addr = '%02X'%random.randint(0, 255)
+        self.master_addr = '00'
 
 
     def send_msg(self, m_text, chanel='全部'):
@@ -36,10 +36,10 @@ class CommuPanel():
         send_b = b''.join(map(lambda x: struct.pack('B', int(x, 16)), m_list))
         if self.is_serial_running and chanel in ['全部', '串口']:
             self.serial_handle.write(send_b)
-            config.MASTER_WINDOW.send_signal.emit(common.format_text(m_text), '串口')
+            config.MASTER_WINDOW.send_signal.emit(common.format_text(m_text), 0)
         if self.is_frontend_running and chanel in ['全部', '前置机']:
             self.frontend_handle.sendall(send_b)
-            config.MASTER_WINDOW.send_signal.emit(common.format_text(m_text), '前置机')
+            config.MASTER_WINDOW.send_signal.emit(common.format_text(m_text), 1)
 
         def send_to_client(client_handle, client_addr):
             '''send'''
@@ -53,7 +53,7 @@ class CommuPanel():
         if self.is_server_running and chanel in ['全部', '服务器']:
             for client_handle, client_addr in self.client_list:
                 send_to_client(client_handle, client_addr)
-            config.MASTER_WINDOW.send_signal.emit(common.format_text(m_text), '服务器')
+            config.MASTER_WINDOW.send_signal.emit(common.format_text(m_text), 2)
 
 
     def serial_connect(self, com, baudrate=9600, bytesize=8, parity='E', stopbits=1, timeout=0.05):
@@ -102,7 +102,7 @@ class CommuPanel():
                 time.sleep(0.3)
                 data_wait = self.serial_handle.inWaiting()
             if re_text != '':
-                config.MASTER_WINDOW.receive_signal.emit(re_text, '串口')
+                config.MASTER_WINDOW.receive_signal.emit(re_text, 0)
             if self.is_serial_running is False:
                 print('serial_run quit')
                 break
@@ -149,7 +149,7 @@ class CommuPanel():
                 print('frontend err quit')
                 break
             if re_text != '':
-                config.MASTER_WINDOW.receive_signal.emit(re_text, '前置机')
+                config.MASTER_WINDOW.receive_signal.emit(re_text, 1)
             if self.is_frontend_running is False:
                 print('frontend quit')
                 break
@@ -212,7 +212,7 @@ class CommuPanel():
                 self.client_list.remove((client_handle, client_addr))
                 break
             if re_text != '':
-                config.MASTER_WINDOW.receive_signal.emit(re_text, '服务器')
+                config.MASTER_WINDOW.receive_signal.emit(re_text, 2)
             if self.is_server_running is False:
                 print(client_addr, 'client quit')
                 self.client_list.remove((client_handle, client_addr))
