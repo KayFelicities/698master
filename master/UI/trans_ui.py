@@ -226,7 +226,7 @@ class TransWindow(QtGui.QMainWindow):
         with open(filepath, "rb") as file:
             encoding = chardet.detect(file.read(65535))
             print(encoding)
-            if encoding['confidence'] > 0.8 and encoding['language'] == 'Chinese':
+            if encoding['confidence'] > 0.95:
                 file_encoding = encoding['encoding']
             else:
                 file_encoding = 'gb2312'
