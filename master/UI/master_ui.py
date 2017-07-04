@@ -45,6 +45,7 @@ class MasterWindow(QtGui.QMainWindow):
         self.reply_link_cb.clicked.connect(self.set_reply_link)
         self.reply_rpt_cb.clicked.connect(self.set_reply_rpt)
         self.read_oad_b.clicked.connect(self.send_read_oad)
+        self.connect(self.oad_box, QtCore.SIGNAL("returnPressed()"), self.send_read_oad)
         self.oad_box.textChanged.connect(self.explain_oad)
 
         self.about_action.triggered.connect(self.show_about_window)
@@ -363,7 +364,7 @@ class MasterWindow(QtGui.QMainWindow):
                 continue
             if logic_addr != -1 and logic_addr != self.tmn_table.cellWidget(row, 2).value():
                 continue
-            if chan_index != self.tmn_table.cellWidget(row, 3).currentIndex():
+            if chan_index != -1 and self.tmn_table.cellWidget(row, 3).currentIndex():
                 continue
 
             compelete_msg = linklayer.add_linkLayer(common.text2list(apdu_text),\

@@ -132,8 +132,10 @@ class CommuDialog(QtGui.QDialog):
         self.serial_cut_b.setText('刷新')
         self.frontend_label = QtGui.QLabel()
         self.frontend_label.setText('前置机：')
+        self.frontend_ip_l = QtGui.QLabel()
+        self.frontend_ip_l.setText('IP:PORT')
         self.frontend_box = QtGui.QLineEdit()
-        self.frontend_box.setText('121.40.80.159:20084')
+        self.frontend_box.setPlaceholderText('例 127.0.0.1:1080')
         self.frontend_link_b = QtGui.QPushButton()
         self.frontend_link_b.setMaximumWidth(50)
         self.frontend_link_b.setText('连接')
@@ -142,8 +144,10 @@ class CommuDialog(QtGui.QDialog):
         self.frontend_cut_b.setText('断开')
         self.server_label = QtGui.QLabel()
         self.server_label.setText('服务器：')
+        self.server_port_l = QtGui.QLabel()
+        self.server_port_l.setText('端口')
         self.server_box = QtGui.QLineEdit()
-        self.server_box.setText('20083')
+        self.server_box.setPlaceholderText('例 1080')
         self.server_link_b = QtGui.QPushButton()
         self.server_link_b.setMaximumWidth(50)
         self.server_link_b.setText('启动')
@@ -167,12 +171,14 @@ class CommuDialog(QtGui.QDialog):
         self.commu_panel_gbox.addWidget(self.serial_cut_b, 3, 3)
         self.commu_panel_gbox.addWidget(self.dummy_l, 4, 0)
         self.commu_panel_gbox.addWidget(self.frontend_label, 5, 0)
-        self.commu_panel_gbox.addWidget(self.frontend_box, 6, 0, 1, 2)
+        self.commu_panel_gbox.addWidget(self.frontend_ip_l, 6, 0)
+        self.commu_panel_gbox.addWidget(self.frontend_box, 6, 1)
         self.commu_panel_gbox.addWidget(self.frontend_link_b, 6, 2)
         self.commu_panel_gbox.addWidget(self.frontend_cut_b, 6, 3)
         self.commu_panel_gbox.addWidget(self.dummy_l, 7, 0)
         self.commu_panel_gbox.addWidget(self.server_label, 8, 0)
-        self.commu_panel_gbox.addWidget(self.server_box, 9, 0, 1, 2)
+        self.commu_panel_gbox.addWidget(self.server_port_l, 9, 0)
+        self.commu_panel_gbox.addWidget(self.server_box, 9, 1)
         self.commu_panel_gbox.addWidget(self.server_link_b, 9, 2)
         self.commu_panel_gbox.addWidget(self.server_cut_b, 9, 3)
         self.commu_panel_gbox.addWidget(self.dummy_l, 10, 0)
@@ -277,7 +283,6 @@ class MsgDiyDialog(QtGui.QDialog):
 
         self.clr_b.clicked.connect(self.clr_box)
         self.send_b.clicked.connect(self.send_msg)
-        self.read_oad_b.clicked.connect(self.send_read_oad)
 
         self.msg_box.textChanged.connect(self.trans_msg)
         self.chk_valid_cb.stateChanged.connect(self.trans_msg)
@@ -296,22 +301,11 @@ class MsgDiyDialog(QtGui.QDialog):
 
         self.clr_b = QtGui.QPushButton()
         self.clr_b.setText('清空')
-        self.oad_l = QtGui.QLabel()
-        self.oad_l.setText('OAD')
-        self.oad_box = QtGui.QLineEdit()
-        self.oad_box.setMaximumWidth(70)
-        self.read_oad_b = QtGui.QPushButton()
-        self.read_oad_b.setMaximumWidth(35)
-        self.read_oad_b.setText('读取')
         self.send_b = QtGui.QPushButton()
         self.send_b.setText('发送')
         self.send_b.setEnabled(False)
         self.btn_hbox = QtGui.QHBoxLayout()
         self.btn_hbox.addWidget(self.clr_b)
-        self.btn_hbox.addStretch(1)
-        self.btn_hbox.addWidget(self.oad_l)
-        self.btn_hbox.addWidget(self.oad_box)
-        self.btn_hbox.addWidget(self.read_oad_b)
         self.btn_hbox.addStretch(1)
         self.btn_hbox.addWidget(self.send_b)
 
@@ -322,6 +316,20 @@ class MsgDiyDialog(QtGui.QDialog):
         self.splitter.addWidget(self.explain_box)
         self.splitter.setStretchFactor(0, 1)
         self.splitter.setStretchFactor(1, 6)
+
+        self.re_clr_b = QtGui.QPushButton()
+        self.re_clr_b.setText('清空')
+        self.re_btn_hbox = QtGui.QHBoxLayout()
+        self.re_btn_hbox.addStretch(1)
+        self.re_btn_hbox.addWidget(self.re_clr_b)
+
+        self.re_msg_box = QtGui.QPlainTextEdit()
+        self.re_explain_box = QtGui.QTextEdit()
+        self.re_splitter = QtGui.QSplitter(QtCore.Qt.Vertical)
+        self.re_splitter.addWidget(self.re_msg_box)
+        self.re_splitter.addWidget(self.re_explain_box)
+        self.re_splitter.setStretchFactor(0, 1)
+        self.re_splitter.setStretchFactor(1, 6)
 
         self.chk_valid_cb = QtGui.QCheckBox()
         self.chk_valid_cb.setChecked(True)
@@ -338,14 +346,31 @@ class MsgDiyDialog(QtGui.QDialog):
         self.cb_hbox.addWidget(self.always_top_cb)
         self.cb_hbox.addWidget(self.show_level_cb)
 
+        self.se_w = QtGui.QWidget()
+        self.se_vbox = QtGui.QVBoxLayout(self.se_w)
+        self.se_vbox.setMargin(1)
+        self.se_vbox.setSpacing(1)
+        self.se_vbox.addLayout(self.btn_hbox)
+        self.se_vbox.addWidget(self.splitter)
+
+        self.re_w = QtGui.QWidget()
+        self.re_vbox = QtGui.QVBoxLayout(self.re_w)
+        self.re_vbox.setMargin(1)
+        self.re_vbox.setSpacing(1)
+        self.re_vbox.addLayout(self.re_btn_hbox)
+        self.re_vbox.addWidget(self.re_splitter)
+
+        self.main_splitter = QtGui.QSplitter(QtCore.Qt.Horizontal)
+        self.main_splitter.addWidget(self.se_w)
+        self.main_splitter.addWidget(self.re_w)
+
         self.main_vbox = QtGui.QVBoxLayout()
         self.main_vbox.setMargin(1)
         self.main_vbox.setSpacing(1)
-        self.main_vbox.addLayout(self.btn_hbox)
-        self.main_vbox.addWidget(self.splitter)
+        self.main_vbox.addWidget(self.main_splitter)
         self.main_vbox.addLayout(self.cb_hbox)
         self.setLayout(self.main_vbox)
-        self.resize(500, 700)
+        self.resize(1000, 700)
 
 
     def trans_msg(self):
@@ -366,13 +391,6 @@ class MsgDiyDialog(QtGui.QDialog):
     def send_msg(self):
         '''send message'''
         config.MASTER_WINDOW.se_apdu_signal.emit(self.apdu_text)
-
-
-    def send_read_oad(self):
-        '''send message'''
-        oad_text = self.oad_box.text()
-        apdu_text = '050100 %s 00'%oad_text
-        config.MASTER_WINDOW.se_apdu_signal.emit(apdu_text)
 
 
     def clr_box(self):

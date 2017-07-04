@@ -30,14 +30,14 @@ class CommuPanel():
         self.master_addr = '00'
 
 
-    def send_msg(self, m_text, chanel='全部'):
+    def send_msg(self, m_text, chan_index):
         '''send message'''
         m_list = common.text2list(m_text)
         send_b = b''.join(map(lambda x: struct.pack('B', int(x, 16)), m_list))
-        if self.is_serial_running and chanel in ['全部', '串口']:
+        if self.is_serial_running and chan_index in [-1, 0]:
             self.serial_handle.write(send_b)
             config.MASTER_WINDOW.send_signal.emit(common.format_text(m_text), 0)
-        if self.is_frontend_running and chanel in ['全部', '前置机']:
+        if self.is_frontend_running and chan_index in [-1, 1]:
             self.frontend_handle.sendall(send_b)
             config.MASTER_WINDOW.send_signal.emit(common.format_text(m_text), 1)
 
@@ -50,7 +50,7 @@ class CommuPanel():
                 self.client_list.remove((client_handle, client_addr))
                 print('del client', client_addr)
 
-        if self.is_server_running and chanel in ['全部', '服务器']:
+        if self.is_server_running and chan_index in [-1, 2]:
             for client_handle, client_addr in self.client_list:
                 send_to_client(client_handle, client_addr)
             config.MASTER_WINDOW.send_signal.emit(common.format_text(m_text), 2)

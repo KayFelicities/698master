@@ -3,6 +3,7 @@ import re
 import os
 import sys
 import threading
+import chardet
 from PyQt4 import QtCore, QtGui
 from master.trans.translate import Translate
 from master import config
@@ -22,15 +23,20 @@ class TransWindow(QtGui.QMainWindow):
         self.input_box.cursorPositionChanged.connect(self.cursor_changed)
         self.input_box.textChanged.connect(self.take_input_text)
         self.clr_b.clicked.connect(self.clear_box)
-        self.open_b.clicked.connect(self.openfile)
+        self.find_last_b.clicked.connect(lambda: self.find_last(True))
+        self.find_next_b.clicked.connect(lambda: self.find_next(True))
         self.show_level_cb.clicked.connect(self.set_level_visible)
         self.always_top_cb.clicked.connect(self.set_always_top)
+        self.open_action.triggered.connect(self.openfile)
         self.about_action.triggered.connect(self.show_about_window)
         self.load_file.connect(self.load_text, QtCore.Qt.QueuedConnection)
         self.set_progress.connect(self.set_progressbar, QtCore.Qt.QueuedConnection)
+        self.connect(self.find_box, QtCore.SIGNAL("returnPressed()"), lambda: self.find_next(False))
 
-        self.find_dict = []
+        self.msg_find_dict = []
         self.last_selection = (0, 0)
+        self.text_find_list = []
+        self.last_find_text = ''
 
 
     def setup_ui(self):
@@ -38,21 +44,24 @@ class TransWindow(QtGui.QMainWindow):
         self.setWindowTitle('698日志解析工具_{ver}'.format(ver=config.TRANS_WINDOW_TITLE_ADD))
         self.setWindowIcon(QtGui.QIcon(os.path.join(config.SORTWARE_PATH, 'imgs/698_o.png')))
         self.menubar = self.menuBar()
-        self.about_action = QtGui.QAction('&关于', self)
+        self.file_menu = self.menubar.addMenu('&文件')
+        self.open_action = QtGui.QAction('&打开...', self)
+        self.file_menu.addAction(self.open_action)
         self.help_menu = self.menubar.addMenu('&帮助')
+        self.about_action = QtGui.QAction('&关于', self)
         self.help_menu.addAction(self.about_action)
 
-        self.open_b = QtGui.QPushButton()
-        self.open_b.setText('打开日志...')
-        self.open_b.setMinimumSize(QtCore.QSize(100, 0))
-        self.open_b.setSizePolicy(QtGui.QSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Fixed))
-        self.clr_b = QtGui.QPushButton()
-        self.clr_b.setText('清空')
-        self.btn_hbox = QtGui.QHBoxLayout()
-        self.btn_hbox.addWidget(self.open_b)
-        self.btn_hbox.addWidget(self.clr_b)
+        # self.open_b = QtGui.QPushButton()
+        # self.open_b.setText('打开日志...')
+        # self.open_b.setMinimumSize(QtCore.QSize(100, 0))
+        # self.open_b.setSizePolicy(QtGui.QSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Fixed))
+        # self.clr_b = QtGui.QPushButton()
+        # self.clr_b.setText('清空')
+        # self.btn_hbox = QtGui.QHBoxLayout()
+        # self.btn_hbox.addWidget(self.open_b)
+        # self.btn_hbox.addWidget(self.clr_b)
 
-        self.input_box = QtGui.QPlainTextEdit()
+        self.input_box = QtGui.QTextEdit()
         self.output_box = QtGui.QTextEdit()
         self.main_hsplitter = QtGui.QSplitter(QtCore.Qt.Horizontal)
         self.main_hsplitter.addWidget(self.input_box)
@@ -60,32 +69,52 @@ class TransWindow(QtGui.QMainWindow):
         self.main_hsplitter.setStretchFactor(0, 1)
         self.main_hsplitter.setStretchFactor(1, 1)
 
-        self.show_level_cb = QtGui.QCheckBox()
-        self.show_level_cb.setChecked(True)
-        self.show_level_cb.setText('报文结构')
-        self.always_top_cb = QtGui.QCheckBox()
-        self.always_top_cb.setChecked(False)
-        self.always_top_cb.setText('置顶')
+        self.dummy_l = QtGui.QLabel()
+        self.dummy_l.setText('   ')
         self.proc_bar = QtGui.QProgressBar()
         self.proc_bar.setEnabled(True)
         self.proc_bar.setMinimumSize(QtCore.QSize(200, 0))
         self.proc_bar.setSizePolicy(QtGui.QSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Fixed))
         self.proc_bar.setTextVisible(False)
         self.proc_bar.setVisible(False)
-
         self.proc_l = QtGui.QLabel()
         self.proc_l.setText('就绪')
+        self.find_box = QtGui.QLineEdit()
+        self.find_box.setPlaceholderText('搜索...')
+        self.find_last_b = QtGui.QPushButton()
+        self.find_last_b.setText('<')
+        self.find_last_b.setMaximumWidth(30)
+        self.find_next_b = QtGui.QPushButton()
+        self.find_next_b.setText('>')
+        self.find_next_b.setMaximumWidth(30)
+        self.find_l = QtGui.QLabel()
+        self.clr_b = QtGui.QPushButton()
+        self.clr_b.setText('清空')
+        self.show_level_cb = QtGui.QCheckBox()
+        self.show_level_cb.setChecked(True)
+        self.show_level_cb.setText('报文结构')
+        self.always_top_cb = QtGui.QCheckBox()
+        self.always_top_cb.setChecked(False)
+        self.always_top_cb.setText('置顶')
+
         self.foot_hbox = QtGui.QHBoxLayout()
         self.foot_hbox.addWidget(self.proc_bar)
         self.foot_hbox.addWidget(self.proc_l)
+        self.foot_hbox.addWidget(self.dummy_l)
+        self.foot_hbox.addWidget(self.find_box)
+        self.foot_hbox.addWidget(self.find_last_b)
+        self.foot_hbox.addWidget(self.find_next_b)
+        self.foot_hbox.addWidget(self.find_l)
         self.foot_hbox.addStretch(1)
+        self.foot_hbox.addWidget(self.clr_b)
+        self.foot_hbox.addWidget(self.dummy_l)
         self.foot_hbox.addWidget(self.show_level_cb)
         self.foot_hbox.addWidget(self.always_top_cb)
 
         self.main_vbox = QtGui.QVBoxLayout()
         self.main_vbox.setMargin(1)
         self.main_vbox.setSpacing(1)
-        self.main_vbox.addLayout(self.btn_hbox)
+        # self.main_vbox.addLayout(self.btn_hbox)
         self.main_vbox.addWidget(self.main_hsplitter)
         self.main_vbox.addLayout(self.foot_hbox)
         self.main_widget = QtGui.QWidget()
@@ -127,7 +156,7 @@ class TransWindow(QtGui.QMainWindow):
     def load_text(self, file_text):
         '''load text'''
         self.proc_bar.setVisible(False)
-        self.open_b.setEnabled(True)
+        self.open_action.setEnabled(True)
         self.setAcceptDrops(True)
         self.input_box.setPlainText(file_text)
 
@@ -140,7 +169,7 @@ class TransWindow(QtGui.QMainWindow):
     def openfile(self, filepath=''):
         '''open file'''
         if not filepath:
-            filepath = QtGui.QFileDialog.getOpenFileName(self, 'Open file', '', '*.txt *.log')
+            filepath = QtGui.QFileDialog.getOpenFileName(self, caption='请选择698日志文件', filter='*.txt *.log')
         if filepath:
             print('filepath: ', filepath)
             file_size = os.path.getsize(filepath)
@@ -150,7 +179,7 @@ class TransWindow(QtGui.QMainWindow):
                 if reply != QtGui.QMessageBox.Yes:
                     return
             self.proc_bar.setVisible(True)
-            self.open_b.setEnabled(False)
+            self.open_action.setEnabled(False)
             self.setAcceptDrops(False)
             self.proc_l.setText('处理中')
             self.setWindowTitle('698日志解析工具_{ver} - {file}'.\
@@ -161,12 +190,21 @@ class TransWindow(QtGui.QMainWindow):
 
     def read_file(self, filepath):
         '''read file thread'''
-        with open(filepath, encoding='gb2312', errors='ignore') as file:
+        # get file encoding
+        with open(filepath, "rb") as file:
+            encoding = chardet.detect(file.read(65535))
+            print(encoding)
+            if encoding['confidence'] > 0.8 and encoding['language'] == 'Chinese':
+                file_encoding = encoding['encoding']
+            else:
+                file_encoding = 'gb2312'
+
+        with open(filepath, encoding=file_encoding, errors='ignore') as file:
             count = 0
             for _ in file:
                 count += 1
         print(count)
-        with open(filepath, encoding='gb2312', errors='ignore') as file:
+        with open(filepath, encoding=file_encoding, errors='ignore') as file:
             file_text = ''
             for i, line in enumerate(file):
                 file_text += line
@@ -188,7 +226,7 @@ class TransWindow(QtGui.QMainWindow):
 
     def trans_pos(self, message_pos):
         '''trans message in position'''
-        for row in self.find_dict:
+        for row in self.msg_find_dict:
             # print(row)
             if row['span'][0] <= message_pos <= row['span'][1]:
                 self.start_trans(row['message'])
@@ -208,14 +246,16 @@ class TransWindow(QtGui.QMainWindow):
         input_text = self.input_box.toPlainText()
         res = re.compile(r'([0-9a-fA-F]{2} ){5,}[0-9a-fA-F]{2}')
         all_match = res.finditer(input_text)
-        self.find_dict = []
+        self.msg_find_dict = []
         find_num = 0
         for mes in all_match:
-            self.find_dict += [{'message': mes.group(), 'span': mes.span()}]
+            self.msg_find_dict += [{'message': mes.group(), 'span': mes.span()}]
             find_num += 1
         self.proc_l.setText('找到报文%d条'%find_num)
-        if len(self.find_dict) == 1 and self.find_dict[0]['message'].strip() == input_text.strip():
-            self.start_trans(self.find_dict[0]['message'])
+        if len(self.msg_find_dict) == 1 and self.msg_find_dict[0]['message'].strip() == input_text.strip():
+            self.start_trans(self.msg_find_dict[0]['message'])
+
+        self.find_l.setText('')
 
 
     def start_trans(self, input_text):
@@ -232,6 +272,70 @@ class TransWindow(QtGui.QMainWindow):
         self.output_box.setText('')
         self.setWindowTitle('698日志解析工具_{ver}'.format(ver=config.MASTER_WINDOW_TITLE_ADD))
         self.input_box.setFocus()
+
+
+    def search_text(self, text):
+        '''search_text'''
+        input_text = self.input_box.toPlainText()
+        res = re.compile(r'%s'%text)
+        all_match = res.finditer(input_text)
+        self.text_find_list = [mes.span() for mes in all_match]
+        if self.text_find_list:
+            self.find_l.setText('0/%d'%len(self.text_find_list))
+        else:
+            self.find_l.setText('未找到！')
+
+
+    def find_next(self, is_setfocus=True):
+        '''find_next'''
+        find_text = self.find_box.text()
+        if self.find_l.text() == '' or find_text != self.last_find_text:
+            self.search_text(find_text)
+        if self.find_l.text() == '未找到！':
+            return
+        cursor = self.input_box.textCursor()
+        position = cursor.position()
+        for count, text_find in enumerate(self.text_find_list, 1):
+            if text_find[0] > position:
+                self.find_l.setText('%d/'%count + self.find_l.text().split('/')[1])
+                cursor.setPosition(text_find[0])
+                cursor.setPosition(text_find[1], QtGui.QTextCursor.KeepAnchor)
+                self.input_box.setTextCursor(cursor)
+                break
+        else:
+            self.find_l.setText('1/' + self.find_l.text().split('/')[1])
+            cursor.setPosition(self.text_find_list[0][0])
+            cursor.setPosition(self.text_find_list[0][1], QtGui.QTextCursor.KeepAnchor)
+            self.input_box.setTextCursor(cursor)
+        if is_setfocus:
+            self.input_box.setFocus()
+
+
+    def find_last(self, is_setfocus=True):
+        '''find_last'''
+        find_text = self.find_box.text()
+        if self.find_l.text() or find_text != self.last_find_text:
+            self.search_text(find_text)
+        if self.find_l.text() == '未找到！':
+            return
+        cursor = self.input_box.textCursor()
+        position = cursor.position()
+        for count, text_find in enumerate(self.text_find_list[::-1], 0):
+            if text_find[1] < position:
+                self.find_l.setText('%d/'%(len(self.text_find_list) - count)\
+                                        + self.find_l.text().split('/')[1])
+                cursor.setPosition(text_find[0])
+                cursor.setPosition(text_find[1], QtGui.QTextCursor.KeepAnchor)
+                self.input_box.setTextCursor(cursor)
+                break
+        else:
+            self.find_l.setText('%d/%d'%(len(self.text_find_list),\
+                                    len(self.text_find_list)))
+            cursor.setPosition(self.text_find_list[::-1][0][0])
+            cursor.setPosition(self.text_find_list[::-1][0][1], QtGui.QTextCursor.KeepAnchor)
+            self.input_box.setTextCursor(cursor)
+        if is_setfocus:
+            self.input_box.setFocus()
 
 
     def set_level_visible(self):

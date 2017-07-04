@@ -72,7 +72,7 @@ class MasterConfig:
     def get_frontend_ip(self):
         '''get_fontend'''
         if not self.config.has_option('commu', 'frontend_ip'):
-            self.config.set('commu', 'frontend_ip', '127.0.0.1')
+            self.config.set('commu', 'frontend_ip', '127.0.0.1:2017')
         return self.config.get('commu', 'frontend_ip')
 
 
