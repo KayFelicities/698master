@@ -15,11 +15,11 @@ class AboutWindow(QtGui.QDialog):
     def setup_ui(self):
         '''layout'''
         self.setWindowTitle('关于')
-        self.setWindowIcon(QtGui.QIcon(os.path.join(config.SORTWARE_PATH, 'imgs/698.png')))
+        self.setWindowIcon(QtGui.QIcon(os.path.join(config.SORTWARE_PATH, config.MASTER_ICO_PATH)))
 
         self.head_img = QtGui.QLabel()
         self.head_img.setText('<img src="{logopath}" height="70" width="70"></img>'\
-                            .format(logopath=os.path.join(config.SORTWARE_PATH, 'imgs/698.png')))
+                            .format(logopath=os.path.join(config.SORTWARE_PATH, config.MASTER_ICO_PATH)))
         self.head_ver = QtGui.QLabel()
         self.head_ver.setText('<p style="font-family: 微软雅黑; font-size: 16px;" align="center">\
                                 <b>698后台_{version}<br>{dt}</b></p>'\

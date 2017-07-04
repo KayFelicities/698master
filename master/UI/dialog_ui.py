@@ -30,7 +30,7 @@ class TransPopDialog(QtGui.QDialog):
         '''set layout'''
         # self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         self.setWindowTitle('详细解析')
-        self.setWindowIcon(QtGui.QIcon(os.path.join(config.SORTWARE_PATH, 'imgs/698.png')))
+        self.setWindowIcon(QtGui.QIcon(os.path.join(config.SORTWARE_PATH, config.MASTER_ICO_PATH)))
         self.msg_box = QtGui.QPlainTextEdit()
         self.explain_box = QtGui.QTextEdit()
         self.splitter = QtGui.QSplitter(QtCore.Qt.Vertical)
@@ -110,7 +110,7 @@ class CommuDialog(QtGui.QDialog):
     def setup_ui(self):
         '''set layout'''
         self.setWindowTitle('通信控制面板')
-        self.setWindowIcon(QtGui.QIcon(os.path.join(config.SORTWARE_PATH, 'imgs/698.png')))
+        self.setWindowIcon(QtGui.QIcon(os.path.join(config.SORTWARE_PATH, config.MASTER_ICO_PATH)))
         self.master_addr_l = QtGui.QLabel()
         self.master_addr_l.setText('主站地址：')
         self.master_addr_box = QtGui.QLineEdit()
@@ -297,7 +297,7 @@ class MsgDiyDialog(QtGui.QDialog):
         '''set layout'''
         # self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         self.setWindowTitle('自定义APDU')
-        self.setWindowIcon(QtGui.QIcon(os.path.join(config.SORTWARE_PATH, 'imgs/698.png')))
+        self.setWindowIcon(QtGui.QIcon(os.path.join(config.SORTWARE_PATH, config.MASTER_ICO_PATH)))
 
         self.clr_b = QtGui.QPushButton()
         self.clr_b.setText('清空')
@@ -431,7 +431,7 @@ class GetSetServiceDialog(QtGui.QDialog):
         '''set layout'''
         # self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         self.setWindowTitle('Get/Set Service')
-        self.setWindowIcon(QtGui.QIcon(os.path.join(config.SORTWARE_PATH, 'imgs/698.png')))
+        self.setWindowIcon(QtGui.QIcon(os.path.join(config.SORTWARE_PATH, config.MASTER_ICO_PATH)))
 
         self.object_table_w = QtGui.QWidget()
         self.object_table_vbox = QtGui.QVBoxLayout(self.object_table_w)
@@ -622,7 +622,7 @@ class RemoteUpdateDialog(QtGui.QDialog):
     def setup_ui(self):
         '''set layout'''
         self.setWindowTitle('远程文件升级')
-        self.setWindowIcon(QtGui.QIcon(os.path.join(config.SORTWARE_PATH, 'imgs/698.png')))
+        self.setWindowIcon(QtGui.QIcon(os.path.join(config.SORTWARE_PATH, config.MASTER_ICO_PATH)))
 
         self.file_label = QtGui.QLabel()
         self.file_label.setText('文件:')

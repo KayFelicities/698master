@@ -10,6 +10,8 @@ class MsgLog:
         self.log_dir = log_dir
         self.file_path = os.path.join(log_dir, now.strftime('%Y-%m-%d') + '_msg.log')
         print('file path: ', self.file_path)
+        if not os.path.isdir(self.log_dir):
+            os.makedirs(self.log_dir)
         with open(self.file_path, 'a', encoding='gb2312') as log:
             log_time = now.strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
             log.write('\n' + '='*10 + log_time + '='*10 + '\n')
