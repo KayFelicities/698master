@@ -289,6 +289,8 @@ class TransWindow(QtGui.QMainWindow):
     def find_next(self, is_setfocus=True):
         '''find_next'''
         find_text = self.find_box.text()
+        if not find_text:
+            return
         if self.find_l.text() == '' or find_text != self.last_find_text:
             self.search_text(find_text)
         if self.find_l.text() == '未找到！':
@@ -314,6 +316,8 @@ class TransWindow(QtGui.QMainWindow):
     def find_last(self, is_setfocus=True):
         '''find_last'''
         find_text = self.find_box.text()
+        if not find_text:
+            return
         if self.find_l.text() or find_text != self.last_find_text:
             self.search_text(find_text)
         if self.find_l.text() == '未找到！':
