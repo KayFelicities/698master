@@ -1,9 +1,9 @@
-'''load type'''
+"""load type"""
 from PyQt4 import QtGui, QtCore
 
 
 def take_axdr_len(m_list):
-    '''take_axdr_len'''
+    """take_axdr_len"""
     offset = 0
     len_flag = int(m_list[offset], 16)
     offset += 1
@@ -21,7 +21,7 @@ def take_axdr_len(m_list):
 
 
 def data2table(data_list, table):
-    '''data to table items'''
+    """data to table items"""
     take_Data(data_list, table, depth=0)
 
 
@@ -79,7 +79,7 @@ def take_Data(data_list, table, depth=0):
 
 
 def take_NULL(data_list, table, depth=0):
-    '''take_NULL'''
+    """take_NULL"""
     offset = 0
     offset += 1
     table_row_num = table.rowCount()
@@ -90,7 +90,7 @@ def take_NULL(data_list, table, depth=0):
 
 
 def take_array(data_list, table, depth=0):
-    '''take_array'''
+    """take_array"""
     offset = 0
     num = int(data_list[offset], 16)
     offset += 1
@@ -110,7 +110,7 @@ def take_array(data_list, table, depth=0):
 
 
 def take_structure(data_list, table, depth=0):
-    '''take_structure'''
+    """take_structure"""
     offset = 0
     num = int(data_list[offset], 16)
     offset += 1
@@ -129,7 +129,7 @@ def take_structure(data_list, table, depth=0):
 
 
 def take_bool(data_list, table, depth=0):
-    '''take_bool'''
+    """take_bool"""
     offset = 0
     bool_value = 0 if data_list[offset] == '00' else 1
     offset += 1
@@ -145,7 +145,7 @@ def take_bool(data_list, table, depth=0):
 
 
 # def take_bit_string(data_list, bit_len=None, table, depth=0):
-#     '''take_bit_string'''
+#     """take_bit_string"""
 #     offset = 0
 #     if bit_len is None:
 #         res = take_axdr_len(data_list[offset:])
@@ -162,7 +162,7 @@ def take_bool(data_list, table, depth=0):
 
 
 def take_double_long(data_list, table, depth=0):
-    '''take_double_long'''
+    """take_double_long"""
     offset = 0
     if int(data_list[offset], 16) >> 7 == 1:  # 负数
         value = -(0x100000000 - int(''.join(data_list[offset : offset + 4]), 16))
@@ -180,7 +180,7 @@ def take_double_long(data_list, table, depth=0):
 
 
 def take_double_long_unsigned(data_list, table, depth=0):
-    '''take_double_long_unsigned'''
+    """take_double_long_unsigned"""
     offset = 0
     value = int(''.join(data_list[offset: offset + 4]), 16)
     offset += 4
@@ -195,7 +195,7 @@ def take_double_long_unsigned(data_list, table, depth=0):
 
 
 def take_octect_string(data_list, table, string_len=None, depth=0):
-    '''take_octect_string'''
+    """take_octect_string"""
     offset = 0
     if string_len is None:
         res = take_axdr_len(data_list[offset:])
@@ -218,7 +218,7 @@ def take_octect_string(data_list, table, string_len=None, depth=0):
 
 
 # def take_visible_string(data_list, table, string_len=None, depth=0):
-#     '''take_visible_string'''
+#     """take_visible_string"""
 #     offset = 0
 #     if string_len is None:
 #         res = take_axdr_len(data_list[offset:])
@@ -234,7 +234,7 @@ def take_octect_string(data_list, table, string_len=None, depth=0):
 
 
 # def take_UTF8_string(data_list, table, string_len=None, depth=0):
-#     '''take_UTF8_string'''
+#     """take_UTF8_string"""
 #     offset = 0
 #     if string_len is None:
 #         res = take_axdr_len(data_list[offset:])
@@ -248,7 +248,7 @@ def take_octect_string(data_list, table, string_len=None, depth=0):
 
 
 def take_integer(data_list, table, depth=0):
-    '''take_integer'''
+    """take_integer"""
     offset = 0
     if int(data_list[offset], 16) >> 7 == 1:  # 负数
         value = -(0x100 - int(data_list[offset], 16))
@@ -266,7 +266,7 @@ def take_integer(data_list, table, depth=0):
 
 
 def take_long(data_list, table, depth=0):
-    '''take_long'''
+    """take_long"""
     offset = 0
     if int(data_list[offset], 16) >> 7 == 1:  # 负数
         value = -(0x10000 - int(data_list[offset] + data_list[offset + 1], 16))
@@ -284,7 +284,7 @@ def take_long(data_list, table, depth=0):
 
 
 def take_unsigned(data_list, table, depth=0):
-    '''take_unsigned'''
+    """take_unsigned"""
     offset = 0
     value = int(data_list[offset], 16)
     offset += 1
@@ -299,7 +299,7 @@ def take_unsigned(data_list, table, depth=0):
 
 
 def take_long_unsigned(data_list, table, depth=0):
-    '''take_long_unsigned'''
+    """take_long_unsigned"""
     offset = 0
     value = int(data_list[offset] + data_list[offset + 1], 16)
     offset += 2
@@ -314,7 +314,7 @@ def take_long_unsigned(data_list, table, depth=0):
 
 
 def take_long64(data_list, table, depth=0):
-    '''take_long64'''
+    """take_long64"""
     offset = 0
     if int(data_list[offset], 16) >> 7 == 1:  # 负数
         value = -(0x10000000000000000 - int(''.join(data_list[offset : offset + 8]), 16))
@@ -332,7 +332,7 @@ def take_long64(data_list, table, depth=0):
 
 
 def take_long64_unsigned(data_list, table, depth=0):
-    '''take_long64_unsigned'''
+    """take_long64_unsigned"""
     offset = 0
     value = int(''.join(data_list[offset : offset + 8]), 16)
     offset += 8
@@ -347,7 +347,7 @@ def take_long64_unsigned(data_list, table, depth=0):
 
 
 def take_enum(data_list, table, depth=0, enum_dict=None):
-    '''take_enum'''
+    """take_enum"""
     offset = 0
     value = data_list[offset]
     offset += 1
@@ -362,7 +362,7 @@ def take_enum(data_list, table, depth=0, enum_dict=None):
 
 
 # def take_float32(data_list, table, depth=0):
-#     '''take_float32, Kay check!'''
+#     """take_float32, Kay check!"""
 #     offset = 0
 #     if int(data_list[offset], 16) >> 7 == 1:  # 负数
 #         value = -(0x100000000 - int(''.join(data_list[offset : offset + 4]), 16))
@@ -374,7 +374,7 @@ def take_enum(data_list, table, depth=0, enum_dict=None):
 
 
 # def take_float64(data_list, table, depth=0):
-#     '''take_float64'''
+#     """take_float64"""
 #     offset = 0
 #     if int(data_list[offset], 16) >> 7 == 1:  # 负数
 #         value = -(0x10000000000000000 - int(''.join(data_list[offset : offset + 8]), 16))
@@ -386,7 +386,7 @@ def take_enum(data_list, table, depth=0, enum_dict=None):
 
 
 def take_date_time(data_list, table, depth=0):
-    '''take_date_time'''
+    """take_date_time"""
     offset = 0
     year = int(data_list[0] + data_list[1], 16)
     month = int(data_list[2], 16)
@@ -409,7 +409,7 @@ def take_date_time(data_list, table, depth=0):
 
 
 # def take_date(data_list, table, depth=0):
-#     '''take_date'''
+#     """take_date"""
 #     offset = 0
 #     year = int(data_list[0] + data_list[1], 16)
 #     month = int(data_list[2], 16)
@@ -422,7 +422,7 @@ def take_date_time(data_list, table, depth=0):
 
 
 # def take_time(data_list, table, depth=0):
-#     '''take_time'''
+#     """take_time"""
 #     offset = 0
 #     hour = int(data_list[0], 16)
 #     minute = int(data_list[1], 16)
@@ -434,7 +434,7 @@ def take_date_time(data_list, table, depth=0):
 
 
 def take_date_time_s(data_list, table, depth=0):
-    '''take_date_time_s'''
+    """take_date_time_s"""
     offset = 0
     year = int(data_list[0] + data_list[1], 16)
     month = int(data_list[2], 16)
@@ -456,7 +456,7 @@ def take_date_time_s(data_list, table, depth=0):
 
 
 # def take_OI(data_list, table, depth=0):
-#     '''take_OI'''
+#     """take_OI"""
 #     offset = 0
 #     explain = oads.OAD.get(data_list[offset] + data_list[offset + 1] + '01', '未知OI').split('，')[0]
 #     offset += 2
@@ -465,7 +465,7 @@ def take_date_time_s(data_list, table, depth=0):
 
 
 # def take_OAD(data_list, table, depth=0):
-#     '''take_OAD'''
+#     """take_OAD"""
 #     offset = 0
 #     attr = int(data_list[offset + 2], 16)
 #     index = int(data_list[offset + 3], 16)
@@ -478,7 +478,7 @@ def take_date_time_s(data_list, table, depth=0):
 
 
 # def take_ROAD(data_list, table, depth=0):
-#     '''take_ROAD'''
+#     """take_ROAD"""
 #     offset = 0
 #     offset += take_OAD(data_list[offset:], depth=depth)
 #     oad_num = int(data_list[offset], 16)
@@ -490,7 +490,7 @@ def take_date_time_s(data_list, table, depth=0):
 
 
 # def take_OMD(data_list, table, depth=0):
-#     '''take_OMD'''
+#     """take_OMD"""
 #     offset = 0
 #     method = int(data_list[offset + 2], 16)
 #     mode = int(data_list[offset + 3], 16)
@@ -503,7 +503,7 @@ def take_date_time_s(data_list, table, depth=0):
 
 
 # def take_TI(data_list, table, depth=0):
-#     '''take_TI'''
+#     """take_TI"""
 #     offset = 0
 #     uint = {
 #         '00': '秒',
@@ -520,7 +520,7 @@ def take_date_time_s(data_list, table, depth=0):
 
 
 # def take_TSA(data_list, table, depth=0):
-#     '''take_TSA'''
+#     """take_TSA"""
 #     # print('Kay, take_TSA data:', data)
 #     offset = 0
 #     TSA_len = int(data_list[offset], 16)
@@ -537,21 +537,21 @@ def take_date_time_s(data_list, table, depth=0):
 
 
 # def take_MAC(data_list, table, depth=0):
-#     '''take_MAC'''
+#     """take_MAC"""
 #     offset = 0
 #     offset += take_octect_string(data_list[offset:], 'MAC')
 #     return offset
 
 
 # def take_RN(data_list, table, depth=0):
-#     '''take_RN'''
+#     """take_RN"""
 #     offset = 0
 #     offset += take_octect_string(data_list[offset:], 'RN')
 #     return offset
 
 
 # def take_RN_MAC(data_list, table, depth=0):
-#     '''take_RN_MAC'''
+#     """take_RN_MAC"""
 #     offset = 0
 #     offset += take_octect_string(data_list[offset:], 'RN')
 #     offset += take_octect_string(data_list[offset:], 'MAC')
@@ -559,7 +559,7 @@ def take_date_time_s(data_list, table, depth=0):
 
 
 # def take_Region(data_list, table, depth=0):
-#     '''take_Region'''
+#     """take_Region"""
 #     offset = 0
 #     r_uint = {
 #         '00': '前闭后开',
@@ -574,7 +574,7 @@ def take_date_time_s(data_list, table, depth=0):
 
 
 # def take_Scaler_Unit(data_list, table, depth=0):
-#     '''take_Scaler_Unit'''
+#     """take_Scaler_Unit"""
 #     offset = 0
 #     if int(data_list[offset], 16) >> 7 == 1:  # 负数
 #         value = -(0x100 - int(data_list[offset], 16))
@@ -589,7 +589,7 @@ def take_date_time_s(data_list, table, depth=0):
 
 
 # def take_RSD(data_list, table, depth=0):
-#     '''take_RSD'''
+#     """take_RSD"""
 #     offset = 0
 #     selector = data_list[offset]
 #     selector_choice = {'00': '不选择', '01': '方法1', '02': '方法2', '03': '方法3',
@@ -638,7 +638,7 @@ def take_date_time_s(data_list, table, depth=0):
 
 
 # def take_CSD(data_list, table, depth=0):
-#     '''take_CSD'''
+#     """take_CSD"""
 #     offset = 0
 #     csd_choice = data_list[offset]
 #     offset += 1
@@ -655,7 +655,7 @@ def take_date_time_s(data_list, table, depth=0):
 
 
 # def take_MS(data_list, table, depth=0):
-#     '''take_MS'''
+#     """take_MS"""
 #     offset = 0
 #     ms_choice = data_list[0]
 #     ms_choice_dict = {'00': '无电能表', '01': '全部用户地址', '02': '一组用户类型',
@@ -715,7 +715,7 @@ def take_date_time_s(data_list, table, depth=0):
 
 
 # def take_SID(data_list, table, depth=0):
-#     '''take_SID'''
+#     """take_SID"""
 #     offset = 0
 #     offset += take_double_long_unsigned(data_list[offset:], '标识', depth=depth)
 #     offset += take_octect_string(data_list[offset:], '附加数据', depth=depth)
@@ -723,7 +723,7 @@ def take_date_time_s(data_list, table, depth=0):
 
 
 # def take_SID_MAC(data_list, table, depth=0):
-#     '''take_SID_MAC'''
+#     """take_SID_MAC"""
 #     offset = 0
 #     offset += take_SID(data_list[offset:], '安全标识', depth=depth)
 #     offset += take_MAC(data_list[offset:], '数据MAC', depth=depth)
@@ -731,7 +731,7 @@ def take_date_time_s(data_list, table, depth=0):
 
 
 # def take_COMDCB(data_list, table, depth=0):
-#     '''take_COMDCB'''
+#     """take_COMDCB"""
 #     offset = 0
 #     rate_dict = {
 #         '00': '300bps',
@@ -760,7 +760,7 @@ def take_date_time_s(data_list, table, depth=0):
 
 
 # def take_RCSD(data_list, table, depth=0):
-#     '''take_RCSD'''
+#     """take_RCSD"""
 #     offset = 0
 #     num = int(data_list[offset], 16)
 #     offset += 1

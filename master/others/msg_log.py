@@ -1,10 +1,10 @@
-'''log class'''
+"""log class"""
 import os
 import datetime
 from master import config
 
 class MsgLog:
-    '''logger class'''
+    """logger class"""
     def __init__(self, log_dir=config.MSG_LOG_DIR):
         now = datetime.datetime.now()
         self.log_dir = log_dir
@@ -18,7 +18,7 @@ class MsgLog:
 
 
     def add_log(self, terminal_addr, chan_text, direction, msg):
-        '''add msg row to log'''
+        """add msg row to log"""
         log_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
         if not os.path.isdir(self.log_dir):
             os.makedirs(self.log_dir)

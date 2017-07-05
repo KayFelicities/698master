@@ -1,4 +1,4 @@
-'''service datas'''
+"""service datas"""
 
 
 SERVICE = {

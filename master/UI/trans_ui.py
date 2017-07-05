@@ -1,4 +1,4 @@
-'''log files trans ui'''
+"""log files trans ui"""
 import re
 import os
 import sys
@@ -11,7 +11,7 @@ import master.trans.common as commonfun
 
 
 class TransWindow(QtGui.QMainWindow):
-    '''translate window'''
+    """translate window"""
     load_file = QtCore.pyqtSignal(str)
     set_progress = QtCore.pyqtSignal(int)
 
@@ -45,7 +45,7 @@ class TransWindow(QtGui.QMainWindow):
 
 
     def setup_ui(self):
-        '''set layout'''
+        """set layout"""
         self.setWindowTitle('698日志解析工具_{ver}'.format(ver=config.TRANS_WINDOW_TITLE_ADD))
         self.setWindowIcon(QtGui.QIcon(os.path.join(config.SORTWARE_PATH, 'imgs/698_o.png')))
         self.menubar = self.menuBar()
@@ -156,7 +156,7 @@ class TransWindow(QtGui.QMainWindow):
 
 
     def dragEnterEvent(self, event):
-        '''drag'''
+        """drag"""
         if event.mimeData().hasUrls:
             event.accept()
         else:
@@ -164,7 +164,7 @@ class TransWindow(QtGui.QMainWindow):
 
 
     def dragMoveEvent(self, event):
-        '''drag'''
+        """drag"""
         if event.mimeData().hasUrls:
             event.setDropAction(QtCore.Qt.CopyAction)
             event.accept()
@@ -173,7 +173,7 @@ class TransWindow(QtGui.QMainWindow):
 
 
     def dropEvent(self, event):
-        '''drop file'''
+        """drop file"""
         if event.mimeData().hasUrls:
             event.setDropAction(QtCore.Qt.CopyAction)
             event.accept()
@@ -186,7 +186,7 @@ class TransWindow(QtGui.QMainWindow):
             event.ignore()
 
     def load_text(self, file_text):
-        '''load text'''
+        """load text"""
         self.proc_bar.setVisible(False)
         self.open_action.setEnabled(True)
         self.setAcceptDrops(True)
@@ -194,12 +194,12 @@ class TransWindow(QtGui.QMainWindow):
 
 
     def set_progressbar(self, percent):
-        '''set progress bar in main process'''
+        """set progress bar in main process"""
         self.proc_bar.setValue(percent)
 
 
     def openfile(self, filepath=''):
-        '''open file'''
+        """open file"""
         if not filepath:
             filepath = QtGui.QFileDialog.getOpenFileName(self, caption='请选择698日志文件', filter='*.txt *.log')
         if filepath:
@@ -221,7 +221,7 @@ class TransWindow(QtGui.QMainWindow):
 
 
     def read_file(self, filepath):
-        '''read file thread'''
+        """read file thread"""
         # get file encoding
         with open(filepath, "rb") as file:
             encoding = chardet.detect(file.read(65535))
@@ -247,7 +247,7 @@ class TransWindow(QtGui.QMainWindow):
 
 
     def cursor_changed(self):
-        '''cursor changed to trans'''
+        """cursor changed to trans"""
         print(int(self.input_box.textCursor().position()))
         if self.last_selection[0] <= int(self.input_box.textCursor().position())\
                                     <= self.last_selection[1]:
@@ -257,7 +257,7 @@ class TransWindow(QtGui.QMainWindow):
 
 
     def trans_pos(self, message_pos):
-        '''trans message in position'''
+        """trans message in position"""
         for row in self.msg_find_dict:
             # print(row)
             if row['span'][0] <= message_pos <= row['span'][1]:
@@ -274,7 +274,7 @@ class TransWindow(QtGui.QMainWindow):
 
 
     def take_input_text(self):
-        '''handle with input text'''
+        """handle with input text"""
         input_text = self.input_box.toPlainText()
         res = re.compile(r'([0-9a-fA-F]{2} ){5,}[0-9a-fA-F]{2}')
         all_match = res.finditer(input_text)
@@ -291,7 +291,7 @@ class TransWindow(QtGui.QMainWindow):
 
 
     def start_trans(self, input_text):
-        '''start_trans'''
+        """start_trans"""
         trans = Translate(input_text)
         brief = trans.get_brief()
         full = trans.get_full(self.is_show_level)
@@ -299,7 +299,7 @@ class TransWindow(QtGui.QMainWindow):
 
 
     def clear_box(self):
-        '''clear_box'''
+        """clear_box"""
         self.input_box.setText('')
         self.output_box.setText('')
         self.setWindowTitle('698日志解析工具_{ver}'.format(ver=config.MASTER_WINDOW_TITLE_ADD))
@@ -307,7 +307,7 @@ class TransWindow(QtGui.QMainWindow):
 
 
     def search_text(self, text):
-        '''search_text'''
+        """search_text"""
         input_text = self.input_box.toPlainText()
         res = re.compile(r'%s'%text)
         all_match = res.finditer(input_text)
@@ -319,7 +319,7 @@ class TransWindow(QtGui.QMainWindow):
 
 
     def find_next(self, is_setfocus=True):
-        '''find_next'''
+        """find_next"""
         find_text = self.find_box.text()
         if not find_text:
             return
@@ -346,7 +346,7 @@ class TransWindow(QtGui.QMainWindow):
 
 
     def find_last(self, is_setfocus=True):
-        '''find_last'''
+        """find_last"""
         find_text = self.find_box.text()
         if not find_text:
             return
@@ -375,13 +375,13 @@ class TransWindow(QtGui.QMainWindow):
 
 
     def set_level_visible(self):
-        '''set_level_visible'''
+        """set_level_visible"""
         self.is_show_level = self.show_level_cb.isChecked()
         self.trans_pos(int(self.input_box.textCursor().position()))
 
 
     def set_always_top(self):
-        '''set_always_top'''
+        """set_always_top"""
         window_pos = self.pos()
         if self.always_top_cb.isChecked() is True:
             self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)

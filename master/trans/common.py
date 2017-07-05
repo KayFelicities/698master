@@ -1,9 +1,9 @@
-'''common functions'''
+"""common functions"""
 import time
 
 
 def text2list(m_text):
-    '''str to list'''
+    """str to list"""
     m_text = m_text.replace(' ', '').replace('\n', '').upper()  # 处理空格和换行
     # 处理FE前缀
     k = 0
@@ -21,18 +21,18 @@ def text2list(m_text):
 
 
 def list2text(m_list, separator=' '):
-    '''list to str'''
+    """list to str"""
     m_text = separator.join(m_list)
     return m_text
 
 
 def format_text(m_text, separator=' '):
-    '''format'''
+    """format"""
     return list2text(text2list(m_text), separator=separator)
 
 
 def chk_format(m_list):
-    '''chk format'''
+    """chk format"""
     if m_list[0] != '68' or m_list[len(m_list) - 1] != '16':
         return False
     else:
@@ -40,7 +40,7 @@ def chk_format(m_list):
 
 
 def search_msg(m_list):
-    '''search full msg and return msg text list'''
+    """search full msg and return msg text list"""
     offset = 0
     print("kay, re msg:", m_list)
     msg_list = []
@@ -59,7 +59,7 @@ def search_msg(m_list):
 
 
 def get_apdu_list(m_list):
-    '''get apdu'''
+    """get apdu"""
     msg_len = int(m_list[2] + m_list[1], 16) + 2
     print('msg_len', msg_len)
     server_addr_len = (int(m_list[4], 16) & 0x0f) + 1
@@ -67,13 +67,13 @@ def get_apdu_list(m_list):
 
 
 def calc_len(m_text):
-    '''calculate input text length'''
+    """calculate input text length"""
     m_list = text2list(m_text)
     return len(m_list)
 
 
 def get_fcs(data_list):
-    '''cs'''
+    """cs"""
     fcs = 0xffff
     fcstab = (0x0000, 0x1189, 0x2312, 0x329b, 0x4624, 0x57ad, 0x6536, 0x74bf,
               0x8c48, 0x9dc1, 0xaf5a, 0xbed3, 0xca6c, 0xdbe5, 0xe97e, 0xf8f7,
@@ -116,19 +116,19 @@ def get_fcs(data_list):
 
 
 class TransRes():
-    '''translate result functions'''
+    """translate result functions"""
     def __init__(self):
-        '''init'''
+        """init"""
         self.trans_res = []
 
 
     def add_row(self, m_list, brief='', dtype='', value='', unit='', conversion=0, depth=0, priority=1):
-        '''add trans result row'''
+        """add trans result row"""
         self.trans_res += [{'m_list': m_list, 'brief': brief, 'dtype': dtype, 'value': value,\
                     'unit': unit, 'conversion': conversion, 'depth': depth, 'priority': priority}]
 
 
     def get_res(self):
-        '''get result'''
+        """get result"""
         return self.trans_res
 

@@ -1,4 +1,4 @@
-'''param ui'''
+"""param ui"""
 import os
 from PyQt4 import QtCore
 from PyQt4 import QtGui

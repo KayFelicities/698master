@@ -1,23 +1,23 @@
-'''handle with 698 service'''
+"""handle with 698 service"""
 import master.trans.datatype as typedo
 from master.datas import services
 
 def take_applayer(m_list, trans_res):
-    '''take_applayer'''
+    """take_applayer"""
     offset = 0
     service = Service(trans_res)
     offset += service.take_service(m_list[offset:])
     return offset
 
 class Service():
-    '''service class'''
+    """service class"""
     def __init__(self, trans_res):
-        '''init'''
+        """init"""
         self.trans_res = trans_res
         self.typedo = typedo.TypeDo(trans_res)
 
     def take_service(self, m_list):
-        '''take app layer'''
+        """take app layer"""
         offset = 0
         service_type = m_list[offset]
         if service_type not in ['01', '02', '03', '10', '81', '82', '83', '84', '90']:
@@ -90,7 +90,7 @@ class Service():
         return offset
 
     def take_Get_Result(self, m_list, brief='', depth=0):
-        '''take_Get_Result'''
+        """take_Get_Result"""
         offset = 0
         result = m_list[offset]
         offset += self.typedo.take_CHOICE(m_list[offset:], brief, depth=depth,\
@@ -102,14 +102,14 @@ class Service():
         return offset
 
     def take_A_ResultNormal(self, m_list, brief='', depth=0):
-        '''take_A_ResultNormal'''
+        """take_A_ResultNormal"""
         offset = 0
         offset += self.typedo.take_OAD(m_list[offset:], '对象属性描述符', depth=depth)
         offset += self.take_Get_Result(m_list[offset:], '结果', depth=depth)
         return offset
 
     def take_A_ResultRecord(self, m_list, brief='', depth=0):
-        '''take_A_ResultRecord'''
+        """take_A_ResultRecord"""
         offset = 0
         offset += self.typedo.take_OAD(m_list[offset:], '记录型对象属性描述符', depth=depth)
         csd_num = int(m_list[offset], 16)
@@ -131,7 +131,7 @@ class Service():
         return offset
 
     def take_FollowReport(self, m_list, depth=0):
-        '''take_FollowReport'''
+        """take_FollowReport"""
         offset = 0
         follow_report_option = m_list[offset]
         offset += self.typedo.take_OPTIONAL(m_list[offset:], '跟随上报信息域')
@@ -156,7 +156,7 @@ class Service():
         return offset
 
     def take_TimeTag(self, m_list, depth=0):
-        '''take_TimeTag'''
+        """take_TimeTag"""
         offset = 0
         timetag_option = m_list[offset]
         offset += self.typedo.take_OPTIONAL(m_list[offset:], '时间标签', depth=depth)
@@ -166,7 +166,7 @@ class Service():
         return offset
 
     def link_request(self, m_list):
-        '''link_request'''
+        """link_request"""
         offset = 0
         offset += self.typedo.take_PIID_ACD(m_list[offset:])
         link_type = {'00': '登录', '01': '心跳', '02': '退出登录'}
@@ -176,7 +176,7 @@ class Service():
         return offset
 
     def link_response(self, m_list):
-        '''link_response'''
+        """link_response"""
         offset = 0
         offset += self.typedo.take_PIID(m_list[offset:])
         time_credible_flag = int(m_list[offset], 16) >> 7
@@ -189,7 +189,7 @@ class Service():
         return offset
 
     def connect_request(self, m_list):
-        '''connect_request'''
+        """connect_request"""
         offset = 0
         offset += self.typedo.take_PIID(m_list[offset:])
         offset += self.typedo.take_long_unsigned(m_list[offset:], '期望的应用层协议版本号')
@@ -204,7 +204,7 @@ class Service():
         return offset
 
     def connect_response(self, m_list):
-        '''connect_response'''
+        """connect_response"""
         offset = 0
         offset += self.typedo.take_PIID_ACD(m_list[offset:])
         offset += self.typedo.take_FactoryVersion(m_list[offset:])
@@ -220,27 +220,27 @@ class Service():
         return offset
 
     def release_request(self, m_list):
-        '''release_request'''
+        """release_request"""
         offset = 0
         offset += self.typedo.take_PIID(m_list[offset:])
         return offset
 
     def release_response(self, m_list):
-        '''release_response'''
+        """release_response"""
         offset = 0
         offset += self.typedo.take_PIID_ACD(m_list[offset:])
         offset += self.typedo.take_enum(m_list[offset:], '结果', enum_dict={'00': '成功'})
         return offset
 
     def GetRequestNormal(self, m_list):
-        '''GetRequestNormal'''
+        """GetRequestNormal"""
         offset = 0
         offset += self.typedo.take_PIID(m_list[offset:], '服务序号-优先级')
         offset += self.typedo.take_OAD(m_list[offset:], '一个对象属性描述符')
         return offset
 
     def GetRequestNormalList(self, m_list):
-        '''GetRequestNormalList'''
+        """GetRequestNormalList"""
         offset = 0
         offset += self.typedo.take_PIID(m_list[offset:], '服务序号-优先级')
         num = int(m_list[offset], 16)
@@ -251,7 +251,7 @@ class Service():
         return offset
 
     def GetRequestRecord(self, m_list):
-        '''GetRequestRecord'''
+        """GetRequestRecord"""
         offset = 0
         offset += self.typedo.take_PIID(m_list[offset:], '服务序号-优先级')
         offset += self.typedo.take_OAD(m_list[offset:], '对象属性描述符')
@@ -260,7 +260,7 @@ class Service():
         return offset
 
     def GetRequestRecordList(self, m_list):
-        '''GetRequestRecordList'''
+        """GetRequestRecordList"""
         offset = 0
         offset += self.typedo.take_PIID(m_list[offset:], '服务序号-优先级')
         num = int(m_list[offset], 16)
@@ -274,28 +274,28 @@ class Service():
         return offset
 
     def GetRequestNext(self, m_list):
-        '''GetRequestNext'''
+        """GetRequestNext"""
         offset = 0
         offset += self.typedo.take_PIID(m_list[offset:], '服务序号-优先级')
         offset += self.typedo.take_long_unsigned(m_list[offset:], '正确接收的最近一次数据块序号')
         return offset
 
     def GetRequestMD5(self, m_list):
-        '''GetRequestNext'''
+        """GetRequestNext"""
         offset = 0
         offset += self.typedo.take_PIID(m_list[offset:], '服务序号-优先级')
         offset += self.typedo.take_OAD(m_list[offset:], '一个对象属性描述符')
         return offset
 
     def GetResponseNormal(self, m_list):
-        '''GetResponseNormal'''
+        """GetResponseNormal"""
         offset = 0
         offset += self.typedo.take_PIID_ACD(m_list[offset:], '服务序号-优先级-ACD')
         offset += self.take_A_ResultNormal(m_list[offset:])
         return offset
 
     def GetResponseNormalList(self, m_list):
-        '''GetResponseNormalList'''
+        """GetResponseNormalList"""
         offset = 0
         offset += self.typedo.take_PIID_ACD(m_list[offset:], '服务序号-优先级-ACD')
         num = int(m_list[offset], 16)
@@ -307,14 +307,14 @@ class Service():
         return offset
 
     def GetResponseRecord(self, m_list):
-        '''GetResponseRecord'''
+        """GetResponseRecord"""
         offset = 0
         offset += self.typedo.take_PIID_ACD(m_list[offset:], '服务序号-优先级-ACD')
         offset += self.take_A_ResultRecord(m_list[offset:])
         return offset
 
     def GetResponseRecordList(self, m_list):
-        '''GetResponseRecordList'''
+        """GetResponseRecordList"""
         offset = 0
         offset += self.typedo.take_PIID_ACD(m_list[offset:], '服务序号-优先级-ACD')
         num = int(m_list[offset], 16)
@@ -353,7 +353,7 @@ class Service():
         return offset
 
     def GetResponseMD5(self, m_list):
-        '''GetResponseMD5'''
+        """GetResponseMD5"""
         offset = 0
         offset += self.typedo.take_PIID_ACD(m_list[offset:], '服务序号-优先级-ACD')
         re_choice = m_list[offset]
@@ -366,7 +366,7 @@ class Service():
         return offset
 
     def SetRequestNormal(self, m_list):
-        '''SetRequestNormal'''
+        """SetRequestNormal"""
         offset = 0
         offset += self.typedo.take_PIID(m_list[offset:], '服务序号-优先级')
         offset += self.typedo.take_OAD(m_list[offset:], '一个对象属性描述符')
@@ -374,7 +374,7 @@ class Service():
         return offset
 
     def SetRequestNormalList(self, m_list):
-        '''SetRequestNormalList'''
+        """SetRequestNormalList"""
         offset = 0
         offset += self.typedo.take_PIID(m_list[offset:], '服务序号-优先级')
         num = int(m_list[offset], 16)
@@ -387,7 +387,7 @@ class Service():
         return offset
 
     def SetThenGetRequestNormalList(self, m_list):
-        '''SetThenGetRequestNormalList'''
+        """SetThenGetRequestNormalList"""
         offset = 0
         offset += self.typedo.take_PIID(m_list[offset:], '服务序号-优先级')
         num = int(m_list[offset], 16)
@@ -402,7 +402,7 @@ class Service():
         return offset
 
     def SetResponseNormal(self, m_list):
-        '''SetResponseNormal'''
+        """SetResponseNormal"""
         offset = 0
         offset += self.typedo.take_PIID_ACD(m_list[offset:], '服务序号-优先级-ACD')
         offset += self.typedo.take_OAD(m_list[offset:], '一个对象属性描述符')
@@ -410,7 +410,7 @@ class Service():
         return offset
 
     def SetResponseNormalList(self, m_list):
-        '''SetResponseNormalList'''
+        """SetResponseNormalList"""
         offset = 0
         offset += self.typedo.take_PIID_ACD(m_list[offset:], '服务序号-优先级-ACD')
         num = int(m_list[offset], 16)
@@ -423,7 +423,7 @@ class Service():
         return offset
 
     def SetThenGetResponseNormalList(self, m_list):
-        '''SetThenGetResponseNormalList'''
+        """SetThenGetResponseNormalList"""
         offset = 0
         offset += self.typedo.take_PIID_ACD(m_list[offset:], '服务序号-优先级-ACD')
         num = int(m_list[offset], 16)
@@ -438,7 +438,7 @@ class Service():
         return offset
 
     def ActionRequest(self, m_list):
-        '''ActionRequest'''
+        """ActionRequest"""
         offset = 0
         offset += self.typedo.take_PIID(m_list[offset:], '服务序号-优先级')
         offset += self.typedo.take_OMD(m_list[offset:], '一个对象方法描述符')
@@ -446,7 +446,7 @@ class Service():
         return offset
 
     def ActionRequestList(self, m_list):
-        '''ActionRequestList'''
+        """ActionRequestList"""
         offset = 0
         offset += self.typedo.take_PIID(m_list[offset:], '服务序号-优先级')
         num = int(m_list[offset], 16)
@@ -459,7 +459,7 @@ class Service():
         return offset
 
     def ActionThenGetRequestNormalList(self, m_list):
-        '''ActionThenGetRequestNormalList'''
+        """ActionThenGetRequestNormalList"""
         offset = 0
         offset += self.typedo.take_PIID(m_list[offset:], '服务序号-优先级')
         num = int(m_list[offset], 16)
@@ -474,7 +474,7 @@ class Service():
         return offset
 
     def ActionResponseNormal(self, m_list):
-        '''ActionResponseNormal'''
+        """ActionResponseNormal"""
         offset = 0
         offset += self.typedo.take_PIID_ACD(m_list[offset:], '服务序号-优先级-ACD')
         offset += self.typedo.take_OMD(m_list[offset:], '一个对象方法描述符')
@@ -486,7 +486,7 @@ class Service():
         return offset
 
     def ActionResponseNormalList(self, m_list):
-        '''ActionResponseNormalList'''
+        """ActionResponseNormalList"""
         offset = 0
         offset += self.typedo.take_PIID_ACD(m_list[offset:], '服务序号-优先级-ACD')
         num = int(m_list[offset], 16)
@@ -503,7 +503,7 @@ class Service():
         return offset
 
     def ActionThenGetResponseNormalList(self, m_list):
-        '''ActionThenGetResponseNormalList'''
+        """ActionThenGetResponseNormalList"""
         offset = 0
         offset += self.typedo.take_PIID_ACD(m_list[offset:], '服务序号-优先级-ACD')
         num = int(m_list[offset], 16)
@@ -522,7 +522,7 @@ class Service():
         return offset
 
     def ReportResponseList(self, m_list):
-        '''ReportResponseList'''
+        """ReportResponseList"""
         offset = 0
         offset += self.typedo.take_PIID(m_list[offset:], '服务序号-优先级')
         num = int(m_list[offset], 16)
@@ -534,17 +534,17 @@ class Service():
         return offset
 
     def ReportResponseRecordList(self, m_list):
-        '''ReportResponseRecordList'''
+        """ReportResponseRecordList"""
         return self.ReportResponseList(m_list)
 
     def ReportResponseTransData(self, m_list):
-        '''ReportResponseTransData'''
+        """ReportResponseTransData"""
         offset = 0
         offset += self.typedo.take_PIID(m_list[offset:], '服务序号-优先级')
         return offset
 
     def ReportNotificationList(self, m_list):
-        '''ReportNotificationList'''
+        """ReportNotificationList"""
         offset = 0
         offset += self.typedo.take_PIID_ACD(m_list[offset:], '服务序号-优先级-ACD')
         num = int(m_list[offset], 16)
@@ -556,7 +556,7 @@ class Service():
         return offset
 
     def ReportNotificationRecordList(self, m_list):
-        '''ReportNotificationRecordList'''
+        """ReportNotificationRecordList"""
         offset = 0
         offset += self.typedo.take_PIID_ACD(m_list[offset:], '服务序号-优先级-ACD')
         num = int(m_list[offset], 16)
@@ -568,7 +568,7 @@ class Service():
         return offset
 
     def ReportNotificationTransData(self, m_list):
-        '''ReportNotificationTransData'''
+        """ReportNotificationTransData"""
         offset = 0
         offset += self.typedo.take_PIID_ACD(m_list[offset:], '服务序号-优先级-ACD')
         offset += self.typedo.take_OAD(m_list[offset:], '数据来源端口')
@@ -581,7 +581,7 @@ class Service():
         return offset
 
     def proxy_get_request_list(self, m_list):
-        '''proxy_get_request_list'''
+        """proxy_get_request_list"""
         offset = 0
         offset += self.typedo.take_PIID(m_list[offset:], '服务序号-优先级')
         offset += self.typedo.take_long_unsigned(m_list[offset:], '整个代理请求的超时时间')
@@ -601,7 +601,7 @@ class Service():
         return offset
 
     def ProxyGetRequestRecord(self, m_list):
-        '''ProxyGetRequestRecord'''
+        """ProxyGetRequestRecord"""
         offset = 0
         offset += self.typedo.take_PIID(m_list[offset:], '服务序号-优先级')
         offset += self.typedo.take_long_unsigned(m_list[offset:], '代理请求的超时时间')
@@ -612,7 +612,7 @@ class Service():
         return offset
 
     def ProxySetRequestList(self, m_list):
-        '''ProxySetRequestList'''
+        """ProxySetRequestList"""
         offset = 0
         offset += self.typedo.take_PIID(m_list[offset:], '服务序号-优先级')
         offset += self.typedo.take_long_unsigned(m_list[offset:], '整个代理请求的超时时间')
@@ -633,7 +633,7 @@ class Service():
         return offset
 
     def ProxySetThenGetRequestList(self, m_list):
-        '''ProxySetThenGetRequestList'''
+        """ProxySetThenGetRequestList"""
         offset = 0
         offset += self.typedo.take_PIID(m_list[offset:], '服务序号-优先级')
         offset += self.typedo.take_long_unsigned(m_list[offset:], '整个代理请求的超时时间')
@@ -656,7 +656,7 @@ class Service():
         return offset
 
     def ProxyActionRequestList(self, m_list):
-        '''ProxyActionRequestList'''
+        """ProxyActionRequestList"""
         offset = 0
         offset += self.typedo.take_PIID(m_list[offset:], '服务序号-优先级')
         offset += self.typedo.take_long_unsigned(m_list[offset:], '整个代理请求的超时时间')
@@ -677,7 +677,7 @@ class Service():
         return offset
 
     def ProxyActionThenGetRequestList(self, m_list):
-        '''ProxyActionThenGetRequestList'''
+        """ProxyActionThenGetRequestList"""
         offset = 0
         offset += self.typedo.take_PIID(m_list[offset:], '服务序号-优先级')
         offset += self.typedo.take_long_unsigned(m_list[offset:], '整个代理请求的超时时间')
@@ -700,7 +700,7 @@ class Service():
         return offset
 
     def ProxyTransCommandRequest(self, m_list):
-        '''ProxyTransCommandRequest'''
+        """ProxyTransCommandRequest"""
         offset = 0
         offset += self.typedo.take_PIID(m_list[offset:], '服务序号-优先级')
         offset += self.typedo.take_OAD(m_list[offset:], '数据转发端口')
@@ -711,7 +711,7 @@ class Service():
         return offset
 
     def ProxyGetResponseList(self, m_list):
-        '''ProxyGetResponseList'''
+        """ProxyGetResponseList"""
         offset = 0
         offset += self.typedo.take_PIID_ACD(m_list[offset:], '服务序号-优先级-ACD')
         num = int(m_list[offset], 16)
@@ -730,7 +730,7 @@ class Service():
         return offset
 
     def ProxyGetResponseRecord(self, m_list):
-        '''ProxyGetResponseRecord'''
+        """ProxyGetResponseRecord"""
         offset = 0
         offset += self.typedo.take_PIID_ACD(m_list[offset:], '服务序号-优先级-ACD')
         offset += self.typedo.take_TSA(m_list[offset:], '目标服务器地址')
@@ -738,7 +738,7 @@ class Service():
         return offset
 
     def ProxySetResponseList(self, m_list):
-        '''ProxySetResponseList'''
+        """ProxySetResponseList"""
         offset = 0
         offset += self.typedo.take_PIID_ACD(m_list[offset:], '服务序号-优先级-ACD')
         num = int(m_list[offset], 16)
@@ -757,7 +757,7 @@ class Service():
         return offset
 
     def ProxySetThenGetResponseList(self, m_list):
-        '''ProxySetThenGetResponseList'''
+        """ProxySetThenGetResponseList"""
         offset = 0
         offset += self.typedo.take_PIID_ACD(m_list[offset:], '服务序号-优先级-ACD')
         num = int(m_list[offset], 16)
@@ -778,7 +778,7 @@ class Service():
         return offset
 
     def ProxyActionResponseList(self, m_list):
-        '''ProxyActionResponseList'''
+        """ProxyActionResponseList"""
         offset = 0
         offset += self.typedo.take_PIID_ACD(m_list[offset:], '服务序号-优先级-ACD')
         num = int(m_list[offset], 16)
@@ -801,7 +801,7 @@ class Service():
         return offset
 
     def ProxyActionThenGetResponseList(self, m_list):
-        '''ProxyActionThenGetResponseList'''
+        """ProxyActionThenGetResponseList"""
         offset = 0
         offset += self.typedo.take_PIID_ACD(m_list[offset:], '服务序号-优先级-ACD')
         num = int(m_list[offset], 16)
@@ -826,7 +826,7 @@ class Service():
         return offset
 
     def ProxyTransCommandResponse(self, m_list):
-        '''ProxyTransCommandResponse'''
+        """ProxyTransCommandResponse"""
         offset = 0
         offset += self.typedo.take_PIID_ACD(m_list[offset:], '服务序号-优先级-ACD')
         offset += self.typedo.take_OAD(m_list[offset:], '数据转发端口')
@@ -840,7 +840,7 @@ class Service():
         return offset
 
     def security_request(self, m_list):
-        '''security_request'''
+        """security_request"""
         offset = 0
         security_choice = m_list[offset]
         offset += self.typedo.take_CHOICE(m_list[offset:], '应用数据单元',\
@@ -864,7 +864,7 @@ class Service():
         return offset
 
     def security_response(self, m_list):
-        '''security_response'''
+        """security_response"""
         offset = 0
         security_choice = m_list[offset]
         offset += self.typedo.take_CHOICE(m_list[offset:], '应用数据单元',\

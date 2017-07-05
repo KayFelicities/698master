@@ -1,4 +1,4 @@
-'''config'''
+"""config"""
 import os
 import sys
 

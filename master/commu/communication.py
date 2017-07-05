@@ -1,4 +1,4 @@
-'''communication'''
+"""communication"""
 import socket
 import threading
 import time
@@ -12,12 +12,12 @@ from master.trans import common
 
 
 def serial_com_scan():
-    '''scan com port'''
+    """scan com port"""
     return [com[0] for com in list(serial.tools.list_ports.comports())]
 
 
 class CommuPanel():
-    '''communication control panel class'''
+    """communication control panel class"""
     def __init__(self):
         self.serial_handle = None
         self.is_serial_running = False
@@ -31,7 +31,7 @@ class CommuPanel():
 
 
     def send_msg(self, m_text, chan_index):
-        '''send message'''
+        """send message"""
         m_list = common.text2list(m_text)
         send_b = b''.join(map(lambda x: struct.pack('B', int(x, 16)), m_list))
         if self.is_serial_running and chan_index in [-1, 0]:
@@ -42,7 +42,7 @@ class CommuPanel():
             config.MASTER_WINDOW.send_signal.emit(common.format_text(m_text), 1)
 
         def send_to_client(client_handle, client_addr):
-            '''send'''
+            """send"""
             try:
                 client_handle.sendall(send_b)
                 print('send to client', client_addr)
@@ -57,7 +57,7 @@ class CommuPanel():
 
 
     def serial_connect(self, com, baudrate=9600, bytesize=8, parity='E', stopbits=1, timeout=0.05):
-        '''connect serial'''
+        """connect serial"""
         if self.is_serial_running:
             return 'err'
         try:
@@ -73,7 +73,7 @@ class CommuPanel():
 
 
     def serial_disconnect(self):
-        '''stop serial'''
+        """stop serial"""
         if self.is_serial_running is False:
             return 'ok'
         try:
@@ -86,7 +86,7 @@ class CommuPanel():
 
 
     def serial_read_loop(self):
-        '''serial loop'''
+        """serial loop"""
         while True:
             try:
                 data_wait = self.serial_handle.inWaiting()
@@ -109,7 +109,7 @@ class CommuPanel():
 
 
     def frontend_connect(self, addr):
-        '''connect'''
+        """connect"""
         if self.is_frontend_running:
             return 'err'
         port = int(addr.split(':')[1])
@@ -126,7 +126,7 @@ class CommuPanel():
             return 'err'
 
     def frontend_disconnect(self):
-        '''stop serial'''
+        """stop serial"""
         if self.is_frontend_running is False:
             return 'ok'
         try:
@@ -139,7 +139,7 @@ class CommuPanel():
 
 
     def frontend_read_loop(self):
-        '''frontend loop'''
+        """frontend loop"""
         while True:
             try:
                 re_byte = self.frontend_handle.recv(4096)
@@ -156,7 +156,7 @@ class CommuPanel():
 
 
     def server_start(self, server_port):
-        '''connect server'''
+        """connect server"""
         if self.is_server_running:
             return 'err'
         try:
@@ -172,7 +172,7 @@ class CommuPanel():
 
 
     def server_accept(self):
-        '''accept tcp client'''
+        """accept tcp client"""
         while True:
             try:
                 client_handle, client_addr = self.server_handle.accept()
@@ -188,7 +188,7 @@ class CommuPanel():
 
 
     def server_stop(self):
-        '''stop server'''
+        """stop server"""
         if self.is_server_running is False:
             return 'ok'
         try:
@@ -201,7 +201,7 @@ class CommuPanel():
 
 
     def server_read_loop(self, client_handle, client_addr):
-        '''server loop'''
+        """server loop"""
         while True:
             try:
                 re_byte = client_handle.recv(4096)

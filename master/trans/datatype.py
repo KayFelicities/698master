@@ -1,16 +1,16 @@
-'''handle with 698 datatypes'''
+"""handle with 698 datatypes"""
 from master.datas import oads, omds, units, dars
 
 
 class TypeDo():
-    '''type do '''
+    """type do """
     def __init__(self, trans_res):
-        '''init'''
+        """init"""
         self.trans_res = trans_res
 
 
     def take_PIID(self, m_list, brief='', depth=0):
-        '''take_PIID'''
+        """take_PIID"""
         offset = 0
         piid = int(m_list[offset], 16)
         service_priority = '一般的' if piid >> 7 == 0 else '高级的'
@@ -22,7 +22,7 @@ class TypeDo():
 
 
     def take_PIID_ACD(self, m_list, brief='', depth=0):
-        '''take_PIID_ACD'''
+        """take_PIID_ACD"""
         offset = 0
         piid_acd = int(m_list[offset], 16)
         service_priority = '一般的' if piid_acd >> 7 == 0 else '高级的'
@@ -35,7 +35,7 @@ class TypeDo():
 
 
     def take_OPTIONAL(self, m_list, brief='', depth=0):
-        '''take_OPTIONAL'''
+        """take_OPTIONAL"""
         offset = 0
         optional = '有' if m_list[offset] == '01' else '无'
         offset += 1
@@ -44,7 +44,7 @@ class TypeDo():
 
 
     def take_CHOICE(self, m_list, brief='', depth=0, choice_dict=None):
-        '''take_CHOICE'''
+        """take_CHOICE"""
         offset = 0
         choice = m_list[offset]
         if choice_dict is not None:
@@ -56,7 +56,7 @@ class TypeDo():
         return offset
 
 
-        '''take_axdr_len'''
+        """take_axdr_len"""
     def take_axdr_len(self, m_list):
         offset = 0
         len_flag = int(m_list[offset], 16)
@@ -75,7 +75,7 @@ class TypeDo():
 
 
     def take_DAR(self, m_list, brief='', depth=0):
-        '''take_DAR'''
+        """take_DAR"""
         offset = 0
         explain = dars.DAR.get(int(m_list[0], 16), '无效DAR')
         offset += 1
@@ -84,7 +84,7 @@ class TypeDo():
 
 
     def take_ConnectMechanismInfo(self, m_list, brief='', depth=0):
-        '''take_ConnectMechanismInfo'''
+        """take_ConnectMechanismInfo"""
         offset = 0
         connect_choice = m_list[offset]
         en_type = {'00': '公共连接', '01': '一般密码', '02': '对称加密', '03': '数字签名'}
@@ -103,7 +103,7 @@ class TypeDo():
 
 
     def take_ConnectResponseInfo(self, m_list, brief='', depth=0):
-        '''take_ConnectResponseInfo'''
+        """take_ConnectResponseInfo"""
         offset = 0
         connect_result = {
             '00': '允许建立应用连接',
@@ -124,7 +124,7 @@ class TypeDo():
 
 
     def take_FactoryVersion(self, m_list, brief='', depth=0):
-        '''take_FactoryVersion'''
+        """take_FactoryVersion"""
         offset = 0
         offset += self.take_visible_string(m_list[offset:], '厂商代码:', 4, depth=depth)
         offset += self.take_visible_string(m_list[offset:], '软件版本号:', 4, depth=depth)
@@ -136,7 +136,7 @@ class TypeDo():
 
 
     def take_Data(self, m_list, brief='', depth=0):
-        '''take data'''
+        """take data"""
         offset = 0
         data_type = m_list[offset]
         if data_type == '00':    # 对null类型特殊处理
@@ -190,7 +190,7 @@ class TypeDo():
 
 
     def take_NULL(self, m_list, brief='', depth=0):
-        '''take_NULL'''
+        """take_NULL"""
         offset = 0
         offset += 1
         self.trans_res.add_row(m_list[:offset], brief, 'NULL', depth=depth)
@@ -198,7 +198,7 @@ class TypeDo():
 
 
     def take_array(self, m_list, brief='', depth=0):
-        '''take_array'''
+        """take_array"""
         offset = 0
         num = int(m_list[offset], 16)
         offset += 1
@@ -209,7 +209,7 @@ class TypeDo():
 
 
     def take_structure(self, m_list, brief='', depth=0):
-        '''take_structure'''
+        """take_structure"""
         offset = 0
         num = int(m_list[offset], 16)
         offset += 1
@@ -220,7 +220,7 @@ class TypeDo():
 
 
     def take_bool(self, m_list, brief='', depth=0):
-        '''take_bool'''
+        """take_bool"""
         offset = 0
         bool_value = False if m_list[offset] == '00' else True
         offset += 1
@@ -230,7 +230,7 @@ class TypeDo():
 
 
     def take_bit_string(self, m_list, bit_len=None, brief='', depth=0):
-        '''take_bit_string'''
+        """take_bit_string"""
         offset = 0
         if bit_len is None:
             res = self.take_axdr_len(m_list[offset:])
@@ -247,7 +247,7 @@ class TypeDo():
 
 
     def take_double_long(self, m_list, brief='', depth=0):
-        '''take_double_long'''
+        """take_double_long"""
         offset = 0
         if int(m_list[offset], 16) >> 7 == 1:  # 负数
             value = -(0x100000000 - int(''.join(m_list[offset : offset + 4]), 16))
@@ -259,7 +259,7 @@ class TypeDo():
 
 
     def take_double_long_unsigned(self, m_list, brief='', depth=0):
-        '''take_double_long_unsigned'''
+        """take_double_long_unsigned"""
         offset = 0
         value = int(''.join(m_list[offset: offset + 4]), 16)
         offset += 4
@@ -268,7 +268,7 @@ class TypeDo():
 
 
     def take_octect_string(self, m_list, brief='', string_len=None, depth=0):
-        '''take_octect_string'''
+        """take_octect_string"""
         offset = 0
         if string_len is None:
             res = self.take_axdr_len(m_list[offset:])
@@ -282,7 +282,7 @@ class TypeDo():
 
 
     def take_visible_string(self, m_list, brief='', string_len=None, depth=0):
-        '''take_visible_string'''
+        """take_visible_string"""
         offset = 0
         if string_len is None:
             res = self.take_axdr_len(m_list[offset:])
@@ -298,7 +298,7 @@ class TypeDo():
 
 
     def take_UTF8_string(self, m_list, brief='', string_len=None, depth=0):
-        '''take_UTF8_string'''
+        """take_UTF8_string"""
         offset = 0
         if string_len is None:
             res = self.take_axdr_len(m_list[offset:])
@@ -312,7 +312,7 @@ class TypeDo():
 
 
     def take_integer(self, m_list, brief='', depth=0):
-        '''take_integer'''
+        """take_integer"""
         offset = 0
         if int(m_list[offset], 16) >> 7 == 1:  # 负数
             value = -(0x100 - int(m_list[offset], 16))
@@ -324,7 +324,7 @@ class TypeDo():
 
 
     def take_long(self, m_list, brief='', depth=0):
-        '''take_long'''
+        """take_long"""
         offset = 0
         if int(m_list[offset], 16) >> 7 == 1:  # 负数
             value = -(0x10000 - int(m_list[offset] + m_list[offset + 1], 16))
@@ -336,7 +336,7 @@ class TypeDo():
 
 
     def take_unsigned(self, m_list, brief='', depth=0):
-        '''take_unsigned'''
+        """take_unsigned"""
         offset = 0
         value = int(m_list[offset], 16)
         offset += 1
@@ -345,7 +345,7 @@ class TypeDo():
 
 
     def take_long_unsigned(self, m_list, brief='', depth=0):
-        '''take_long_unsigned'''
+        """take_long_unsigned"""
         offset = 0
         value = int(m_list[offset] + m_list[offset + 1], 16)
         offset += 2
@@ -354,7 +354,7 @@ class TypeDo():
 
 
     def take_long64(self, m_list, brief='', depth=0):
-        '''take_long64'''
+        """take_long64"""
         offset = 0
         if int(m_list[offset], 16) >> 7 == 1:  # 负数
             value = -(0x10000000000000000 - int(''.join(m_list[offset : offset + 8]), 16))
@@ -366,7 +366,7 @@ class TypeDo():
 
 
     def take_long64_unsigned(self, m_list, brief='', depth=0):
-        '''take_long64_unsigned'''
+        """take_long64_unsigned"""
         offset = 0
         value = int(''.join(m_list[offset : offset + 8]), 16)
         offset += 8
@@ -375,7 +375,7 @@ class TypeDo():
 
 
     def take_enum(self, m_list, brief='', depth=0, enum_dict=None):
-        '''take_enum'''
+        """take_enum"""
         offset = 0
         enum_explain = ''
         if enum_dict is not None:
@@ -386,7 +386,7 @@ class TypeDo():
 
 
     def take_float32(self, m_list, brief='', depth=0):
-        '''take_float32, Kay check!'''
+        """take_float32, Kay check!"""
         offset = 0
         if int(m_list[offset], 16) >> 7 == 1:  # 负数
             value = -(0x100000000 - int(''.join(m_list[offset : offset + 4]), 16))
@@ -398,7 +398,7 @@ class TypeDo():
 
 
     def take_float64(self, m_list, brief='', depth=0):
-        '''take_float64'''
+        """take_float64"""
         offset = 0
         if int(m_list[offset], 16) >> 7 == 1:  # 负数
             value = -(0x10000000000000000 - int(''.join(m_list[offset : offset + 8]), 16))
@@ -410,7 +410,7 @@ class TypeDo():
 
 
     def take_date_time(self, m_list, brief='', depth=0):
-        '''take_date_time'''
+        """take_date_time"""
         offset = 0
         year = int(m_list[0] + m_list[1], 16)
         month = int(m_list[2], 16)
@@ -427,7 +427,7 @@ class TypeDo():
 
 
     def take_date(self, m_list, brief='', depth=0):
-        '''take_date'''
+        """take_date"""
         offset = 0
         year = int(m_list[0] + m_list[1], 16)
         month = int(m_list[2], 16)
@@ -440,7 +440,7 @@ class TypeDo():
 
 
     def take_time(self, m_list, brief='', depth=0):
-        '''take_time'''
+        """take_time"""
         offset = 0
         hour = int(m_list[0], 16)
         minute = int(m_list[1], 16)
@@ -452,7 +452,7 @@ class TypeDo():
 
 
     def take_date_time_s(self, m_list, brief='', depth=0):
-        '''take_date_time_s'''
+        """take_date_time_s"""
         offset = 0
         year = int(m_list[0] + m_list[1], 16)
         month = int(m_list[2], 16)
@@ -468,7 +468,7 @@ class TypeDo():
 
 
     def take_OI(self, m_list, brief='', depth=0):
-        '''take_OI'''
+        """take_OI"""
         offset = 0
         explain = oads.OAD.get(m_list[offset] + m_list[offset + 1] + '01', '未知OI').split('，')[0]
         offset += 2
@@ -477,7 +477,7 @@ class TypeDo():
 
 
     def take_OAD(self, m_list, brief='', depth=0):
-        '''take_OAD'''
+        """take_OAD"""
         offset = 0
         attr = int(m_list[offset + 2], 16)
         index = int(m_list[offset + 3], 16)
@@ -490,7 +490,7 @@ class TypeDo():
 
 
     def take_ROAD(self, m_list, brief='', depth=0):
-        '''take_ROAD'''
+        """take_ROAD"""
         offset = 0
         offset += self.take_OAD(m_list[offset:], depth=depth)
         oad_num = int(m_list[offset], 16)
@@ -502,7 +502,7 @@ class TypeDo():
 
 
     def take_OMD(self, m_list, brief='', depth=0):
-        '''take_OMD'''
+        """take_OMD"""
         offset = 0
         method = int(m_list[offset + 2], 16)
         mode = int(m_list[offset + 3], 16)
@@ -515,7 +515,7 @@ class TypeDo():
 
 
     def take_TI(self, m_list, brief='', depth=0):
-        '''take_TI'''
+        """take_TI"""
         offset = 0
         uint = {
             '00': '秒',
@@ -532,7 +532,7 @@ class TypeDo():
 
 
     def take_TSA(self, m_list, brief='', depth=0):
-        '''take_TSA'''
+        """take_TSA"""
         # print('Kay, take_TSA data:', data)
         offset = 0
         TSA_len = int(m_list[offset], 16)
@@ -549,21 +549,21 @@ class TypeDo():
 
 
     def take_MAC(self, m_list, brief='', depth=0):
-        '''take_MAC'''
+        """take_MAC"""
         offset = 0
         offset += self.take_octect_string(m_list[offset:], 'MAC')
         return offset
 
 
     def take_RN(self, m_list, brief='', depth=0):
-        '''take_RN'''
+        """take_RN"""
         offset = 0
         offset += self.take_octect_string(m_list[offset:], 'RN')
         return offset
 
 
     def take_RN_MAC(self, m_list, brief='', depth=0):
-        '''take_RN_MAC'''
+        """take_RN_MAC"""
         offset = 0
         offset += self.take_octect_string(m_list[offset:], 'RN')
         offset += self.take_octect_string(m_list[offset:], 'MAC')
@@ -571,7 +571,7 @@ class TypeDo():
 
 
     def take_Region(self, m_list, brief='', depth=0):
-        '''take_Region'''
+        """take_Region"""
         offset = 0
         r_uint = {
             '00': '前闭后开',
@@ -586,7 +586,7 @@ class TypeDo():
 
 
     def take_Scaler_Unit(self, m_list, brief='', depth=0):
-        '''take_Scaler_Unit'''
+        """take_Scaler_Unit"""
         offset = 0
         if int(m_list[offset], 16) >> 7 == 1:  # 负数
             value = -(0x100 - int(m_list[offset], 16))
@@ -601,7 +601,7 @@ class TypeDo():
 
 
     def take_RSD(self, m_list, brief='', depth=0):
-        '''take_RSD'''
+        """take_RSD"""
         offset = 0
         selector = m_list[offset]
         selector_choice = {'00': '不选择', '01': '方法1', '02': '方法2', '03': '方法3',
@@ -650,7 +650,7 @@ class TypeDo():
 
 
     def take_CSD(self, m_list, brief='', depth=0):
-        '''take_CSD'''
+        """take_CSD"""
         offset = 0
         csd_choice = m_list[offset]
         offset += 1
@@ -667,7 +667,7 @@ class TypeDo():
 
 
     def take_MS(self, m_list, brief='', depth=0):
-        '''take_MS'''
+        """take_MS"""
         offset = 0
         ms_choice = m_list[0]
         ms_choice_dict = {'00': '无电能表', '01': '全部用户地址', '02': '一组用户类型',
@@ -727,7 +727,7 @@ class TypeDo():
 
 
     def take_SID(self, m_list, brief='', depth=0):
-        '''take_SID'''
+        """take_SID"""
         offset = 0
         offset += self.take_double_long_unsigned(m_list[offset:], '标识', depth=depth)
         offset += self.take_octect_string(m_list[offset:], '附加数据', depth=depth)
@@ -735,7 +735,7 @@ class TypeDo():
 
 
     def take_SID_MAC(self, m_list, brief='', depth=0):
-        '''take_SID_MAC'''
+        """take_SID_MAC"""
         offset = 0
         offset += self.take_SID(m_list[offset:], '安全标识', depth=depth)
         offset += self.take_MAC(m_list[offset:], '数据MAC', depth=depth)
@@ -743,7 +743,7 @@ class TypeDo():
 
 
     def take_COMDCB(self, m_list, brief='', depth=0):
-        '''take_COMDCB'''
+        """take_COMDCB"""
         offset = 0
         rate_dict = {
             '00': '300bps',
@@ -772,7 +772,7 @@ class TypeDo():
 
 
     def take_RCSD(self, m_list, brief='', depth=0):
-        '''take_RCSD'''
+        """take_RCSD"""
         offset = 0
         num = int(m_list[offset], 16)
         offset += 1

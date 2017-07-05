@@ -1,4 +1,4 @@
-'''translate 698 messages'''
+"""translate 698 messages"""
 import traceback
 import master.trans.common as commonfun
 import master.trans.linklayer as linklayer_do
@@ -6,9 +6,9 @@ import master.trans.service as applayer_do
 from master import config
 
 class Translate():
-    '''translate class'''
+    """translate class"""
     def __init__(self, m_text):
-        '''init'''
+        """init"""
         self.trans_res = commonfun.TransRes()
         m_list = commonfun.text2list(m_text)
         self.res_list, self.is_success = self.trans_all(m_list)
@@ -16,7 +16,7 @@ class Translate():
 
 
     def trans_all(self, m_list):
-        '''translate all messages'''
+        """translate all messages"""
         offset = 0
         try:
             if m_list[0] == '68':
@@ -43,12 +43,12 @@ class Translate():
 
 
     def get_res_list(self):
-        '''get result list'''
+        """get result list"""
         return self.res_list
 
 
     def get_full(self, is_show_level=True):
-        '''get full translate'''
+        """get full translate"""
         if self.is_success:
             res_text = '<table style="table-layout:fixed; word-wrap:break-word;">'
         else:
@@ -76,14 +76,14 @@ class Translate():
 
 
     def get_apdu_text(self):
-        '''get_apdu_text'''
+        """get_apdu_text"""
         apdu_text = ''.join([commonfun.list2text(row['m_list'])\
                                 for row in self.res_list if row['priority'] > 0])
         return apdu_text
 
 
     def get_direction(self):
-        '''get direction'''
+        """get direction"""
         if not self.is_success:
             return '-'
 
@@ -97,7 +97,7 @@ class Translate():
 
 
     def get_SA(self):
-        '''get server address'''
+        """get server address"""
         for row in self.res_list:
             if row['dtype'] == 'SA':
                 return row['value'].split('[')[2].split(']')[0]
@@ -105,7 +105,7 @@ class Translate():
 
 
     def get_CA(self):
-        '''get client address'''
+        """get client address"""
         for row in self.res_list:
             if row['dtype'] == 'CA':
                 return row['value']
@@ -113,7 +113,7 @@ class Translate():
 
 
     def get_logic_addr(self):
-        '''get logic address'''
+        """get logic address"""
         for row in self.res_list:
             if row['dtype'] == 'SA':
                 return int(row['value'].split('[')[1].split(']')[0])
@@ -121,19 +121,19 @@ class Translate():
 
 
     def get_service(self):
-        '''get service'''
+        """get service"""
         return commonfun.list2text(list(filter(lambda row: row['dtype'] == 'service'\
                                     , self.res_list))[0]['m_list']).replace(' ', '')
 
 
     def get_piid(self):
-        '''get_piid'''
+        """get_piid"""
         return commonfun.list2text(list(filter(lambda row: row['dtype'] in ['PIID', 'PIID_ACD']\
                             , self.res_list))[0]['m_list']).replace(' ', '')
 
 
     def get_brief(self):
-        '''get brief translate'''
+        """get brief translate"""
         if not self.is_success:
             return '无效报文'
 

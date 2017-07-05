@@ -1,4 +1,4 @@
-'''master ui'''
+"""master ui"""
 import sys
 import os
 from master import config
@@ -19,7 +19,7 @@ from master.others import master_config
 
 
 class MasterWindow(QtGui.QMainWindow):
-    '''serial window'''
+    """serial window"""
     receive_signal = QtCore.pyqtSignal(str, int)
     send_signal = QtCore.pyqtSignal(str, int)
     se_apdu_signal = QtCore.pyqtSignal(str)
@@ -73,7 +73,7 @@ class MasterWindow(QtGui.QMainWindow):
 
 
     def apply_config(self):
-        '''apply config'''
+        """apply config"""
         apply_config = master_config.MasterConfig()
         tmn_list = eval(apply_config.get_tmn_list())
         for tmn in tmn_list:
@@ -235,7 +235,7 @@ class MasterWindow(QtGui.QMainWindow):
 
 
     def re_msg_do(self, re_text, chan_index):
-        '''recieve text'''
+        """recieve text"""
         re_list = common.text2list(re_text)
         msgs = common.search_msg(re_list)
         for msg in msgs:
@@ -243,12 +243,12 @@ class MasterWindow(QtGui.QMainWindow):
 
 
     def se_msg_do(self, re_text, chan_index):
-        '''recieve text'''
+        """recieve text"""
         self.add_msg_table_row(re_text, chan_index, '→')
 
 
     def add_tmn_table_row(self, tmn_addr='000000000001', logic_addr=0, chan_index=1, is_checked=False):
-        '''add message row'''
+        """add message row"""
         row_pos = self.tmn_table.rowCount()
         self.tmn_table.insertRow(row_pos)
 
@@ -278,14 +278,14 @@ class MasterWindow(QtGui.QMainWindow):
 
 
     def tmn_table_remove(self):
-        '''remove row in tmn table'''
+        """remove row in tmn table"""
         button = self.sender()
         index = self.tmn_table.indexAt(button.pos())
         self.tmn_table.removeRow(index.row())
 
 
     def add_msg_table_row(self, m_text, chan_index, direction):
-        '''add message row'''
+        """add message row"""
         trans = Translate(m_text)
         brief = trans.get_brief()
         # direction = trans.get_direction()
@@ -357,7 +357,7 @@ class MasterWindow(QtGui.QMainWindow):
 
 
     def send_apdu(self, apdu_text, tmn_addr='', logic_addr=-1, chan_index=-1, C_text='43'):
-        '''apdu to compelete msg to send'''
+        """apdu to compelete msg to send"""
         for row in [x for x in range(self.tmn_table.rowCount())\
                         if self.tmn_table.cellWidget(x, 0).isChecked()]:
             if tmn_addr and tmn_addr != self.tmn_table.item(row, 1).text():
@@ -375,7 +375,7 @@ class MasterWindow(QtGui.QMainWindow):
 
 
     def tmn_scan(self):
-        '''scan terminal'''
+        """scan terminal"""
         wild_apdu = '0501014000020000'
         compelete_msg = linklayer.add_linkLayer(common.text2list(wild_apdu),\
                                 SA_text='AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',\
@@ -387,26 +387,26 @@ class MasterWindow(QtGui.QMainWindow):
 
 
     def trans_msg(self, row):
-        '''translate massage'''
+        """translate massage"""
         self.pop_dialog.msg_box.setPlainText(self.msg_table.item(row, 4).text())
         self.pop_dialog.show()
         self.pop_dialog.activateWindow()
 
 
     def clr_table(self, table):
-        '''clear table widget'''
+        """clear table widget"""
         for _ in range(table.rowCount()):
             table.removeRow(0)
         # table.setRowCount(0)
 
 
     def open_log_dir(self):
-        '''open_log_dir'''
+        """open_log_dir"""
         os.system('start {dir}'.format(dir=config.MSG_LOG_DIR))
 
 
     def set_always_top(self):
-        '''set_always_top'''
+        """set_always_top"""
         window_pos = self.pos()
         if self.always_top_cb.isChecked() is True:
             self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
@@ -418,53 +418,53 @@ class MasterWindow(QtGui.QMainWindow):
 
 
     def set_reply_link(self):
-        '''set_reply_link'''
+        """set_reply_link"""
         self.is_reply_link = True if self.reply_link_cb.isChecked() else False
 
 
     def set_reply_rpt(self):
-        '''set_reply_rpt'''
+        """set_reply_rpt"""
         self.is_reply_rpt = True if self.reply_rpt_cb.isChecked() else False
 
 
     def show_about_window(self):
-        '''show_about_window'''
+        """show_about_window"""
         config.ABOUT_WINDOW.show()
         config.ABOUT_WINDOW.activateWindow()
 
 
     def show_commu_window(self):
-        '''show_commu_window'''
+        """show_commu_window"""
         self.commu_dialog.show()
         self.commu_dialog.activateWindow()
 
 
     def show_get_service_window(self):
-        '''show_get_service_window'''
+        """show_get_service_window"""
         self.get_set_service_dialog.show()
         self.get_set_service_dialog.activateWindow()
 
 
     def show_general_cmd_window(self):
-        '''show_general_cmd_window'''
+        """show_general_cmd_window"""
         self.general_cmd_dialog.show()
         self.general_cmd_dialog.activateWindow()
 
 
     def show_msg_diy_window(self):
-        '''msg_diy_dialog'''
+        """msg_diy_dialog"""
         self.msg_diy_dialog.show()
         self.msg_diy_dialog.activateWindow()
 
 
     def show_remote_update_window(self):
-        '''remote_update_dialog'''
+        """remote_update_dialog"""
         self.remote_update_dialog.show()
         self.remote_update_dialog.activateWindow()
 
 
     def send_read_oad(self):
-        '''send message'''
+        """send message"""
         oad_text = self.oad_box.text()
         if len(oad_text) == 8:
             apdu_text = '050100 %s 00'%oad_text
@@ -475,7 +475,7 @@ class MasterWindow(QtGui.QMainWindow):
 
 
     def explain_oad(self):
-        '''explain_oad'''
+        """explain_oad"""
         oad_text = self.oad_box.text()
         if len(oad_text) == 8:
             explain = oads.OAD.get(oad_text[:-2], '未知OI')
@@ -483,7 +483,7 @@ class MasterWindow(QtGui.QMainWindow):
 
 
     def closeEvent(self, event):
-        '''close event'''
+        """close event"""
         # save config
         save_config = master_config.MasterConfig()
         tmn_list = []

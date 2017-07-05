@@ -1,4 +1,4 @@
-'''logfile translate'''
+"""logfile translate"""
 import sys
 import os
 from master.UI.trans_ui import TransWindow
@@ -8,7 +8,7 @@ from master import config
 
 
 def main(file_path=''):
-    '''main'''
+    """main"""
     APP = QtGui.QApplication(sys.argv)
     config.ABOUT_WINDOW = AboutWindow()
     config.TRANS_WINDOW = TransWindow()

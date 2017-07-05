@@ -1,4 +1,4 @@
-'''dialog windows'''
+"""dialog windows"""
 import sys
 import os
 import threading
@@ -16,7 +16,7 @@ from master.others import master_config
 
 
 class TransPopDialog(QtGui.QDialog):
-    '''translate window'''
+    """translate window"""
     def __init__(self):
         super(TransPopDialog, self).__init__()
         self.setup_ui()
@@ -27,7 +27,7 @@ class TransPopDialog(QtGui.QDialog):
 
 
     def setup_ui(self):
-        '''set layout'''
+        """set layout"""
         # self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         self.setWindowTitle('详细解析')
         self.setWindowIcon(QtGui.QIcon(os.path.join(config.SORTWARE_PATH, config.MASTER_ICO_PATH)))
@@ -60,7 +60,7 @@ class TransPopDialog(QtGui.QDialog):
 
 
     def trans_msg(self):
-        '''translate'''
+        """translate"""
         msg_text = self.msg_box.toPlainText()
         trans = translate.Translate(msg_text)
         brief = trans.get_brief()
@@ -69,7 +69,7 @@ class TransPopDialog(QtGui.QDialog):
 
 
     def set_always_top(self):
-        '''set_always_top'''
+        """set_always_top"""
         window_pos = self.pos()
         if self.always_top_cb.isChecked():
             self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
@@ -81,7 +81,7 @@ class TransPopDialog(QtGui.QDialog):
 
 
 class CommuDialog(QtGui.QDialog):
-    '''communication config window'''
+    """communication config window"""
     def __init__(self):
         super(CommuDialog, self).__init__()
         self.setup_ui()
@@ -108,7 +108,7 @@ class CommuDialog(QtGui.QDialog):
 
 
     def setup_ui(self):
-        '''set layout'''
+        """set layout"""
         self.setWindowTitle('通信控制面板')
         self.setWindowIcon(QtGui.QIcon(os.path.join(config.SORTWARE_PATH, config.MASTER_ICO_PATH)))
         self.master_addr_l = QtGui.QLabel()
@@ -186,15 +186,15 @@ class CommuDialog(QtGui.QDialog):
         self.setLayout(self.commu_panel_gbox)
 
     def switch_master_addr(self):
-        '''switch'''
+        """switch"""
         self.master_addr_box.setText('%02X'%random.randint(0, 255))
 
     def apply_master_addr(self):
-        '''apply'''
+        """apply"""
         config.COMMU.master_addr = self.master_addr_box.text()
 
     def connect_serial(self):
-        '''open serial'''
+        """open serial"""
         serial_com = self.serial_combo.currentText()
         if config.COMMU.serial_connect(serial_com, baudrate=int(self.serial_baud.currentText())) == 'ok':
             self.serial_link_b.setText('已连接')
@@ -207,7 +207,7 @@ class CommuDialog(QtGui.QDialog):
 
 
     def cut_serial(self):
-        '''close serial'''
+        """close serial"""
         if self.serial_link_b.isEnabled() is False:
             if config.COMMU.serial_disconnect() == 'ok':
                 self.serial_link_b.setText('连接')
@@ -221,7 +221,7 @@ class CommuDialog(QtGui.QDialog):
 
 
     def connect_frontend(self):
-        '''open frontend'''
+        """open frontend"""
         frontend_addr = self.frontend_box.text().replace(' ', '')
         if config.COMMU.frontend_connect(frontend_addr) == 'ok':
             self.frontend_link_b.setText('已连接')
@@ -232,7 +232,7 @@ class CommuDialog(QtGui.QDialog):
 
 
     def cut_frontend(self):
-        '''close frontend'''
+        """close frontend"""
         if config.COMMU.frontend_disconnect() == 'ok':
             self.frontend_link_b.setText('连接')
             self.frontend_link_b.setEnabled(True)
@@ -240,7 +240,7 @@ class CommuDialog(QtGui.QDialog):
 
 
     def connect_server(self):
-        '''open server'''
+        """open server"""
         server_port = self.server_box.text().replace(' ', '')
         if config.COMMU.server_start(int(server_port)) == 'ok':
             self.server_link_b.setText('已启动')
@@ -251,7 +251,7 @@ class CommuDialog(QtGui.QDialog):
 
 
     def cut_server(self):
-        '''close server'''
+        """close server"""
         if config.COMMU.server_stop() == 'ok':
             self.server_link_b.setText('启动')
             self.server_link_b.setEnabled(True)
@@ -259,12 +259,12 @@ class CommuDialog(QtGui.QDialog):
 
 
     def close_window(self):
-        '''close window'''
+        """close window"""
         self.close()
 
 
     def closeEvent(self, event):
-        '''close event'''
+        """close event"""
         # save config
         save_config = master_config.MasterConfig()
         save_config.set_master_addr(self.master_addr_box.text())
@@ -276,13 +276,13 @@ class CommuDialog(QtGui.QDialog):
 
 
 class MsgDiyDialog(QtGui.QDialog):
-    '''message DIY dialog class'''
+    """message DIY dialog class"""
     def __init__(self):
         super(MsgDiyDialog, self).__init__()
         self.setup_ui()
 
-        self.clr_b.clicked.connect(self.clr_box)
-        self.send_b.clicked.connect(self.send_msg)
+        self.clr_b.clicked.connect(lambda: self.msg_box.setPlainText('') or self.msg_box.setFocus())
+        self.send_b.clicked.connect(lambda: config.MASTER_WINDOW.se_apdu_signal.emit(self.apdu_text))
 
         self.msg_box.textChanged.connect(self.trans_msg)
         self.chk_valid_cb.stateChanged.connect(self.trans_msg)
@@ -294,7 +294,7 @@ class MsgDiyDialog(QtGui.QDialog):
 
 
     def setup_ui(self):
-        '''set layout'''
+        """set layout"""
         # self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         self.setWindowTitle('自定义APDU')
         self.setWindowIcon(QtGui.QIcon(os.path.join(config.SORTWARE_PATH, config.MASTER_ICO_PATH)))
@@ -374,7 +374,7 @@ class MsgDiyDialog(QtGui.QDialog):
 
 
     def trans_msg(self):
-        '''translate'''
+        """translate"""
         msg_text = self.msg_box.toPlainText()
         trans = translate.Translate(msg_text)
         full = trans.get_full(self.show_level_cb.isChecked())
@@ -388,19 +388,8 @@ class MsgDiyDialog(QtGui.QDialog):
             print('self.apdu_text:', self.apdu_text)
 
 
-    def send_msg(self):
-        '''send message'''
-        config.MASTER_WINDOW.se_apdu_signal.emit(self.apdu_text)
-
-
-    def clr_box(self):
-        '''clear input&output box'''
-        self.msg_box.setPlainText('')
-        self.msg_box.setFocus()
-
-
     def set_always_top(self):
-        '''set_always_top'''
+        """set_always_top"""
         window_pos = self.pos()
         if self.always_top_cb.isChecked():
             self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
@@ -412,7 +401,7 @@ class MsgDiyDialog(QtGui.QDialog):
 
 
 class GetSetServiceDialog(QtGui.QDialog):
-    '''get service dialog class'''
+    """get service dialog class"""
     def __init__(self):
         super(GetSetServiceDialog, self).__init__()
         self.setup_ui()
@@ -428,7 +417,7 @@ class GetSetServiceDialog(QtGui.QDialog):
 
 
     def setup_ui(self):
-        '''set layout'''
+        """set layout"""
         # self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         self.setWindowTitle('Get/Set Service')
         self.setWindowIcon(QtGui.QIcon(os.path.join(config.SORTWARE_PATH, config.MASTER_ICO_PATH)))
@@ -525,7 +514,7 @@ class GetSetServiceDialog(QtGui.QDialog):
 
 
     def add_object_table_row(self):
-        '''add object row'''
+        """add object row"""
         row_pos = self.object_table.rowCount()
         self.object_table.insertRow(row_pos)
 
@@ -546,14 +535,14 @@ class GetSetServiceDialog(QtGui.QDialog):
 
 
     def object_table_remove(self):
-        '''remove row in object table'''
+        """remove row in object table"""
         button = self.sender()
         index = self.object_table.indexAt(button.pos())
         self.object_table.removeRow(index.row())
 
 
     def send_read_apdu(self):
-        '''send_read_apdu'''
+        """send_read_apdu"""
         oads = []
         for row in range(self.object_table.rowCount()):
             oads.append(self.object_table.cellWidget(row, 1).currentText()[:8])
@@ -571,7 +560,7 @@ class GetSetServiceDialog(QtGui.QDialog):
 
 
     def re_msg(self, re_text, channel):
-        '''recieve text'''
+        """recieve text"""
         re_list = common.text2list(re_text)
         m_text = common.search_msg(re_list)[0]
         m_list = common.text2list(m_text)
@@ -583,12 +572,12 @@ class GetSetServiceDialog(QtGui.QDialog):
 
 
     def clr_re_table(self):
-        '''clear re msg table'''
+        """clear re msg table"""
         self.re_table.setRowCount(0)
 
 
     def set_always_top(self):
-        '''set_always_top'''
+        """set_always_top"""
         window_pos = self.pos()
         if self.always_top_cb.isChecked():
             self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
@@ -600,7 +589,7 @@ class GetSetServiceDialog(QtGui.QDialog):
 
 
 class RemoteUpdateDialog(QtGui.QDialog):
-    '''remote update window'''
+    """remote update window"""
     update_signal = QtCore.pyqtSignal(int, int)
     def __init__(self):
         super(RemoteUpdateDialog, self).__init__()
@@ -620,7 +609,7 @@ class RemoteUpdateDialog(QtGui.QDialog):
 
 
     def setup_ui(self):
-        '''set layout'''
+        """set layout"""
         self.setWindowTitle('远程文件升级')
         self.setWindowIcon(QtGui.QIcon(os.path.join(config.SORTWARE_PATH, config.MASTER_ICO_PATH)))
 
@@ -686,7 +675,7 @@ class RemoteUpdateDialog(QtGui.QDialog):
 
 
     def dragEnterEvent(self, event):
-        '''drag'''
+        """drag"""
         if event.mimeData().hasUrls:
             event.accept()
         else:
@@ -694,7 +683,7 @@ class RemoteUpdateDialog(QtGui.QDialog):
 
 
     def dragMoveEvent(self, event):
-        '''drag'''
+        """drag"""
         if event.mimeData().hasUrls:
             event.setDropAction(QtCore.Qt.CopyAction)
             event.accept()
@@ -703,7 +692,7 @@ class RemoteUpdateDialog(QtGui.QDialog):
 
 
     def dropEvent(self, event):
-        '''drop file'''
+        """drop file"""
         if event.mimeData().hasUrls:
             event.setDropAction(QtCore.Qt.CopyAction)
             event.accept()
@@ -716,7 +705,7 @@ class RemoteUpdateDialog(QtGui.QDialog):
 
 
     def open_file(self, filepath=''):
-        '''open file'''
+        """open file"""
         if not filepath:
             filepath = QtGui.QFileDialog.getOpenFileName(self, 'Open file', '', '*.*')
         if filepath:
@@ -735,7 +724,7 @@ class RemoteUpdateDialog(QtGui.QDialog):
 
 
     def show_block_num(self):
-        '''calc file info'''
+        """calc file info"""
         file_size = int(self.file_size_num_label.text().replace('字节', ''))
         block_size = int(self.block_size_combo.currentText().replace('字节', ''))
         block_num = file_size // block_size + (0 if file_size % block_size == 0 else 1)
@@ -743,7 +732,7 @@ class RemoteUpdateDialog(QtGui.QDialog):
 
 
     def start_update(self):
-        '''start update'''
+        """start update"""
         filepath = self.file_path_box.text()
         block_size = int(self.block_size_combo.currentText().replace('字节', ''))
         if filepath:
@@ -752,7 +741,7 @@ class RemoteUpdateDialog(QtGui.QDialog):
 
 
     def send_file(self, filepath, block_size):
-        '''send file thread'''
+        """send file thread"""
         start_apdu_text = '070100 f0010700 0203 0206 0a00 0a00 06 {filesize:08X}\
                         0403e0 0a00 1600 12 {blocksize:04X} 0202 1600 0900 00'\
                         .format(filesize=os.path.getsize(filepath), blocksize=block_size)
@@ -786,17 +775,17 @@ class RemoteUpdateDialog(QtGui.QDialog):
 
 
     def update_proc(self, block_no, block_num):
-        '''update proc'''
+        """update proc"""
         self.start_update_b.setText('升级中({no}/{all})'.format(no=block_no + 1, all=block_num))
 
 
     def stop_update(self):
-        '''stop update'''
+        """stop update"""
         self.is_updating = False
 
 
     def close_window(self):
-        '''close window'''
+        """close window"""
         self.close()
 
 

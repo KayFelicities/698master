@@ -1,4 +1,4 @@
-'''about ui'''
+"""about ui"""
 import os
 import sys
 from PyQt4 import QtGui, QtCore
@@ -13,7 +13,7 @@ class AboutWindow(QtGui.QDialog):
 
 
     def setup_ui(self):
-        '''layout'''
+        """layout"""
         self.setWindowTitle('关于')
         self.setWindowIcon(QtGui.QIcon(os.path.join(config.SORTWARE_PATH, config.MASTER_ICO_PATH)))
 

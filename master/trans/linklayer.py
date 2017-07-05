@@ -1,10 +1,10 @@
-'''handle with 698 link layer'''
+"""handle with 698 link layer"""
 import master.trans.common as commonfun
 from master import config
 
 
 def take_linklayer1(m_list, trans_res):
-    '''translate linklayer'''
+    """translate linklayer"""
     offset = 0
     trans_res.add_row(m_list[offset : offset+1], '帧起始符', value=86, priority=0)
     offset += 1
@@ -90,7 +90,7 @@ def take_linklayer1(m_list, trans_res):
 
 
 def take_linklayer2(m_list, offset, trans_res):
-    '''take_linklayer2'''
+    """take_linklayer2"""
     offset_temp = offset
     fcs_calc = commonfun.get_fcs(m_list[1:offset])
     fcs_calc = ((fcs_calc << 8) | (fcs_calc >> 8)) & 0xffff  # 低位在前
@@ -108,7 +108,7 @@ def take_linklayer2(m_list, offset, trans_res):
 
 
 def add_linkLayer(m_list, CA_text='00', SA_text='00000001', logic_addr=0, SA_type=0, C_text='43'):
-    '''add linklayer'''
+    """add linklayer"""
     SA_list = commonfun.text2list(SA_text)
     SA_list.reverse()  # 小端
     SA_text = ''.join(SA_list)

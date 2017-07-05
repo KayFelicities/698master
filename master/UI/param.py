@@ -1,4 +1,4 @@
-'''param'''
+"""param"""
 from master.trans import common
 from master.datas import dars
 

@@ -1,4 +1,4 @@
-'''oad explain'''
+"""oad explain"""
 
 
 OAD = {

@@ -1,10 +1,10 @@
-'''msg reply'''
+"""msg reply"""
 import time
 from master.trans import common
 
 
 def get_link_replay_apdu(trans_object):
-    '''get_link_replay_apdu'''
+    """get_link_replay_apdu"""
     tm1_text = common.list2text(list(filter(lambda row: row['dtype'] == 'date_time'\
                                                 , trans_object.res_list))[0]['m_list'])
     tm_local = time.localtime()
@@ -16,7 +16,7 @@ def get_link_replay_apdu(trans_object):
 
 
 def get_rpt_replay_apdu(trans_object):
-    '''get_rpt_replay_apdu'''
+    """get_rpt_replay_apdu"""
     piid = trans_object.get_piid()
     service_choice = trans_object.get_service()[-2:]
     print('service_choice:', service_choice)

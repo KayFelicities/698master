@@ -1,4 +1,4 @@
-'''master app'''
+"""master app"""
 import sys
 import os
 from master.UI.trans_ui import TransWindow
@@ -10,7 +10,7 @@ from master import config
 
 
 def main():
-    '''main'''
+    """main"""
     APP = QtGui.QApplication(sys.argv)
     config.COMMU = communication.CommuPanel()
     config.ABOUT_WINDOW = AboutWindow()

@@ -1,4 +1,4 @@
-'''omd explain'''
+"""omd explain"""
 
 
 OMD = {

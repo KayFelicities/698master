@@ -1,4 +1,4 @@
-'''run log file translate app'''
+"""run log file translate app"""
 import sys
 from master.app_trans import main
 

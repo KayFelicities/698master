@@ -1,4 +1,4 @@
-'''run master app'''
+"""run master app"""
 from master.app_master import main
 
 

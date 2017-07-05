@@ -1,4 +1,4 @@
-'''get service oads test'''
+"""get service oads test"""
 
 
 ACTIVE_OADS = (
