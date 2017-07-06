@@ -316,7 +316,7 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
 
     def send_read_oad(self):
         """send message"""
-        oad_text = self.oad_box.text()
+        oad_text = self.oad_box.text().replace(' ', '')
         if len(oad_text) == 8:
             apdu_text = '050100 %s 00'%oad_text
             self.se_apdu_signal.emit(apdu_text)
@@ -327,10 +327,12 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
 
     def explain_oad(self):
         """explain_oad"""
-        oad_text = self.oad_box.text()
+        oad_text = self.oad_box.text().replace(' ', '')
         if len(oad_text) == 8:
             explain = oads.OAD.get(oad_text[:-2], '未知OI')
             self.oad_explain_l.setText(explain)
+        else:
+            self.oad_explain_l.setText('')
 
 
     def closeEvent(self, event):
