@@ -6,6 +6,7 @@ import time
 import re
 import random
 from PyQt4 import QtGui, QtCore
+from master.UI.ui_setup import ApduDiyDialogUi, MsgDiyDialogUi, TransPopDialogUi, CommuDialogUi, RemoteUpdateDialogUI
 from master.trans import translate, linklayer
 from master.trans import common
 from master import config
@@ -15,7 +16,7 @@ from master.trans import loadtype
 from master.others import master_config
 
 
-class TransPopDialog(QtGui.QDialog):
+class TransPopDialog(QtGui.QDialog, TransPopDialogUi):
     """translate window"""
     def __init__(self):
         super(TransPopDialog, self).__init__()
@@ -25,39 +26,7 @@ class TransPopDialog(QtGui.QDialog):
         self.always_top_cb.stateChanged.connect(self.set_always_top)
         self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint if self.always_top_cb.isChecked() else QtCore.Qt.Widget)
 
-
-    def setup_ui(self):
-        """set layout"""
-        # self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
-        self.setWindowTitle('详细解析')
-        self.setWindowIcon(QtGui.QIcon(os.path.join(config.SORTWARE_PATH, config.MASTER_ICO_PATH)))
-        self.msg_box = QtGui.QPlainTextEdit()
-        self.explain_box = QtGui.QTextEdit()
-        self.splitter = QtGui.QSplitter(QtCore.Qt.Vertical)
-        self.splitter.addWidget(self.msg_box)
-        self.splitter.addWidget(self.explain_box)
-        self.splitter.setStretchFactor(0, 1)
-        self.splitter.setStretchFactor(1, 6)
-
-        self.always_top_cb = QtGui.QCheckBox()
-        # self.always_top_cb.setChecked(True)
-        self.always_top_cb.setText('置顶')
-        self.show_level_cb = QtGui.QCheckBox()
         self.show_level_cb.setChecked(True)
-        self.show_level_cb.setText('显示结构')
-        self.cb_hbox = QtGui.QHBoxLayout()
-        self.cb_hbox.addStretch(1)
-        self.cb_hbox.addWidget(self.always_top_cb)
-        self.cb_hbox.addWidget(self.show_level_cb)
-
-        self.main_vbox = QtGui.QVBoxLayout()
-        self.main_vbox.setMargin(1)
-        self.main_vbox.setSpacing(1)
-        self.main_vbox.addWidget(self.splitter)
-        self.main_vbox.addLayout(self.cb_hbox)
-        self.setLayout(self.main_vbox)
-        self.resize(500, 700)
-
 
     def trans_msg(self):
         """translate"""
@@ -66,7 +35,6 @@ class TransPopDialog(QtGui.QDialog):
         brief = trans.get_brief()
         full = trans.get_full(self.show_level_cb.isChecked())
         self.explain_box.setText(r'<b>【概览】</b><p>%s</p><hr><b>【完整】</b>%s'%(brief, full))
-
 
     def set_always_top(self):
         """set_always_top"""
@@ -80,13 +48,12 @@ class TransPopDialog(QtGui.QDialog):
         self.move(window_pos)
 
 
-class CommuDialog(QtGui.QDialog):
+class CommuDialog(QtGui.QDialog, CommuDialogUi):
     """communication config window"""
     def __init__(self):
         super(CommuDialog, self).__init__()
         self.setup_ui()
         self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
-        # self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
 
         # apply config
         apply_config = master_config.MasterConfig()
@@ -95,8 +62,8 @@ class CommuDialog(QtGui.QDialog):
         self.frontend_box.setText(apply_config.get_frontend_ip())
         self.server_box.setText(apply_config.get_server_port())
 
-        self.master_addr_change_b.clicked.connect(self.switch_master_addr)
-        self.master_addr_box.textChanged.connect(self.apply_master_addr)
+        self.master_addr_change_b.clicked.connect(lambda: self.master_addr_box.setText('%02X'%random.randint(0, 255)))
+        self.master_addr_box.textChanged.connect(self.set_master_addr)
         self.serial_combo.addItems(communication.serial_com_scan())
         self.serial_link_b.clicked.connect(self.connect_serial)
         self.serial_cut_b.clicked.connect(self.cut_serial)
@@ -104,93 +71,12 @@ class CommuDialog(QtGui.QDialog):
         self.frontend_cut_b.clicked.connect(self.cut_frontend)
         self.server_link_b.clicked.connect(self.connect_server)
         self.server_cut_b.clicked.connect(self.cut_server)
-        self.close_b.clicked.connect(self.close_window)
+        self.close_b.clicked.connect(self.close)
 
+        self.close_b.setFocus()
 
-    def setup_ui(self):
-        """set layout"""
-        self.setWindowTitle('通信控制面板')
-        self.setWindowIcon(QtGui.QIcon(os.path.join(config.SORTWARE_PATH, config.MASTER_ICO_PATH)))
-        self.master_addr_l = QtGui.QLabel()
-        self.master_addr_l.setText('主站地址：')
-        self.master_addr_box = QtGui.QLineEdit()
-        self.master_addr_change_b = QtGui.QPushButton()
-        self.master_addr_change_b.setText('切换')
-        self.master_addr_change_b.setMaximumWidth(50)
-        self.master_addr_box.setText(config.COMMU.master_addr)
-        self.serial_label = QtGui.QLabel()
-        self.serial_label.setText('串口：')
-        self.serial_combo = QtGui.QComboBox()
-        self.serial_baud = QtGui.QComboBox()
-        self.serial_baud.addItems(('1200', '2400', '4800', '9600', '19200', '115200'))
-        self.serial_baud.setCurrentIndex(3)
-        self.serial_link_b = QtGui.QPushButton()
-        self.serial_link_b.setMaximumWidth(50)
-        self.serial_link_b.setText('连接')
-        self.serial_cut_b = QtGui.QPushButton()
-        self.serial_cut_b.setMaximumWidth(50)
-        self.serial_cut_b.setText('刷新')
-        self.frontend_label = QtGui.QLabel()
-        self.frontend_label.setText('前置机：')
-        self.frontend_ip_l = QtGui.QLabel()
-        self.frontend_ip_l.setText('IP:PORT')
-        self.frontend_box = QtGui.QLineEdit()
-        self.frontend_box.setPlaceholderText('例 127.0.0.1:1080')
-        self.frontend_link_b = QtGui.QPushButton()
-        self.frontend_link_b.setMaximumWidth(50)
-        self.frontend_link_b.setText('连接')
-        self.frontend_cut_b = QtGui.QPushButton()
-        self.frontend_cut_b.setMaximumWidth(50)
-        self.frontend_cut_b.setText('断开')
-        self.server_label = QtGui.QLabel()
-        self.server_label.setText('服务器：')
-        self.server_port_l = QtGui.QLabel()
-        self.server_port_l.setText('端口')
-        self.server_box = QtGui.QLineEdit()
-        self.server_box.setPlaceholderText('例 1080')
-        self.server_link_b = QtGui.QPushButton()
-        self.server_link_b.setMaximumWidth(50)
-        self.server_link_b.setText('启动')
-        self.server_cut_b = QtGui.QPushButton()
-        self.server_cut_b.setMaximumWidth(50)
-        self.server_cut_b.setText('停止')
-        self.close_b = QtGui.QPushButton()
-        self.close_b.setText('关闭')
-        self.dummy_l = QtGui.QLabel()
-        self.commu_panel_gbox = QtGui.QGridLayout()
-        self.commu_panel_gbox.setMargin(15)
-        self.commu_panel_gbox.setSpacing(3)
-        self.commu_panel_gbox.addWidget(self.master_addr_l, 0, 0)
-        self.commu_panel_gbox.addWidget(self.master_addr_box, 0, 1)
-        self.commu_panel_gbox.addWidget(self.master_addr_change_b, 0, 2)
-        self.commu_panel_gbox.addWidget(self.dummy_l, 1, 0)
-        self.commu_panel_gbox.addWidget(self.serial_label, 2, 0)
-        self.commu_panel_gbox.addWidget(self.serial_combo, 3, 0)
-        self.commu_panel_gbox.addWidget(self.serial_baud, 3, 1)
-        self.commu_panel_gbox.addWidget(self.serial_link_b, 3, 2)
-        self.commu_panel_gbox.addWidget(self.serial_cut_b, 3, 3)
-        self.commu_panel_gbox.addWidget(self.dummy_l, 4, 0)
-        self.commu_panel_gbox.addWidget(self.frontend_label, 5, 0)
-        self.commu_panel_gbox.addWidget(self.frontend_ip_l, 6, 0)
-        self.commu_panel_gbox.addWidget(self.frontend_box, 6, 1)
-        self.commu_panel_gbox.addWidget(self.frontend_link_b, 6, 2)
-        self.commu_panel_gbox.addWidget(self.frontend_cut_b, 6, 3)
-        self.commu_panel_gbox.addWidget(self.dummy_l, 7, 0)
-        self.commu_panel_gbox.addWidget(self.server_label, 8, 0)
-        self.commu_panel_gbox.addWidget(self.server_port_l, 9, 0)
-        self.commu_panel_gbox.addWidget(self.server_box, 9, 1)
-        self.commu_panel_gbox.addWidget(self.server_link_b, 9, 2)
-        self.commu_panel_gbox.addWidget(self.server_cut_b, 9, 3)
-        self.commu_panel_gbox.addWidget(self.dummy_l, 10, 0)
-        self.commu_panel_gbox.addWidget(self.close_b, 11, 0, 1, 4)
-        self.setLayout(self.commu_panel_gbox)
-
-    def switch_master_addr(self):
-        """switch"""
-        self.master_addr_box.setText('%02X'%random.randint(0, 255))
-
-    def apply_master_addr(self):
-        """apply"""
+    def set_master_addr(self):
+        """set_master_addr"""
         config.COMMU.master_addr = self.master_addr_box.text()
 
     def connect_serial(self):
@@ -204,7 +90,6 @@ class CommuDialog(QtGui.QDialog):
             self.serial_cut_b.setText('断开')
         else:
             self.serial_link_b.setText('失败')
-
 
     def cut_serial(self):
         """close serial"""
@@ -230,14 +115,12 @@ class CommuDialog(QtGui.QDialog):
         else:
             self.frontend_link_b.setText('失败')
 
-
     def cut_frontend(self):
         """close frontend"""
         if config.COMMU.frontend_disconnect() == 'ok':
             self.frontend_link_b.setText('连接')
             self.frontend_link_b.setEnabled(True)
             self.frontend_box.setEnabled(True)
-
 
     def connect_server(self):
         """open server"""
@@ -249,19 +132,12 @@ class CommuDialog(QtGui.QDialog):
         else:
             self.server_link_b.setText('失败')
 
-
     def cut_server(self):
         """close server"""
         if config.COMMU.server_stop() == 'ok':
             self.server_link_b.setText('启动')
             self.server_link_b.setEnabled(True)
             self.server_box.setEnabled(True)
-
-
-    def close_window(self):
-        """close window"""
-        self.close()
-
 
     def closeEvent(self, event):
         """close event"""
@@ -275,118 +151,56 @@ class CommuDialog(QtGui.QDialog):
         event.accept()
 
 
-class MsgDiyDialog(QtGui.QDialog):
-    """message DIY dialog class"""
+class ApduDiyDialog(QtGui.QDialog, ApduDiyDialogUi):
+    """apdu DIY dialog class"""
     def __init__(self):
-        super(MsgDiyDialog, self).__init__()
+        super(ApduDiyDialog, self).__init__()
         self.setup_ui()
 
-        self.clr_b.clicked.connect(lambda: self.msg_box.setPlainText('') or self.msg_box.setFocus())
-        self.send_b.clicked.connect(lambda: config.MASTER_WINDOW.se_apdu_signal.emit(self.apdu_text))
+        self.send_b.setEnabled(False)
+        self.chk_valid_cb.setChecked(True)
+        self.show_level_cb.setChecked(True)
 
-        self.msg_box.textChanged.connect(self.trans_msg)
-        self.chk_valid_cb.stateChanged.connect(self.trans_msg)
-        self.show_level_cb.stateChanged.connect(self.trans_msg)
+        self.se_clr_b.clicked.connect(lambda: self.se_msg_box.setPlainText('') or self.se_msg_box.setFocus())
+        self.send_b.clicked.connect(self.send_apdu)
+        self.se_msg_box.textChanged.connect(self.trans_se_msg)
+        self.re_msg_box.textChanged.connect(self.trans_re_msg)
+        self.chk_valid_cb.stateChanged.connect(self.trans_se_msg)
+        self.show_level_cb.stateChanged.connect(self.trans_se_msg)
         self.always_top_cb.stateChanged.connect(self.set_always_top)
         self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint if self.always_top_cb.isChecked() else QtCore.Qt.Widget)
 
         self.apdu_text = ''
 
+    def send_apdu(self):
+        """send apdu"""
+        config.MASTER_WINDOW.se_apdu_signal.emit(self.apdu_text)
+        config.MASTER_WINDOW.receive_signal.connect(self.re_msg)
 
-    def setup_ui(self):
-        """set layout"""
-        # self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
-        self.setWindowTitle('自定义APDU')
-        self.setWindowIcon(QtGui.QIcon(os.path.join(config.SORTWARE_PATH, config.MASTER_ICO_PATH)))
+    def re_msg(self, msg_text):
+        """re msg"""
+        self.re_msg_box.setPlainText(msg_text)
+        config.MASTER_WINDOW.receive_signal.disconnect(self.re_msg)
 
-        self.clr_b = QtGui.QPushButton()
-        self.clr_b.setText('清空')
-        self.send_b = QtGui.QPushButton()
-        self.send_b.setText('发送')
-        self.send_b.setEnabled(False)
-        self.btn_hbox = QtGui.QHBoxLayout()
-        self.btn_hbox.addWidget(self.clr_b)
-        self.btn_hbox.addStretch(1)
-        self.btn_hbox.addWidget(self.send_b)
-
-        self.msg_box = QtGui.QPlainTextEdit()
-        self.explain_box = QtGui.QTextEdit()
-        self.splitter = QtGui.QSplitter(QtCore.Qt.Vertical)
-        self.splitter.addWidget(self.msg_box)
-        self.splitter.addWidget(self.explain_box)
-        self.splitter.setStretchFactor(0, 1)
-        self.splitter.setStretchFactor(1, 6)
-
-        self.re_clr_b = QtGui.QPushButton()
-        self.re_clr_b.setText('清空')
-        self.re_btn_hbox = QtGui.QHBoxLayout()
-        self.re_btn_hbox.addStretch(1)
-        self.re_btn_hbox.addWidget(self.re_clr_b)
-
-        self.re_msg_box = QtGui.QPlainTextEdit()
-        self.re_explain_box = QtGui.QTextEdit()
-        self.re_splitter = QtGui.QSplitter(QtCore.Qt.Vertical)
-        self.re_splitter.addWidget(self.re_msg_box)
-        self.re_splitter.addWidget(self.re_explain_box)
-        self.re_splitter.setStretchFactor(0, 1)
-        self.re_splitter.setStretchFactor(1, 6)
-
-        self.chk_valid_cb = QtGui.QCheckBox()
-        self.chk_valid_cb.setChecked(True)
-        self.chk_valid_cb.setText('检查合法性')
-        self.always_top_cb = QtGui.QCheckBox()
-        # self.always_top_cb.setChecked(True)
-        self.always_top_cb.setText('置顶')
-        self.show_level_cb = QtGui.QCheckBox()
-        self.show_level_cb.setChecked(True)
-        self.show_level_cb.setText('显示结构')
-        self.cb_hbox = QtGui.QHBoxLayout()
-        self.cb_hbox.addStretch(1)
-        self.cb_hbox.addWidget(self.chk_valid_cb)
-        self.cb_hbox.addWidget(self.always_top_cb)
-        self.cb_hbox.addWidget(self.show_level_cb)
-
-        self.se_w = QtGui.QWidget()
-        self.se_vbox = QtGui.QVBoxLayout(self.se_w)
-        self.se_vbox.setMargin(1)
-        self.se_vbox.setSpacing(1)
-        self.se_vbox.addLayout(self.btn_hbox)
-        self.se_vbox.addWidget(self.splitter)
-
-        self.re_w = QtGui.QWidget()
-        self.re_vbox = QtGui.QVBoxLayout(self.re_w)
-        self.re_vbox.setMargin(1)
-        self.re_vbox.setSpacing(1)
-        self.re_vbox.addLayout(self.re_btn_hbox)
-        self.re_vbox.addWidget(self.re_splitter)
-
-        self.main_splitter = QtGui.QSplitter(QtCore.Qt.Horizontal)
-        self.main_splitter.addWidget(self.se_w)
-        self.main_splitter.addWidget(self.re_w)
-
-        self.main_vbox = QtGui.QVBoxLayout()
-        self.main_vbox.setMargin(1)
-        self.main_vbox.setSpacing(1)
-        self.main_vbox.addWidget(self.main_splitter)
-        self.main_vbox.addLayout(self.cb_hbox)
-        self.setLayout(self.main_vbox)
-        self.resize(1000, 700)
-
-
-    def trans_msg(self):
+    def trans_se_msg(self):
         """translate"""
-        msg_text = self.msg_box.toPlainText()
+        msg_text = self.se_msg_box.toPlainText()
         trans = translate.Translate(msg_text)
         full = trans.get_full(self.show_level_cb.isChecked())
-        self.explain_box.setText(r'%s'%full)
+        self.se_explain_box.setText(r'%s'%full)
         if self.chk_valid_cb.isChecked():
             self.send_b.setEnabled(True if trans.is_success else False)
         else:
             self.send_b.setEnabled(True)
         if self.send_b.isEnabled():
             self.apdu_text = trans.get_apdu_text()
-            print('self.apdu_text:', self.apdu_text)
 
+    def trans_re_msg(self):
+        """translate"""
+        msg_text = self.re_msg_box.toPlainText()
+        trans = translate.Translate(msg_text)
+        full = trans.get_full(self.show_level_cb.isChecked())
+        self.re_explain_box.setText(r'%s'%full)
 
     def set_always_top(self):
         """set_always_top"""
@@ -398,6 +212,202 @@ class MsgDiyDialog(QtGui.QDialog):
             self.setWindowFlags(QtCore.Qt.Widget)
             self.show()
         self.move(window_pos)
+
+
+class MsgDiyDialog(QtGui.QDialog, MsgDiyDialogUi):
+    """apdu DIY dialog class"""
+    def __init__(self):
+        super(MsgDiyDialog, self).__init__()
+        self.setup_ui()
+
+        self.send_b.setEnabled(False)
+        self.chk_valid_cb.setChecked(True)
+        self.show_level_cb.setChecked(True)
+
+        self.se_clr_b.clicked.connect(lambda: self.se_msg_box.setPlainText('') or self.se_msg_box.setFocus())
+        self.send_b.clicked.connect(self.send_msg)
+        self.se_msg_box.textChanged.connect(self.trans_se_msg)
+        self.re_msg_box.textChanged.connect(self.trans_re_msg)
+        self.chk_valid_cb.stateChanged.connect(self.trans_se_msg)
+        self.show_level_cb.stateChanged.connect(self.trans_se_msg)
+        self.always_top_cb.stateChanged.connect(self.set_always_top)
+        self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint if self.always_top_cb.isChecked() else QtCore.Qt.Widget)
+
+        self.apdu_text = ''
+
+    def send_msg(self):
+        """send apdu"""
+        config.COMMU.send_msg(self.se_msg_box.toPlainText(), self.chan_cb.currentIndex())
+        config.MASTER_WINDOW.receive_signal.connect(self.re_msg)
+
+    def re_msg(self, msg_text):
+        """re msg"""
+        self.re_msg_box.setPlainText(msg_text)
+        config.MASTER_WINDOW.receive_signal.disconnect(self.re_msg)
+
+    def trans_se_msg(self):
+        """translate"""
+        msg_text = self.se_msg_box.toPlainText()
+        trans = translate.Translate(msg_text)
+        full = trans.get_full(self.show_level_cb.isChecked())
+        self.se_explain_box.setText(r'%s'%full)
+        if self.chk_valid_cb.isChecked():
+            self.send_b.setEnabled(True if trans.is_success else False)
+        else:
+            self.send_b.setEnabled(True)
+        if self.send_b.isEnabled():
+            self.apdu_text = trans.get_apdu_text()
+
+    def trans_re_msg(self):
+        """translate"""
+        msg_text = self.re_msg_box.toPlainText()
+        trans = translate.Translate(msg_text)
+        full = trans.get_full(self.show_level_cb.isChecked())
+        self.re_explain_box.setText(r'%s'%full)
+
+    def set_always_top(self):
+        """set_always_top"""
+        window_pos = self.pos()
+        if self.always_top_cb.isChecked():
+            self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
+            self.show()
+        else:
+            self.setWindowFlags(QtCore.Qt.Widget)
+            self.show()
+        self.move(window_pos)
+
+
+class RemoteUpdateDialog(QtGui.QDialog, RemoteUpdateDialogUI):
+    """remote update window"""
+    update_signal = QtCore.pyqtSignal(int, int)
+    def __init__(self):
+        super(RemoteUpdateDialog, self).__init__()
+        self.setup_ui()
+        self.setAcceptDrops(True)
+        self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
+        # self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+
+        self.file_open_b.clicked.connect(self.open_file)
+        self.block_size_combo.currentIndexChanged.connect(self.show_block_num)
+        self.start_update_b.clicked.connect(self.start_update)
+        self.stop_update_b.clicked.connect(self.stop_update)
+
+        self.update_signal.connect(self.update_proc)
+
+        self.file_path_box.setEnabled(False)
+        self.start_update_b.setEnabled(False)
+        self.stop_update_b.setEnabled(False)
+
+        self.is_updating = False
+
+    def dragEnterEvent(self, event):
+        """drag"""
+        if event.mimeData().hasUrls:
+            event.accept()
+        else:
+            event.ignore()
+
+
+    def dragMoveEvent(self, event):
+        """drag"""
+        if event.mimeData().hasUrls:
+            event.setDropAction(QtCore.Qt.CopyAction)
+            event.accept()
+        else:
+            event.ignore()
+
+
+    def dropEvent(self, event):
+        """drop file"""
+        if event.mimeData().hasUrls:
+            event.setDropAction(QtCore.Qt.CopyAction)
+            event.accept()
+            links = []
+            for url in event.mimeData().urls():
+                links.append(str(url.toLocalFile()))
+            self.open_file(links[0])
+        else:
+            event.ignore()
+
+
+    def open_file(self, filepath=''):
+        """open file"""
+        if not filepath:
+            filepath = QtGui.QFileDialog.getOpenFileName(self, 'Open file', '', '*.*')
+        if filepath:
+            print('filepath: ', filepath)
+            file_type = filepath.split('.')[-1]
+            if file_type not in ['sp4']:
+                reply = QtGui.QMessageBox.question(self, '警告', '确定升级非sp4文件吗？',\
+                                QtGui.QMessageBox.Yes | QtGui.QMessageBox.No, QtGui.QMessageBox.No)
+                if reply != QtGui.QMessageBox.Yes:
+                    return
+            self.file_path_box.setText(filepath)
+            file_size = os.path.getsize(filepath)
+            self.file_size_num_label.setText('{size}字节'.format(size=file_size))
+            self.show_block_num()
+            self.start_update_b.setEnabled(True)
+
+
+    def show_block_num(self):
+        """calc file info"""
+        file_size = int(self.file_size_num_label.text().replace('字节', ''))
+        block_size = int(self.block_size_combo.currentText().replace('字节', ''))
+        block_num = file_size // block_size + (0 if file_size % block_size == 0 else 1)
+        self.block_num_label.setText('{num}包'.format(num=block_num))
+
+
+    def start_update(self):
+        """start update"""
+        filepath = self.file_path_box.text()
+        block_size = int(self.block_size_combo.currentText().replace('字节', ''))
+        if filepath:
+            threading.Thread(target=self.send_file,\
+                        args=(filepath, block_size)).start()
+
+
+    def send_file(self, filepath, block_size):
+        """send file thread"""
+        start_apdu_text = '070100 f0010700 0203 0206 0a00 0a00 06 {filesize:08X}\
+                        0403e0 0a00 1600 12 {blocksize:04X} 0202 1600 0900 00'\
+                        .format(filesize=os.path.getsize(filepath), blocksize=block_size)
+        config.MASTER_WINDOW.se_apdu_signal.emit(start_apdu_text)
+        time.sleep(6)
+        self.start_update_b.setEnabled(False)
+        self.stop_update_b.setEnabled(True)
+        self.is_updating = True
+
+        file_size = os.path.getsize(filepath)
+        block_num = file_size // block_size + (0 if file_size % block_size == 0 else 1)
+        with open(filepath, 'rb') as file:
+            file_text = file.read(file_size)
+            file_text = ''.join(['%02X'%x for x in file_text])
+            text_list = [file_text[x: x + block_size*2] for x in range(0, len(file_text), block_size*2)]
+            for block_no, block_text in enumerate(text_list):
+                send_len = len(block_text)/2
+                send_apdu_text = '0701{piid:02X} f0010800 0202 12{blockno:04X} 09'\
+                                    .format(piid=block_no % 64, blockno=block_no)\
+                                    + ('%02X'%send_len if send_len < 128\
+                                        else '82%04X'%send_len) + block_text + '00'
+                config.MASTER_WINDOW.se_apdu_signal.emit(send_apdu_text)
+                self.update_signal.emit(block_no + 1, block_num)
+                time.sleep(2)
+                if not self.is_updating:
+                    break
+        self.stop_update_b.setEnabled(False)
+        self.start_update_b.setEnabled(True)
+        self.start_update_b.setText('开始升级')
+        print('send file thread quit')
+
+
+    def update_proc(self, block_no, block_num):
+        """update proc"""
+        self.start_update_b.setText('升级中({no}/{all})'.format(no=block_no + 1, all=block_num))
+
+
+    def stop_update(self):
+        """stop update"""
+        self.is_updating = False
 
 
 class GetSetServiceDialog(QtGui.QDialog):
@@ -414,7 +424,6 @@ class GetSetServiceDialog(QtGui.QDialog):
         # self.show_level_cb.stateChanged.connect(self.trans_msg)
         self.always_top_cb.stateChanged.connect(self.set_always_top)
         self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint if self.always_top_cb.isChecked() else QtCore.Qt.Widget)
-
 
     def setup_ui(self):
         """set layout"""
@@ -586,207 +595,6 @@ class GetSetServiceDialog(QtGui.QDialog):
             self.setWindowFlags(QtCore.Qt.Widget)
             self.show()
         self.move(window_pos)
-
-
-class RemoteUpdateDialog(QtGui.QDialog):
-    """remote update window"""
-    update_signal = QtCore.pyqtSignal(int, int)
-    def __init__(self):
-        super(RemoteUpdateDialog, self).__init__()
-        self.setup_ui()
-        self.setAcceptDrops(True)
-        self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
-        # self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
-
-        self.file_open_b.clicked.connect(self.open_file)
-        self.block_size_combo.currentIndexChanged.connect(self.show_block_num)
-        self.start_update_b.clicked.connect(self.start_update)
-        self.stop_update_b.clicked.connect(self.stop_update)
-
-        self.update_signal.connect(self.update_proc)
-
-        self.is_updating = False
-
-
-    def setup_ui(self):
-        """set layout"""
-        self.setWindowTitle('远程文件升级')
-        self.setWindowIcon(QtGui.QIcon(os.path.join(config.SORTWARE_PATH, config.MASTER_ICO_PATH)))
-
-        self.file_label = QtGui.QLabel()
-        self.file_label.setText('文件:')
-        self.file_open_b = QtGui.QPushButton()
-        self.file_open_b.setMaximumWidth(50)
-        self.file_open_b.setText('打开...')
-        self.file_path_box = QtGui.QLineEdit()
-        self.file_path_box.setEnabled(False)
-        self.file_path_box.setPlaceholderText('请选择或拖入文件')
-
-        self.block_size_label = QtGui.QLabel()
-        self.block_size_label.setText('传输块大小:')
-        self.block_size_combo = QtGui.QComboBox()
-        self.block_size_combo.addItem('128字节')
-        self.block_size_combo.addItem('256字节')
-        self.block_size_combo.addItem('512字节')
-        self.block_size_combo.addItem('1024字节')
-
-        self.file_size_label = QtGui.QLabel()
-        self.file_size_label.setText('文件大小')
-        self.file_size_num_label = QtGui.QLabel()
-        self.file_size_num_label.setText('0字节')
-        self.block_label = QtGui.QLabel()
-        self.block_label.setText('共计')
-        self.block_num_label = QtGui.QLabel()
-        self.block_num_label.setText('0包')
-
-        self.start_update_b = QtGui.QPushButton()
-        self.start_update_b.setText('开始升级')
-        self.start_update_b.setEnabled(False)
-        self.stop_update_b = QtGui.QPushButton()
-        self.stop_update_b.setText('停止')
-        self.stop_update_b.setEnabled(False)
-
-        self.dummy_l = QtGui.QLabel()
-        self.remote_update_gbox = QtGui.QGridLayout()
-        self.remote_update_gbox.setMargin(15)
-        self.remote_update_gbox.setSpacing(3)
-        self.remote_update_gbox.addWidget(self.file_label, 1, 0)
-        self.remote_update_gbox.addWidget(self.file_open_b, 1, 1)
-
-        self.remote_update_gbox.addWidget(self.file_path_box, 2, 0, 1, 5)
-
-        self.remote_update_gbox.addWidget(self.dummy_l, 3, 0)
-
-        self.remote_update_gbox.addWidget(self.block_size_label, 4, 0)
-        self.remote_update_gbox.addWidget(self.block_size_combo, 4, 1)
-
-        self.remote_update_gbox.addWidget(self.dummy_l, 5, 0)
-
-        self.remote_update_gbox.addWidget(self.file_size_label, 6, 0)
-        self.remote_update_gbox.addWidget(self.file_size_num_label, 6, 1)
-        self.remote_update_gbox.addWidget(self.block_label, 6, 3)
-        self.remote_update_gbox.addWidget(self.block_num_label, 6, 4)
-
-        self.remote_update_gbox.addWidget(self.dummy_l, 7, 0)
-
-        self.remote_update_gbox.addWidget(self.start_update_b, 8, 0, 1, 4)
-        self.remote_update_gbox.addWidget(self.stop_update_b, 8, 4)
-        self.setLayout(self.remote_update_gbox)
-
-
-    def dragEnterEvent(self, event):
-        """drag"""
-        if event.mimeData().hasUrls:
-            event.accept()
-        else:
-            event.ignore()
-
-
-    def dragMoveEvent(self, event):
-        """drag"""
-        if event.mimeData().hasUrls:
-            event.setDropAction(QtCore.Qt.CopyAction)
-            event.accept()
-        else:
-            event.ignore()
-
-
-    def dropEvent(self, event):
-        """drop file"""
-        if event.mimeData().hasUrls:
-            event.setDropAction(QtCore.Qt.CopyAction)
-            event.accept()
-            links = []
-            for url in event.mimeData().urls():
-                links.append(str(url.toLocalFile()))
-            self.open_file(links[0])
-        else:
-            event.ignore()
-
-
-    def open_file(self, filepath=''):
-        """open file"""
-        if not filepath:
-            filepath = QtGui.QFileDialog.getOpenFileName(self, 'Open file', '', '*.*')
-        if filepath:
-            print('filepath: ', filepath)
-            file_type = filepath.split('.')[-1]
-            if file_type not in ['sp4']:
-                reply = QtGui.QMessageBox.question(self, '警告', '确定升级非sp4文件吗？',\
-                                QtGui.QMessageBox.Yes | QtGui.QMessageBox.No, QtGui.QMessageBox.No)
-                if reply != QtGui.QMessageBox.Yes:
-                    return
-            self.file_path_box.setText(filepath)
-            file_size = os.path.getsize(filepath)
-            self.file_size_num_label.setText('{size}字节'.format(size=file_size))
-            self.show_block_num()
-            self.start_update_b.setEnabled(True)
-
-
-    def show_block_num(self):
-        """calc file info"""
-        file_size = int(self.file_size_num_label.text().replace('字节', ''))
-        block_size = int(self.block_size_combo.currentText().replace('字节', ''))
-        block_num = file_size // block_size + (0 if file_size % block_size == 0 else 1)
-        self.block_num_label.setText('{num}包'.format(num=block_num))
-
-
-    def start_update(self):
-        """start update"""
-        filepath = self.file_path_box.text()
-        block_size = int(self.block_size_combo.currentText().replace('字节', ''))
-        if filepath:
-            threading.Thread(target=self.send_file,\
-                        args=(filepath, block_size)).start()
-
-
-    def send_file(self, filepath, block_size):
-        """send file thread"""
-        start_apdu_text = '070100 f0010700 0203 0206 0a00 0a00 06 {filesize:08X}\
-                        0403e0 0a00 1600 12 {blocksize:04X} 0202 1600 0900 00'\
-                        .format(filesize=os.path.getsize(filepath), blocksize=block_size)
-        config.MASTER_WINDOW.se_apdu_signal.emit(start_apdu_text)
-        time.sleep(6)
-        self.start_update_b.setEnabled(False)
-        self.stop_update_b.setEnabled(True)
-        self.is_updating = True
-
-        file_size = os.path.getsize(filepath)
-        block_num = file_size // block_size + (0 if file_size % block_size == 0 else 1)
-        with open(filepath, 'rb') as file:
-            file_text = file.read(file_size)
-            file_text = ''.join(['%02X'%x for x in file_text])
-            text_list = [file_text[x: x + block_size*2] for x in range(0, len(file_text), block_size*2)]
-            for block_no, block_text in enumerate(text_list):
-                send_len = len(block_text)/2
-                send_apdu_text = '0701{piid:02X} f0010800 0202 12{blockno:04X} 09'\
-                                    .format(piid=block_no % 64, blockno=block_no)\
-                                    + ('%02X'%send_len if send_len < 128\
-                                        else '82%04X'%send_len) + block_text + '00'
-                config.MASTER_WINDOW.se_apdu_signal.emit(send_apdu_text)
-                self.update_signal.emit(block_no + 1, block_num)
-                time.sleep(2)
-                if not self.is_updating:
-                    break
-        self.stop_update_b.setEnabled(False)
-        self.start_update_b.setEnabled(True)
-        self.start_update_b.setText('开始升级')
-        print('send file thread quit')
-
-
-    def update_proc(self, block_no, block_num):
-        """update proc"""
-        self.start_update_b.setText('升级中({no}/{all})'.format(no=block_no + 1, all=block_num))
-
-
-    def stop_update(self):
-        """stop update"""
-        self.is_updating = False
-
-
-    def close_window(self):
-        """close window"""
-        self.close()
 
 
 if __name__ == '__main__':

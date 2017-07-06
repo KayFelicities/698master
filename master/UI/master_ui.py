@@ -6,6 +6,7 @@ from PyQt4 import QtCore, QtGui
 import traceback
 import time
 
+from master.UI.ui_setup import MasterWindowUi
 from master.trans import common
 from master.trans import linklayer
 from master.trans.translate import Translate
@@ -18,16 +19,15 @@ from master.others import msg_log
 from master.others import master_config
 
 
-class MasterWindow(QtGui.QMainWindow):
+class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
     """serial window"""
     receive_signal = QtCore.pyqtSignal(str, int)
     send_signal = QtCore.pyqtSignal(str, int)
     se_apdu_signal = QtCore.pyqtSignal(str)
 
-
     def __init__(self):
         super(MasterWindow, self).__init__()
-        self.setup_ui(self)
+        self.setup_ui()
 
         self.apply_config()
 
@@ -51,8 +51,10 @@ class MasterWindow(QtGui.QMainWindow):
         self.about_action.triggered.connect(self.show_about_window)
         self.link_action.triggered.connect(self.show_commu_window)
         self.general_cmd_action.triggered.connect(self.show_general_cmd_window)
-        # self.get_set_service_action.triggered.connect(self.show_get_service_window)
-        self.msg_diy_action.triggered.connect(self.show_msg_diy_window)
+        self.get_set_service_action.triggered.connect(self.show_get_service_window)
+        self.apdu_diy_action.triggered.connect(lambda: self.apdu_diy_dialog.show() or self.apdu_diy_dialog.activateWindow())
+        self.msg_diy_action.triggered.connect(lambda: self.msg_diy_dialog.show() or self.msg_diy_dialog.activateWindow())
+
         self.remote_update_action.triggered.connect(self.show_remote_update_window)
 
         self.tmn_table_add_b.clicked.connect(lambda:\
@@ -62,15 +64,18 @@ class MasterWindow(QtGui.QMainWindow):
         self.pop_dialog = dialog_ui.TransPopDialog()
         self.commu_dialog = dialog_ui.CommuDialog()
         self.get_set_service_dialog = dialog_ui.GetSetServiceDialog()
+        self.apdu_diy_dialog = dialog_ui.ApduDiyDialog()
         self.msg_diy_dialog = dialog_ui.MsgDiyDialog()
         self.remote_update_dialog = dialog_ui.RemoteUpdateDialog()
         self.general_cmd_dialog = param_ui.ParamWindow()
+
+        self.reply_rpt_cb.setChecked(True)
+        self.reply_link_cb.setChecked(True)
 
         self.msg_log = msg_log.MsgLog()
 
         self.is_reply_link = True
         self.is_reply_rpt = True
-
 
     def apply_config(self):
         """apply config"""
@@ -80,159 +85,6 @@ class MasterWindow(QtGui.QMainWindow):
             self.add_tmn_table_row(is_checked=tmn[0], tmn_addr=tmn[1],\
                                     logic_addr=tmn[2], chan_index=tmn[3])
         self.always_top_cb.setChecked(apply_config.get_windows_top())
-
-    def setup_ui(self, master_window):
-        """set layout"""
-        self.setWindowTitle('698后台_{ver}'.format(ver=config.MASTER_WINDOW_TITLE_ADD))
-        self.setWindowIcon(QtGui.QIcon(os.path.join(config.SORTWARE_PATH, config.MASTER_ICO_PATH)))
-        self.menubar = self.menuBar()
-
-        self.link_action = QtGui.QAction('&通信设置', self)
-        self.link_action.setShortcut('F2')
-        self.commu_menu = self.menubar.addMenu('&通信')
-        self.commu_menu.addAction(self.link_action)
-
-        self.general_cmd_action = QtGui.QAction('&常用命令', self)
-        self.general_cmd_action.setShortcut('F5')
-        self.get_set_service_action = QtGui.QAction('&读取/设置', self)
-        self.get_set_service_action.setShortcut('F6')
-        self.action_service_action = QtGui.QAction('&操作', self)
-        self.action_service_action.setShortcut('F7')
-        self.proxy_service_action = QtGui.QAction('&代理', self)
-        self.proxy_service_action.setShortcut('F9')
-        self.commu_menu = self.menubar.addMenu('&服务')
-        self.commu_menu.addAction(self.general_cmd_action)
-        self.commu_menu.addAction(self.get_set_service_action)
-        self.commu_menu.addAction(self.action_service_action)
-        self.commu_menu.addAction(self.proxy_service_action)
-
-        self.msg_diy_action = QtGui.QAction('&自定义APDU', self)
-        self.msg_diy_action.setShortcut('F10')
-        self.remote_update_action = QtGui.QAction('&远程升级', self)
-        self.remote_update_action.setShortcut('F11')
-        self.msg_menu = self.menubar.addMenu('&报文')
-        self.msg_menu.addAction(self.msg_diy_action)
-        self.msg_menu.addAction(self.remote_update_action)
-
-        self.about_action = QtGui.QAction('&关于', self)
-        self.about_action.setShortcut('F1')
-        self.help_menu = self.menubar.addMenu('&帮助')
-        self.help_menu.addAction(self.about_action)
-
-        self.tmn_list_w = QtGui.QWidget()
-        self.tmn_table_vbox = QtGui.QVBoxLayout(self.tmn_list_w)
-        self.tmn_table_vbox.setMargin(1)
-        self.tmn_table_vbox.setSpacing(0)
-        self.tmn_table = QtGui.QTableWidget(self.tmn_list_w)
-        self.tmn_table.verticalHeader().setVisible(False)
-        for count in range(5):
-            self.tmn_table.insertColumn(count)
-        self.tmn_table.setHorizontalHeaderLabels(['', '终端地址', '逻辑地址', '通道', ''])
-        self.tmn_table.setColumnWidth(0, 15)
-        self.tmn_table.setColumnWidth(1, 96)
-        self.tmn_table.setColumnWidth(2, 40)
-        self.tmn_table.setColumnWidth(3, 65)
-        self.tmn_table.setColumnWidth(4, 25)
-        self.tmn_table.setHorizontalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
-        self.tmn_table.setVerticalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
-        self.tmn_table_scan_b = QtGui.QPushButton()
-        self.tmn_table_scan_b.setText('扫描')
-        self.tmn_table_add_b = QtGui.QPushButton()
-        self.tmn_table_add_b.setText('新增')
-        self.tmn_table_clr_b = QtGui.QPushButton()
-        self.tmn_table_clr_b.setText('清空')
-        self.tmn_table_clr_b.setMaximumWidth(70)
-        self.tmn_table_btns_hbox = QtGui.QHBoxLayout()
-        self.tmn_table_btns_hbox.addWidget(self.tmn_table_scan_b)
-        self.tmn_table_btns_hbox.addWidget(self.tmn_table_add_b)
-        self.tmn_table_btns_hbox.addWidget(self.tmn_table_clr_b)
-        self.tmn_table_vbox.addWidget(self.tmn_table)
-        self.tmn_table_vbox.addLayout(self.tmn_table_btns_hbox)
-
-        self.quick_info_w = QtGui.QWidget()
-        self.quick_vbox = QtGui.QVBoxLayout(self.quick_info_w)
-        self.quick_hbox = QtGui.QHBoxLayout()
-        self.oad_l = QtGui.QLabel()
-        self.oad_l.setText('OAD')
-        self.oad_box = QtGui.QLineEdit()
-        # self.oad_box.setMaximumWidth(70)
-        self.read_oad_b = QtGui.QPushButton()
-        self.read_oad_b.setMaximumWidth(50)
-        self.read_oad_b.setText('读取')
-        self.oad_explain_l = QtGui.QLabel()
-        self.quick_hbox.addWidget(self.oad_l)
-        self.quick_hbox.addWidget(self.oad_box)
-        self.quick_hbox.addWidget(self.read_oad_b)
-        self.quick_vbox.addLayout(self.quick_hbox)
-        self.quick_vbox.addWidget(self.oad_explain_l)
-        self.quick_vbox.addStretch(1)
-
-        self.msg_table_w = QtGui.QWidget()
-        self.msg_table_vbox = QtGui.QVBoxLayout(self.msg_table_w)
-        self.msg_table_vbox.setMargin(1)
-        self.msg_table_vbox.setSpacing(0)
-        self.msg_table = QtGui.QTableWidget()
-        self.msg_table.verticalHeader().setVisible(False)
-        for count in range(5):
-            self.msg_table.insertColumn(count)
-        self.msg_table.setHorizontalHeaderLabels(['时间', '终端', '通道/方向', '概览', '报文'])
-        self.msg_table.setColumnWidth(0, 130)
-        self.msg_table.setColumnWidth(1, 110)
-        self.msg_table.setColumnWidth(2, 60)
-        self.msg_table.setColumnWidth(3, 200)
-        self.msg_table.setColumnWidth(4, 800)
-        self.msg_table.setHorizontalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
-        self.msg_table.setVerticalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
-        self.msg_table.setEditTriggers(QtGui.QTableWidget.NoEditTriggers) # 表格不可编辑
-        self.msg_btn_hbox = QtGui.QHBoxLayout()
-        self.clr_b = QtGui.QPushButton()
-        self.clr_b.setText('清空报文')
-        self.clr_b.setMaximumWidth(60)
-        self.open_log_b = QtGui.QPushButton()
-        self.open_log_b.setText('查看日志')
-        self.msg_btn_hbox.addWidget(self.clr_b)
-        self.msg_btn_hbox.addStretch(1)
-        self.msg_btn_hbox.addWidget(self.open_log_b)
-        self.msg_table_vbox.addWidget(self.msg_table)
-        self.msg_table_vbox.addLayout(self.msg_btn_hbox)
-
-        self.left_vsplitter = QtGui.QSplitter(QtCore.Qt.Vertical)
-        self.left_vsplitter.addWidget(self.tmn_list_w)
-        self.left_vsplitter.addWidget(self.quick_info_w)
-        self.left_vsplitter.setStretchFactor(0, 1)
-        self.left_vsplitter.setStretchFactor(1, 1)
-
-        self.main_hsplitter = QtGui.QSplitter(QtCore.Qt.Horizontal)
-        self.main_hsplitter.addWidget(self.left_vsplitter)
-        self.main_hsplitter.addWidget(self.msg_table_w)
-        self.main_hsplitter.setStretchFactor(0, 1)
-        self.main_hsplitter.setStretchFactor(1, 3)
-
-        self.reply_rpt_cb = QtGui.QCheckBox()
-        self.reply_rpt_cb.setText('回复上报')
-        self.reply_rpt_cb.setChecked(True)
-        self.reply_link_cb = QtGui.QCheckBox()
-        self.reply_link_cb.setText('维护登录/心跳')
-        self.reply_link_cb.setChecked(True)
-        self.always_top_cb = QtGui.QCheckBox()
-        self.always_top_cb.setText('置顶')
-        self.foot_hbox = QtGui.QHBoxLayout()
-        self.foot_hbox.addStretch(1)
-        self.foot_hbox.addWidget(self.reply_rpt_cb)
-        self.foot_hbox.addWidget(self.reply_link_cb)
-        self.foot_hbox.addWidget(self.always_top_cb)
-
-        self.main_vbox = QtGui.QVBoxLayout()
-        self.main_vbox.setMargin(1)
-        self.main_vbox.setSpacing(1)
-        # self.main_vbox.addLayout(self.btn_hbox)
-        self.main_vbox.addWidget(self.main_hsplitter)
-        self.main_vbox.addLayout(self.foot_hbox)
-        self.main_widget = QtGui.QWidget()
-        self.main_widget.setLayout(self.main_vbox)
-        self.setCentralWidget(self.main_widget)
-        self.resize(1000, 666)
-
 
     def re_msg_do(self, re_text, chan_index):
         """recieve text"""
@@ -374,6 +226,11 @@ class MasterWindow(QtGui.QMainWindow):
             config.COMMU.send_msg(compelete_msg, chan_index)
 
 
+    def send_msg(self, msg_text, chan_index):
+        """msg to send"""
+        config.COMMU.send_msg(msg_text, chan_index)
+
+
     def tmn_scan(self):
         """scan terminal"""
         wild_apdu = '0501014000020000'
@@ -449,12 +306,6 @@ class MasterWindow(QtGui.QMainWindow):
         """show_general_cmd_window"""
         self.general_cmd_dialog.show()
         self.general_cmd_dialog.activateWindow()
-
-
-    def show_msg_diy_window(self):
-        """msg_diy_dialog"""
-        self.msg_diy_dialog.show()
-        self.msg_diy_dialog.activateWindow()
 
 
     def show_remote_update_window(self):
