@@ -118,6 +118,7 @@ class CommuPanel():
             self.frontend_handle = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             print(frontend_addr)
             self.frontend_handle.connect(frontend_addr)
+            self.frontend_handle.ioctl(socket.SIO_KEEPALIVE_VALS, (1, 10000, 3000))
             self.is_frontend_running = True
             threading.Thread(target=self.frontend_read_loop).start()
             return 'ok'
@@ -192,8 +193,9 @@ class CommuPanel():
         if self.is_server_running is False:
             return 'ok'
         try:
-            self.server_handle.close()
             self.is_server_running = False
+            # self.server_handle.shutdown(socket.SHUT_RDWR)
+            self.server_handle.close()
             return 'ok'
         except Exception:
             traceback.print_exc()
@@ -202,18 +204,27 @@ class CommuPanel():
 
     def server_read_loop(self, client_handle, client_addr):
         """server loop"""
+        client_handle.setblocking(False)
         while True:
             try:
                 re_byte = client_handle.recv(4096)
                 re_text = ''.join(['%02X ' % x for x in re_byte])
             except Exception:
-                traceback.print_exc()
-                print(client_addr, 'client err quit')
-                self.client_list.remove((client_handle, client_addr))
-                break
+                if self.is_server_running is False:
+                    client_handle.shutdown(socket.SHUT_RDWR)
+                    client_handle.close()
+                    self.client_list.remove((client_handle, client_addr))
+                    print(client_addr, 'client quit')
+                    break
+                continue
             if re_text != '':
                 config.MASTER_WINDOW.receive_signal.emit(re_text, 2)
-            if self.is_server_running is False:
-                print(client_addr, 'client quit')
-                self.client_list.remove((client_handle, client_addr))
-                break
+
+
+    def quit(self):
+        """quit"""
+        self.serial_disconnect()
+        self.frontend_disconnect()
+        self.server_stop()
+        print('commu quit')
+        time.sleep(0.2)

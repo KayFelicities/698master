@@ -111,7 +111,7 @@ class MasterWindowUi():
         self.msg_table.setColumnWidth(1, 110)
         self.msg_table.setColumnWidth(2, 60)
         self.msg_table.setColumnWidth(3, 200)
-        self.msg_table.setColumnWidth(4, 800)
+        self.msg_table.setColumnWidth(4, 300)
         self.msg_table.setHorizontalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
         self.msg_table.setVerticalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
         self.msg_table.setEditTriggers(QtGui.QTableWidget.NoEditTriggers) # 表格不可编辑
@@ -492,6 +492,8 @@ class MsgDiyDialogUi():
 
         self.se_clr_b = QtGui.QPushButton()
         self.se_clr_b.setText('清空')
+        self.chan_l = QtGui.QLabel()
+        self.chan_l.setText('通道 ')
         self.chan_cb = QtGui.QComboBox()
         self.chan_cb.addItems(('串口', '前置机', '服务器'))
         self.send_b = QtGui.QPushButton()
@@ -499,6 +501,7 @@ class MsgDiyDialogUi():
         self.se_btn_hbox = QtGui.QHBoxLayout()
         self.se_btn_hbox.addWidget(self.se_clr_b)
         self.se_btn_hbox.addStretch(1)
+        self.se_btn_hbox.addWidget(self.chan_l)
         self.se_btn_hbox.addWidget(self.chan_cb)
         self.se_btn_hbox.addStretch(1)
         self.se_btn_hbox.addWidget(self.send_b)

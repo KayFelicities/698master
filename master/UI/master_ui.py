@@ -223,7 +223,7 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
                                 logic_addr=self.tmn_table.cellWidget(row, 2).value(),\
                                 SA_text=self.tmn_table.item(row, 1).text(),\
                                 CA_text=config.COMMU.master_addr, C_text=C_text)
-            config.COMMU.send_msg(compelete_msg, chan_index)
+            config.COMMU.send_msg(compelete_msg, self.tmn_table.cellWidget(row, 3).currentIndex())
 
 
     def send_msg(self, msg_text, chan_index):
@@ -240,7 +240,7 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
                                 CA_text=config.COMMU.master_addr,\
                                 C_text='43')
         print('scan msg: ', compelete_msg)
-        config.COMMU.send_msg(compelete_msg)
+        config.COMMU.send_msg(compelete_msg, -1)
 
 
     def trans_msg(self, row):
@@ -356,6 +356,7 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
         reply = quit_box.question(self, '698后台', '确定退出吗？'
                                   , QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
         if reply == QtGui.QMessageBox.Yes:
+            config.COMMU.quit()
             event.accept()
             os._exit(0)
         else:
