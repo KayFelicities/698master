@@ -89,7 +89,6 @@ class ParamWindow(QtGui.QMainWindow, QtGui.QWidget, Ui_ParamWindow):
         DT_text = '1C%04X' % int(DT_list[0])
         for DT in DT_list[1:]:
             DT_text += '%02X' % int(DT)
-        print(DT_text)
         apdu_text = '06010D40000200' + DT_text + '00'
         config.MASTER_WINDOW.se_apdu_signal.emit(apdu_text)
         config.MASTER_WINDOW.receive_signal.connect(self.read_res)
@@ -132,7 +131,6 @@ class ParamWindow(QtGui.QMainWindow, QtGui.QWidget, Ui_ParamWindow):
         if len(SA_text) % 2 == 1:
             SA_text += 'F'
         self.SA_box.setText(SA_text)
-        print('SA_text', SA_text)
         SA_len = len(SA_text) // 2
         apdu_text = '06010D4001020009' + '%02X' % (SA_len) + SA_text + '00'
         config.MASTER_WINDOW.se_apdu_signal.emit(apdu_text)
@@ -383,7 +381,6 @@ class ParamWindow(QtGui.QMainWindow, QtGui.QWidget, Ui_ParamWindow):
             self.C_retry_box.setText(str(overtm_retry_num_byte >> 6))
             self.C_over_tm_box.setText(str(overtm_retry_num_byte & 0x3f))
             offset += 1
-            print(data[offset:])
             self.C_heart_tm_box.setText(str(param.get_long_unsigned(data[offset:])))
             offset += 3
         else:
@@ -665,7 +662,6 @@ class ParamWindow(QtGui.QMainWindow, QtGui.QWidget, Ui_ParamWindow):
         rpt_channel_text = self.rpt_channel_box.text()
         rpt_channel_text = list(filter(str.isdigit, rpt_channel_text))
         rpt_channel_text = ''.join(rpt_channel_text)
-        print('Kay', rpt_channel_text)
         array_sum = len(rpt_channel_text) // 8
         rpt_channel_array_text = '01' + '%02X' % array_sum
         offset = 0

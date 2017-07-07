@@ -122,7 +122,6 @@ class TransWindow(QtGui.QMainWindow, TransWindowUi):
             count = 0
             for _ in file:
                 count += 1
-        print(count)
         with open(filepath, encoding=file_encoding, errors='ignore') as file:
             file_text = ''
             for i, line in enumerate(file):
@@ -134,7 +133,6 @@ class TransWindow(QtGui.QMainWindow, TransWindowUi):
 
     def cursor_changed(self):
         """cursor changed to trans"""
-        print(int(self.input_box.textCursor().position()))
         if self.last_selection[0] <= int(self.input_box.textCursor().position())\
                                     <= self.last_selection[1]:
             return

@@ -69,7 +69,6 @@ class TypeDo():
             for count in range(len_of_len):
                 string_len += m_list[offset + count]
             offset += len_of_len
-            print('string_len:', string_len)
             axdr_len = int(string_len, 16)
         return {'offset': offset, 'len': axdr_len}
 

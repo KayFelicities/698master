@@ -143,7 +143,7 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
         # direction = trans.get_direction()
         client_addr = trans.get_CA()
         if client_addr != '00' and client_addr != config.COMMU.master_addr:
-            print('kay, CA 不匹配')
+            print('过滤报文：CA不匹配')
             return
         server_addr = trans.get_SA()
         logic_addr = trans.get_logic_addr()
@@ -197,7 +197,6 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
         self.msg_log.add_log(addr_text, chan_text, direction, msg_text)
 
         service = trans.get_service()
-        print('service: ', service)
         if service == '01' and self.is_reply_link:
             reply_apdu_text = reply.get_link_replay_apdu(trans)
             self.send_apdu(reply_apdu_text, tmn_addr=server_addr,\
@@ -239,7 +238,6 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
                                 SA_type=1,\
                                 CA_text=config.COMMU.master_addr,\
                                 C_text='43')
-        print('scan msg: ', compelete_msg)
         config.COMMU.send_msg(compelete_msg, -1)
 
 

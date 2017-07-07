@@ -42,7 +42,6 @@ def chk_format(m_list):
 def search_msg(m_list):
     """search full msg and return msg text list"""
     offset = 0
-    print("kay, re msg:", m_list)
     msg_list = []
     while offset < len(m_list):
         if m_list[offset] == '68':
@@ -61,7 +60,6 @@ def search_msg(m_list):
 def get_apdu_list(m_list):
     """get apdu"""
     msg_len = int(m_list[2] + m_list[1], 16) + 2
-    print('msg_len', msg_len)
     server_addr_len = (int(m_list[4], 16) & 0x0f) + 1
     return m_list[8 + server_addr_len : msg_len - 3]
 

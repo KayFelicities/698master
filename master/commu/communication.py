@@ -2,7 +2,6 @@
 import socket
 import threading
 import time
-import random
 import traceback
 import struct
 import serial
@@ -112,13 +111,13 @@ class CommuPanel():
         """connect"""
         if self.is_frontend_running:
             return 'err'
-        port = int(addr.split(':')[1])
-        frontend_addr = (addr.split(':')[0], port)
+        port = int(addr.split(':')[1].replace(' ', ''))
+        frontend_addr = (addr.split(':')[0].replace(' ', ''), port)
         try:
             self.frontend_handle = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             print(frontend_addr)
+            self.frontend_handle.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1) #开启心跳维护
             self.frontend_handle.connect(frontend_addr)
-            self.frontend_handle.ioctl(socket.SIO_KEEPALIVE_VALS, (1, 10000, 3000))
             self.is_frontend_running = True
             threading.Thread(target=self.frontend_read_loop).start()
             return 'ok'
@@ -131,6 +130,7 @@ class CommuPanel():
         if self.is_frontend_running is False:
             return 'ok'
         try:
+            self.frontend_handle.shutdown(socket.SHUT_RDWR)
             self.frontend_handle.close()
             self.is_frontend_running = False
             return 'ok'
@@ -141,19 +141,19 @@ class CommuPanel():
 
     def frontend_read_loop(self):
         """frontend loop"""
+        self.frontend_handle.setblocking(False)
         while True:
             try:
                 re_byte = self.frontend_handle.recv(4096)
                 re_text = ''.join(['%02X ' % x for x in re_byte])
             except Exception:
-                traceback.print_exc()
-                print('frontend err quit')
-                break
+                # keep connect
+                if self.is_frontend_running is False:
+                    print('frontend quit')
+                    break
+                continue
             if re_text != '':
                 config.MASTER_WINDOW.receive_signal.emit(re_text, 1)
-            if self.is_frontend_running is False:
-                print('frontend quit')
-                break
 
 
     def server_start(self, server_port):
