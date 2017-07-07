@@ -215,7 +215,7 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
                 continue
             if logic_addr != -1 and logic_addr != self.tmn_table.cellWidget(row, 2).value():
                 continue
-            if chan_index != -1 and self.tmn_table.cellWidget(row, 3).currentIndex():
+            if chan_index != -1 and chan_index != self.tmn_table.cellWidget(row, 3).currentIndex():
                 continue
 
             compelete_msg = linklayer.add_linkLayer(common.text2list(apdu_text),\

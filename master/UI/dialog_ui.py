@@ -98,6 +98,7 @@ class CommuDialog(QtGui.QDialog, CommuDialogUi):
                 self.serial_link_b.setText('连接')
                 self.serial_link_b.setEnabled(True)
                 self.serial_combo.setEnabled(True)
+                self.serial_baud.setEnabled(True)
                 self.serial_cut_b.setText('刷新')
         else:
             self.serial_combo.clear()
@@ -141,6 +142,7 @@ class CommuDialog(QtGui.QDialog, CommuDialogUi):
 
     def closeEvent(self, event):
         """close event"""
+        self.set_master_addr()
         # save config
         save_config = master_config.MasterConfig()
         save_config.set_master_addr(self.master_addr_box.text())
@@ -162,6 +164,7 @@ class ApduDiyDialog(QtGui.QDialog, ApduDiyDialogUi):
         self.show_level_cb.setChecked(True)
 
         self.se_clr_b.clicked.connect(lambda: self.se_msg_box.setPlainText('') or self.se_msg_box.setFocus())
+        self.re_clr_b.clicked.connect(lambda: self.re_msg_box.setPlainText(''))
         self.send_b.clicked.connect(self.send_apdu)
         self.se_msg_box.textChanged.connect(self.trans_se_msg)
         self.re_msg_box.textChanged.connect(self.trans_re_msg)
@@ -225,6 +228,7 @@ class MsgDiyDialog(QtGui.QDialog, MsgDiyDialogUi):
         self.show_level_cb.setChecked(True)
 
         self.se_clr_b.clicked.connect(lambda: self.se_msg_box.setPlainText('') or self.se_msg_box.setFocus())
+        self.re_clr_b.clicked.connect(lambda: self.re_msg_box.setPlainText(''))
         self.send_b.clicked.connect(self.send_msg)
         self.se_msg_box.textChanged.connect(self.trans_se_msg)
         self.re_msg_box.textChanged.connect(self.trans_re_msg)

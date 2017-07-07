@@ -26,7 +26,7 @@ class MasterWindowUi():
         self.action_service_action.setShortcut('F6')
         self.proxy_service_action = QtGui.QAction('&代理', self)
         self.proxy_service_action.setShortcut('F7')
-        self.commu_menu = self.menubar.addMenu('&服务')
+        # self.commu_menu = self.menubar.addMenu('&服务')
         # self.commu_menu.addAction(self.get_set_service_action)
         # self.commu_menu.addAction(self.action_service_action)
         # self.commu_menu.addAction(self.proxy_service_action)
