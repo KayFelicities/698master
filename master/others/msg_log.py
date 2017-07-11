@@ -17,7 +17,7 @@ class MsgLog:
             log.write('\n' + '='*10 + log_time + '='*10 + '\n')
 
 
-    def add_log(self, terminal_addr, chan_text, direction, msg):
+    def add_log(self, terminal_addr, chan_text, direction, brief, msg):
         """add msg row to log"""
         log_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
         if not os.path.isdir(self.log_dir):
@@ -27,7 +27,7 @@ class MsgLog:
                 log.write('\n' + '='*10 + log_time + '='*10 + '\n')
 
         with open(self.file_path, 'a', encoding='gb2312') as log:
-            log.write('[{time}] 终端({addr}) 通道({chan}{dir}) <{msg}>\n'\
+            log.write('[{time}] [{addr}] [{chan}{dir}] ({brief}) <{msg}>\n'\
                         .format(time=log_time, addr=terminal_addr, chan=chan_text,\
-                        dir=direction, msg=msg))
+                        brief=brief, dir=direction, msg=msg))
 

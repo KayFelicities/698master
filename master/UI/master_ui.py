@@ -14,7 +14,7 @@ from master.UI import dialog_ui
 from master.UI import param_ui
 from master import config
 from master.reply import reply
-from master.datas import oads
+from master.datas import oad_omd
 from master.others import msg_log
 from master.others import master_config
 
@@ -71,11 +71,11 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
 
         self.reply_rpt_cb.setChecked(True)
         self.reply_link_cb.setChecked(True)
+        self.is_reply_link = True if self.reply_link_cb.isChecked() else False
+        self.is_reply_rpt = True if self.reply_rpt_cb.isChecked() else False
 
         self.msg_log = msg_log.MsgLog()
 
-        self.is_reply_link = True
-        self.is_reply_rpt = True
 
     def apply_config(self):
         """apply config"""
@@ -157,8 +157,9 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
                 and chan_index == self.tmn_table.cellWidget(row_num, 3).currentIndex():
                     break
             else:
+                is_cb_checked = False if chan_index == 1 else True
                 self.add_tmn_table_row(tmn_addr=server_addr, logic_addr=logic_addr,\
-                                        chan_index=chan_index, is_checked=True)
+                                        chan_index=chan_index, is_checked=is_cb_checked)
 
         text_color = QtGui.QColor(220, 226, 241) if direction == '→' else\
                     QtGui.QColor(227, 237, 205) if direction == '←' else QtGui.QColor(255, 255, 255)
@@ -194,7 +195,7 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
         self.msg_table.scrollToBottom()
 
         # log
-        self.msg_log.add_log(addr_text, chan_text, direction, msg_text)
+        self.msg_log.add_log(addr_text, chan_text, direction, brief, msg_text)
 
         service = trans.get_service()
         if service == '01' and self.is_reply_link:
@@ -204,7 +205,7 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
         if service[:2] == '88' and self.is_reply_rpt:
             reply_apdu_text = reply.get_rpt_replay_apdu(trans)
             self.send_apdu(reply_apdu_text, tmn_addr=server_addr,\
-                            logic_addr=logic_addr, chan_index=chan_index, C_text='01')
+                            logic_addr=logic_addr, chan_index=chan_index, C_text='03')
 
 
     def send_apdu(self, apdu_text, tmn_addr='', logic_addr=-1, chan_index=-1, C_text='43'):
@@ -327,7 +328,7 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
         """explain_oad"""
         oad_text = self.oad_box.text().replace(' ', '')
         if len(oad_text) == 8:
-            explain = oads.OAD.get(oad_text[:-2], '未知OI')
+            explain = oad_omd.get_oad_explain(oad_text)
             self.oad_explain_l.setText(explain)
         else:
             self.oad_explain_l.setText('')

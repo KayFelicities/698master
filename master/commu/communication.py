@@ -116,7 +116,6 @@ class CommuPanel():
         try:
             self.frontend_handle = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             print(frontend_addr)
-            self.frontend_handle.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1) #开启心跳维护
             self.frontend_handle.connect(frontend_addr)
             self.is_frontend_running = True
             threading.Thread(target=self.frontend_read_loop).start()

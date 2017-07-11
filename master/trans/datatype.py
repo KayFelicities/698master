@@ -1,5 +1,5 @@
 """handle with 698 datatypes"""
-from master.datas import oads, omds, units, dars
+from master.datas import oad_omd, units, dars
 
 
 class TypeDo():
@@ -469,7 +469,7 @@ class TypeDo():
     def take_OI(self, m_list, brief='', depth=0):
         """take_OI"""
         offset = 0
-        explain = oads.OAD.get(m_list[offset] + m_list[offset + 1] + '01', '未知OI').split('，')[0]
+        explain = oad_omd.get_oi_explain(m_list[offset] + m_list[offset + 1])
         offset += 2
         self.trans_res.add_row(m_list[:offset], brief, 'OI', explain, depth=depth, priority=2)
         return offset
@@ -480,9 +480,7 @@ class TypeDo():
         offset = 0
         attr = int(m_list[offset + 2], 16)
         index = int(m_list[offset + 3], 16)
-        explain = oads.OAD.get(''.join(m_list[offset : offset + 3]),\
-                    oads.OAD.get(''.join(m_list[offset : offset + 2]) + '01',\
-                    '未知OAD').split('[')[0] + '[属性%d]'%attr) + '[索引%d]'%index
+        explain = oad_omd.get_oad_explain(''.join(m_list[offset : offset + 3]))
         offset += 4
         self.trans_res.add_row(m_list[:offset], brief, 'OAD', explain, depth=depth, priority=2)
         return offset
@@ -505,9 +503,7 @@ class TypeDo():
         offset = 0
         method = int(m_list[offset + 2], 16)
         mode = int(m_list[offset + 3], 16)
-        explain = omds.OMD.get(''.join(m_list[offset : offset + 3]),\
-                    omds.OMD.get(''.join(m_list[offset : offset + 2]) + '01',\
-                    '未知OMD').split('[')[0] + '[方法%d]'%method) + '[操作模式%d]'%mode
+        explain = oad_omd.get_omd_explain(''.join(m_list[offset : offset + 3]))
         offset += 4
         self.trans_res.add_row(m_list[:offset], brief, 'OMD', explain, depth=depth, priority=2)
         return offset
