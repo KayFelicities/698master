@@ -19,6 +19,9 @@ class TransWindow(QtGui.QMainWindow, TransWindowUi):
     def __init__(self):
         super(TransWindow, self).__init__()
         self.setup_ui()
+        self.proc_bar.setVisible(False)
+        self.show_level_cb.setChecked(True)
+
         self.setAcceptDrops(True)
         self.is_show_level = self.show_level_cb.isChecked()
         self.input_box.cursorPositionChanged.connect(self.cursor_changed)
@@ -38,9 +41,6 @@ class TransWindow(QtGui.QMainWindow, TransWindowUi):
         self.load_file.connect(self.load_text, QtCore.Qt.QueuedConnection)
         self.set_progress.connect(self.set_progressbar, QtCore.Qt.QueuedConnection)
         self.connect(self.find_box, QtCore.SIGNAL("returnPressed()"), lambda: self.find_next(False))
-
-        self.proc_bar.setVisible(False)
-        self.show_level_cb.setChecked(True)
 
         self.msg_find_dict = []
         self.last_selection = (0, 0)

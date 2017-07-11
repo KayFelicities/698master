@@ -480,7 +480,7 @@ class TypeDo():
         offset = 0
         attr = int(m_list[offset + 2], 16)
         index = int(m_list[offset + 3], 16)
-        explain = oad_omd.get_oad_explain(''.join(m_list[offset : offset + 3]))
+        explain = oad_omd.get_oad_explain(''.join(m_list[offset : offset + 4]))
         offset += 4
         self.trans_res.add_row(m_list[:offset], brief, 'OAD', explain, depth=depth, priority=2)
         return offset
@@ -503,7 +503,7 @@ class TypeDo():
         offset = 0
         method = int(m_list[offset + 2], 16)
         mode = int(m_list[offset + 3], 16)
-        explain = oad_omd.get_omd_explain(''.join(m_list[offset : offset + 3]))
+        explain = oad_omd.get_omd_explain(''.join(m_list[offset : offset + 4]))
         offset += 4
         self.trans_res.add_row(m_list[:offset], brief, 'OMD', explain, depth=depth, priority=2)
         return offset

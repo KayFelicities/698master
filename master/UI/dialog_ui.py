@@ -21,12 +21,13 @@ class TransPopDialog(QtGui.QDialog, TransPopDialogUi):
     def __init__(self):
         super(TransPopDialog, self).__init__()
         self.setup_ui()
+        self.show_level_cb.setChecked(True)
+
         self.msg_box.textChanged.connect(self.trans_msg)
         self.show_level_cb.stateChanged.connect(self.trans_msg)
         self.always_top_cb.stateChanged.connect(self.set_always_top)
         self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint if self.always_top_cb.isChecked() else QtCore.Qt.Widget)
 
-        self.show_level_cb.setChecked(True)
 
     def trans_msg(self):
         """translate"""

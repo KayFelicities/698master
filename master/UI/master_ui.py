@@ -28,6 +28,10 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
     def __init__(self):
         super(MasterWindow, self).__init__()
         self.setup_ui()
+        self.reply_rpt_cb.setChecked(True)
+        self.reply_link_cb.setChecked(True)
+        self.is_reply_link = True if self.reply_link_cb.isChecked() else False
+        self.is_reply_rpt = True if self.reply_rpt_cb.isChecked() else False
 
         self.apply_config()
 
@@ -68,11 +72,6 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
         self.msg_diy_dialog = dialog_ui.MsgDiyDialog()
         self.remote_update_dialog = dialog_ui.RemoteUpdateDialog()
         self.general_cmd_dialog = param_ui.ParamWindow()
-
-        self.reply_rpt_cb.setChecked(True)
-        self.reply_link_cb.setChecked(True)
-        self.is_reply_link = True if self.reply_link_cb.isChecked() else False
-        self.is_reply_rpt = True if self.reply_rpt_cb.isChecked() else False
 
         self.msg_log = msg_log.MsgLog()
 
