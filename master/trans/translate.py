@@ -162,7 +162,7 @@ class Translate():
             brief['service'] = '断开应用连接'
 
         elif service_type[1] in ['5']:
-            brief['service'] = '读取记录' if service_type[-1] in ['3', '4'] else '读取'
+            brief['service'] = '读取记录' if service_type[-1] in ['3', '4'] else '读取'  # todo 读取(成功/失败:原因)
             if service_type[-1] in ['2', '4']:
                 brief['content'] = ','.join([row['value'].split('[索引')[0]\
                                     for row in depth1_list if row['dtype'] == 'OAD'])

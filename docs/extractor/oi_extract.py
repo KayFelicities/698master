@@ -97,6 +97,18 @@ def main():
                         structure = re.sub(r'(.*?) {1,2}(,.*?)', '\g<1>\g<2>', structure)
                         structure = re.sub(r'(.*?,) {1,2}(.*?)', '\g<1>\g<2>', structure)
 
+                        structure = re.sub(r'([^-_])(Data|NULL|array|structure|bool|bit-string|double-long|double-long-unsigned|octet-string|visible-string|UTF8-string|integer|long|unsigned|long-unsigned|long64|long64-unsigned|enum|float32|float64|date_time|date|time|date_time_s|OI|OAD|ROAD|OMD|TI|TSA|MAC|RN|Region|Scaler_Unit|RSD|CSD|MS|SID|SID_MAC|COMDCB|RCSD)([^-_])',\
+                                                '\g<1>:\g<2>\g<3>', structure)
+                        structure = re.sub(r'([^-_:])(Data|NULL|array|structure|bool|bit-string|double-long|double-long-unsigned|octet-string|visible-string|UTF8-string|integer|long|unsigned|long-unsigned|long64|long64-unsigned|enum|float32|float64|date_time|date|time|date_time_s|OI|OAD|ROAD|OMD|TI|TSA|MAC|RN|Region|Scaler_Unit|RSD|CSD|MS|SID|SID_MAC|COMDCB|RCSD)([^-_])',\
+                                                '\g<1>:\g<2>\g<3>', structure)
+                        structure = structure.replace(' ', '')
+
+                        # replace structure,array
+                        structure = re.sub(r'array(.*?)([,\}])(.*?)\1∷=(:structure{.*?})', 'array\g<4>\g<2>\g<3>', structure)
+                        structure = re.sub(r',(.*?):structure([,\}])(.*?)\1∷=:structure({.*?})', ',\g<1>:structure\g<4>\g<2>\g<3>', structure)
+                        # structure = re.sub(r'array(.*?)([,\}])(.*?)\1∷=(:structure{.*?})', 'array\g<4>\g<2>\g<3>', structure)
+                        # structure = re.sub(r',(.*?):structure([,\}])(.*?)\1∷=:structure({.*?})', ',\g<1>:structure\g<4>\g<2>\g<3>', structure)
+
                         match = re.search(r'单位[：:]\s{0,2}(.*?)[,，换\t]', attr.split('{')[0])
                         unit = match.group(1).replace(' ', '') if match and data_type != 'structure' else ''
                         match = re.search(r'换算[：:]\s{0,2}(-?\d|无换算)', attr.split('{')[0])
@@ -114,6 +126,7 @@ def main():
                 
     oi_text = oi_text.replace('无换算', '0')
     oi_text = oi_text.replace('structure {', 'structure{')
+    oi_text = oi_text.replace('enum {', 'enum{')
     oi_text = re.sub(r'< {1,2}(.*?)>', '<\g<1>>', oi_text)
     oi_text = re.sub(r'<(.*?) {1,2}>', '<\g<1>>', oi_text)
     oi_text = re.sub(r'<(.*?) {1,2}(,.*?)>', '<\g<1>\g<2>>', oi_text)

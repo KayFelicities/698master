@@ -652,7 +652,7 @@ oi_table =\
     ('3022', '电能表有功组合方式编程事件', '7', '事件类', '属性', '2', '(事件记录表)', 'array 标准事件记录单元', ''),
     ('3022', '电能表有功组合方式编程事件', '7', '事件类', '属性', '6', '(配置参数)', 'structure', 'structure{}'),
     ('3023', '电能表无功组合方式编程事件', '7', '事件类', '属性', '2', '(事件记录表)', 'array 节假日编程事件记录单元', ''),
-    ('3023', '电能表无功组合方式编程事件', '7', '事件类', '属性', '6', '(配置参数)', 'structure', 'structure{} 事件发生源∷ =enum {无功组合方式 1 特征字 <0>,无功组合方式 2 特征字 <1>}'),
+    ('3023', '电能表无功组合方式编程事件', '7', '事件类', '属性', '6', '(配置参数)', 'structure', 'structure{} 事件发生源∷ =enum{无功组合方式 1 特征字 <0>,无功组合方式 2 特征字 <1>}'),
     ('3024', '电能表费率参数表编程事件', '7', '事件类', '属性', '2', '(事件记录表)', 'array 标准事件记录单元', ''),
     ('3024', '电能表费率参数表编程事件', '7', '事件类', '属性', '6', '(配置参数)', 'structure', 'structure{}'),
     ('3025', '电能表阶梯表编程事件', '7', '事件类', '属性', '2', '(事件记录表)', 'array 标准事件记录单元', ''),
@@ -697,7 +697,7 @@ oi_table =\
     ('3109', '终端消息认证错误事件', '7', '事件类', '属性', '2', '(事件记录表)', 'array 标准事件记录单元', ''),
     ('3109', '终端消息认证错误事件', '7', '事件类', '属性', '6', '(配置参数)', 'structure', 'structure{}'),
     ('310A', '设备故障记录', '7', '事件类', '属性', '2', '(事件记录表)', 'array 标准事件记录单元', ''),
-    ('310A', '设备故障记录', '7', '事件类', '属性', '6', '(配置参数)', 'structure', 'structure{} 事件发生源∷ =enum {终端主板内存故障<0>,时钟故障 <1>,主板通信故障 <2>,485 抄表故障 <3>,显示板故障 <4>,载波通道异常 <5>,内卡初始化错误 <6>,ESAM 错误 <7>}'),
+    ('310A', '设备故障记录', '7', '事件类', '属性', '6', '(配置参数)', 'structure', 'structure{} 事件发生源∷ =enum{终端主板内存故障<0>,时钟故障 <1>,主板通信故障 <2>,485 抄表故障 <3>,显示板故障 <4>,载波通道异常 <5>,内卡初始化错误 <6>,ESAM 错误 <7>}'),
     ('310B', '电能表示度下降事件', '7', '事件类', '属性', '2', '(事件记录表)', 'array 标准事件记录单元', ''),
     ('310B', '电能表示度下降事件', '7', '事件类', '属性', '6', '(配置参数)', 'structure', 'structure{关联采集任务号 unsigned}'),
     ('310C', '电能量超差事件', '7', '事件类', '属性', '2', '(事件记录表)', 'array 标准事件记录单元', ''),
@@ -778,7 +778,7 @@ oi_table =\
     ('4003', '客户编号', '8', '参变量类', '属性', '2', '', 'octet-string', ''),
     ('4004', '设备地理位置', '8', '参变量类', '属性', '2', '', 'structure', 'structure{经度 structure{ 方位 enum{E <0>,W <1>},度 unsigned,分 unsigned,秒 unsigned },纬度 structure{方位 enum{S <0>,N <1>},度 unsigned,分 unsigned,秒 unsigned },高度<cm> double-long-unsigned }'),
     ('4005', '组地址', '8', '参变量类', '属性', '2', '', 'array octet-string', ''),
-    ('4006', '时钟源', '8', '参变量类', '属性', '2', '(只读)', 'structure', 'structure{时钟源 enum { 内部 <0>,时钟芯片 <1>,互联网时钟 <2>,卫星时钟 <3>,长波时钟 <4>},状态 enum{可用 <0>,不可用 <1>} }'),
+    ('4006', '时钟源', '8', '参变量类', '属性', '2', '(只读)', 'structure', 'structure{时钟源 enum{ 内部 <0>,时钟芯片 <1>,互联网时钟 <2>,卫星时钟 <3>,长波时钟 <4>},状态 enum{可用 <0>,不可用 <1>} }'),
     ('4006', '时钟源', '8', '参变量类', '方法', '127', '启用()', '', ''),
     ('4006', '时钟源', '8', '参变量类', '方法', '128', '禁用()', '', ''),
     ('4007', 'LCD参数', '8', '参变量类', '属性', '2', '', 'structure', 'structure{上电全显时间 unsigned,背光点亮时间 long-unsigned(按键时背光点亮时间),显示查看背光点亮时间 long-unsigned,无电按键屏幕驻留最大时间 long-unsigned,显示电能小数位数 unsigned,显示功率<最大需量>小数位数 unsigned,液晶①②字样意义 unsigned}'),
@@ -890,18 +890,18 @@ oi_table =\
     ('6000', '采集档案配置表', '11', '采集监控类', '方法', '132', 'Delete(基本信息)', '', ''),
     ('6000', '采集档案配置表', '11', '采集监控类', '方法', '133', 'Delete(通信地址， 端口号)', '', ''),
     ('6000', '采集档案配置表', '11', '采集监控类', '方法', '134', 'Clear()', '', ''),
-    ('6001', '采集档案配置单元', '8', '采集监控类', '属性', '2', '(Acquisition   document definition)', 'structure', 'structure{配置序号 long-unsigned,基本信息 Basic_object,扩展信息 Extended_object,附属信息 Annex_object} Basic_object ∷ =structure{通信地址 TSA,波特率 enum { 300bps <0>,600bps <1>,1200bps <2>,2400bps <3>,4800bps <4>,7200bps <5>,9600bps <6>,19200bps <7>,38400bps <8>,57600bps <9>,115200bps <10>,自适应<255>},规约类型 enum {未知(0),DL/T645-1997 <1>,DL/T645-2007 <2>,DL/T698.45 <3>,CJ/T 188-2004 <4>},端口 OAD,通信密码 octet-string,费率个数 unsigned,用户类型 unsigned,接线方式 enum {未知<0>,单相<1>,三相三线<2>,三相四线<3>},额定电压 long-unsigned(换算 -1,单位 V),额定电流 long-unsigned(换算 -1,单位 A) } Extended_object ∷ =structure{采集器地址 TSA,资产号 octet-string,PT long-unsigned,CT long-unsigned} Annex_object ∷ =array structure{对象属性描述 OAD,属性值 Data}'),
+    ('6001', '采集档案配置单元', '8', '采集监控类', '属性', '2', '(Acquisition   document definition)', 'structure', 'structure{配置序号 long-unsigned,基本信息 Basic_object,扩展信息 Extended_object,附属信息 Annex_object} Basic_object ∷ =structure{通信地址 TSA,波特率 enum{ 300bps <0>,600bps <1>,1200bps <2>,2400bps <3>,4800bps <4>,7200bps <5>,9600bps <6>,19200bps <7>,38400bps <8>,57600bps <9>,115200bps <10>,自适应<255>},规约类型 enum{未知(0),DL/T645-1997 <1>,DL/T645-2007 <2>,DL/T698.45 <3>,CJ/T 188-2004 <4>},端口 OAD,通信密码 octet-string,费率个数 unsigned,用户类型 unsigned,接线方式 enum{未知<0>,单相<1>,三相三线<2>,三相四线<3>},额定电压 long-unsigned(换算 -1,单位 V),额定电流 long-unsigned(换算 -1,单位 A) } Extended_object ∷ =structure{采集器地址 TSA,资产号 octet-string,PT long-unsigned,CT long-unsigned} Annex_object ∷ =array structure{对象属性描述 OAD,属性值 Data}'),
     ('6002', '搜表', '11', '采集监控类', '属性', '2', '(所有搜表结果)', 'array 一个搜表结果', ''),
     ('6002', '搜表', '11', '采集监控类', '属性', '5', '(跨台区搜表结果)', 'array 一个跨台区结果', ''),
     ('6002', '搜表', '11', '采集监控类', '属性', '6', '(所有搜表结果记录数)', 'long-unsigned', ''),
     ('6002', '搜表', '11', '采集监控类', '属性', '7', '(跨台区搜表结果记录数)', 'long-unsigned', ''),
-    ('6002', '搜表', '11', '采集监控类', '属性', '8', '', 'structure', 'structure{是否启用每天周期搜表 bool,自动更新采集档案 bool,是否产生搜表相关事件 bool,清空搜表结果选项 enum { 不清空 <0>,每天周期搜表前清空 <1>,每次搜表前清空 <2>} }'),
+    ('6002', '搜表', '11', '采集监控类', '属性', '8', '', 'structure', 'structure{是否启用每天周期搜表 bool,自动更新采集档案 bool,是否产生搜表相关事件 bool,清空搜表结果选项 enum{ 不清空 <0>,每天周期搜表前清空 <1>,每次搜表前清空 <2>} }'),
     ('6002', '搜表', '11', '采集监控类', '属性', '9', '(每天周期搜表参数配置)', 'array 定时搜表参数', 'structure{开始时间 time,搜表时长<min> long-unsigned}'),
     ('6002', '搜表', '11', '采集监控类', '属性', '10', '', 'enum{空闲（0），搜表中（1）}', ''),
     ('6002', '搜表', '11', '采集监控类', '方法', '127', '实时启动搜表(搜表时长)', 'long-unsigned<分钟,>', ''),
     ('6002', '搜表', '11', '采集监控类', '方法', '128', '清空搜表结果()', '', ''),
     ('6002', '搜表', '11', '采集监控类', '方法', '129', '清空跨台区搜表结果()', '', ''),
-    ('6003', '一个搜表结果', '8', '采集监控类', '属性', '2', '', 'structure', 'structure{通信地址 TSA,所属采集器地址 TSA,规约类型 enum { 未知 <0>,DL/T645-1997 <1>,DL/T645-2007 <2>,DL/T698.45 <3>,CJ/T 188-2004 <4>},相位 enum{未知<0>,A <1>,B <2>,C <3>},信号品质 unsigned,搜到的时间 date_time_s,搜到的附加信息 array 附加信息 } 附加信息∷ =structure{对象属性描述 OAD,属性值 Data}'),
+    ('6003', '一个搜表结果', '8', '采集监控类', '属性', '2', '', 'structure', 'structure{通信地址 TSA,所属采集器地址 TSA,规约类型 enum{ 未知 <0>,DL/T645-1997 <1>,DL/T645-2007 <2>,DL/T698.45 <3>,CJ/T 188-2004 <4>},相位 enum{未知<0>,A <1>,B <2>,C <3>},信号品质 unsigned,搜到的时间 date_time_s,搜到的附加信息 array 附加信息 } 附加信息∷ =structure{对象属性描述 OAD,属性值 Data}'),
     ('6004', '一个跨台区结果', '8', '采集监控类', '属性', '2', '', 'structure', 'structure{通信地址 TSA,主节点地址 TSA,变更时间 date_time_s}'),
     ('6012', '任务配置表', '10', '采集监控类', '属性', '2', '(配置表)', 'array 任务配置单元', ''),
     ('6012', '任务配置表', '10', '采集监控类', '属性', '3', '(记录表)', 'array 记录单元', 'structure{采集启动时标 date_time_s,采集成功时标 date_time_s,采集存储时标 date_time_s,采集通信地址 TSA,采集的数据 1 Data,… 采集的数据 N Data}'),
@@ -909,13 +909,13 @@ oi_table =\
     ('6012', '任务配置表', '10', '采集监控类', '方法', '128', 'Delete(array 任务 ID)', '', ''),
     ('6012', '任务配置表', '10', '采集监控类', '方法', '129', 'Clear()', '', ''),
     ('6012', '任务配置表', '10', '采集监控类', '方法', '130', 'Update(任务 ID ，状态)', '', ''),
-    ('6013', '任务配置单元', '8', '采集监控类', '属性', '2', '(任务配置单元)', 'structure', 'structure{任务 ID unsigned,执行频率 TI,方案类型 enum { 普通采集方案 <1>,事件采集方案 <2>,透明方案 <3>,上报方案 <4>,脚本方案 <5>},方案编号 unsigned,开始时间 date_time_s,结束时间 date_time_s,延时 TI,执行优先级 unsigned,状态 enum{正常<1>,停用<2>},任务开始前脚本 id long-unsigned,任务完成后脚本 id long-unsigned,任务运行时段 structure,} 当方案类型为脚本时,方案编号为脚本 id 任务运行时段∷ =structrue {类型 enum { 前闭后开 <0>,前开后闭 <1>,前闭后闭 <2>,前开后开 <3>},时段表 array 时段 } 时段∷ =structure{起始小时 unsigned,起始分钟 unsigned,结束小时 unsigned,结束分钟 unsigned}'),
+    ('6013', '任务配置单元', '8', '采集监控类', '属性', '2', '(任务配置单元)', 'structure', 'structure{任务 ID unsigned,执行频率 TI,方案类型 enum{ 普通采集方案 <1>,事件采集方案 <2>,透明方案 <3>,上报方案 <4>,脚本方案 <5>},方案编号 unsigned,开始时间 date_time_s,结束时间 date_time_s,延时 TI,执行优先级 unsigned,状态 enum{正常<1>,停用<2>},任务开始前脚本 id long-unsigned,任务完成后脚本 id long-unsigned,任务运行时段 structure,} 当方案类型为脚本时,方案编号为脚本 id 任务运行时段∷ =structrue {类型 enum{ 前闭后开 <0>,前开后闭 <1>,前闭后闭 <2>,前开后开 <3>},时段表 array 时段 } 时段∷ =structure{起始小时 unsigned,起始分钟 unsigned,结束小时 unsigned,结束分钟 unsigned}'),
     ('6014', '普通采集方案集', '11', '采集监控类', '属性', '2', '', 'array 普通采集方案', ''),
     ('6014', '普通采集方案集', '11', '采集监控类', '方法', '127', 'Add(array 普通采集方案)', '', ''),
     ('6014', '普通采集方案集', '11', '采集监控类', '方法', '128', 'Delete(array 方案编号)', '', ''),
     ('6014', '普通采集方案集', '11', '采集监控类', '方法', '129', 'Clear()', '', ''),
     ('6014', '普通采集方案集', '11', '采集监控类', '方法', '130', 'Set_CSD(方案编号， array CSD)', '', ''),
-    ('6015', '普通采集方案', '8', '采集监控类', '属性', '2', '(普通采集方案)', 'structure', 'structure{方案编号 unsigned,存储深度 long-unsigned,采集方式 structure{ 采集类型 unsigned,采集内容 Data},记录列选择 array CSD,电能表集合 MS,存储时标选择 enum {未定义 <0>,任务开始时间 <1>,相对当日 0 点 0 分 <2>,相对上日 23 点 59 分 <3>,相对上日 0 点 0 分 <4>,相对当月 1 日 0 点 0 分<5>,数据冻结时标 <6> 相对上月月末 0 点 0 分<7>} } 采集方式数据格式如下： 采集类型 采集内容 表示 0 NULL 采集当前数据 1 unsigned 采集上第 N 次 2 NULL 按冻结时标采集 3 TI 按时标间隔采集 4 RetryMetering 补抄 RetryMetering ∷ = structure{数据时标间隔 TI,补抄周期<上 N 次> long-unsigned}'),
+    ('6015', '普通采集方案', '8', '采集监控类', '属性', '2', '(普通采集方案)', 'structure', 'structure{方案编号 unsigned,存储深度 long-unsigned,采集方式 structure{ 采集类型 unsigned,采集内容 Data},记录列选择 array CSD,电能表集合 MS,存储时标选择 enum{未定义 <0>,任务开始时间 <1>,相对当日 0 点 0 分 <2>,相对上日 23 点 59 分 <3>,相对上日 0 点 0 分 <4>,相对当月 1 日 0 点 0 分<5>,数据冻结时标 <6> 相对上月月末 0 点 0 分<7>} } 采集方式数据格式如下： 采集类型 采集内容 表示 0 NULL 采集当前数据 1 unsigned 采集上第 N 次 2 NULL 按冻结时标采集 3 TI 按时标间隔采集 4 RetryMetering 补抄 RetryMetering ∷ = structure{数据时标间隔 TI,补抄周期<上 N 次> long-unsigned}'),
     ('6016', '事件采集方案集', '11', '采集监控类', '属性', '2', '', 'array 事件采集方案', ''),
     ('6016', '事件采集方案集', '11', '采集监控类', '方法', '127', 'Add(array 事件采集方案)', '', ''),
     ('6016', '事件采集方案集', '11', '采集监控类', '方法', '128', 'Delete(array 方案编号)', '', ''),
@@ -944,14 +944,14 @@ oi_table =\
     ('6032', '采集状态集', '11', '采集监控类', '属性', '2', '', 'array 一个采集状态', ''),
     ('6033', '一个采集状态', '8', '采集监控类', '属性', '2', '', 'structure', 'structure{通信地址 TSA,中继级别 unsigned,中继地址 TSA,端口 OAD,最后一次采集成功时间 date_time_s,采集失败次数 unsigned,相位 enum{ 未知<0>,A 相<1>,B 相<2>,C 相<3>},相序异常 enum{正常<0>,LN 互易<1>,逆相序<2>} }'),
     ('6034', '采集任务监控集', '11', '采集监控类', '属性', '2', '', 'array 采集任务监控单元', ''),
-    ('6035', '采集任务监控单元', '8', '采集监控类', '属性', '2', '', 'structure', 'structure{任务 ID unsigned 任务执行状态 enum { 未执行<0>,执行中<1>,已执行<2>},任务执行开始时间 date_time_s,任务执行结束时间 date_time_s,采集总数量 long-unsigned,采集成功数量 long-unsigned,已发送报文条数 long-unsigned,已接收报文条数 long-unsigned }'),
+    ('6035', '采集任务监控单元', '8', '采集监控类', '属性', '2', '', 'structure', 'structure{任务 ID unsigned 任务执行状态 enum{ 未执行<0>,执行中<1>,已执行<2>},任务执行开始时间 date_time_s,任务执行结束时间 date_time_s,采集总数量 long-unsigned,采集成功数量 long-unsigned,已发送报文条数 long-unsigned,已接收报文条数 long-unsigned }'),
     ('6040', '采集启动时标', '8', '采集监控类', '属性', '2', '', 'date_time_s', ''),
     ('6041', '采集成功时标', '8', '采集监控类', '属性', '2', '', 'date_time_s', ''),
     ('6042', '采集存储时标', '8', '采集监控类', '属性', '2', '', 'date_time_s', ''),
     ('7000', '文件集合', '11', '集合类', '方法', '127', 'WriteFile(文件名，偏移，内容)', '', ''),
     ('7000', '文件集合', '11', '集合类', '方法', '128', 'Execute(文件名)', '', ''),
     ('7000', '文件集合', '11', '集合类', '方法', '129', 'DeleteFile(文件名)', 'visible-string', ''),
-    ('7001', '文件', '8', '集合类', '属性', '2', '文件 文件', 'structure', 'structure{文件名 visible-string,扩展名 visible-string,文件长度 long-unsigned,创建时间 date_time_s,修改时间 date_time_s,数据来源 enum { 主站<0>,终端自身<1>,采集器<2>,电能表<3>,其它<255>},文件内容 octet-string }'),
+    ('7001', '文件', '8', '集合类', '属性', '2', '文件 文件', 'structure', 'structure{文件名 visible-string,扩展名 visible-string,文件长度 long-unsigned,创建时间 date_time_s,修改时间 date_time_s,数据来源 enum{ 主站<0>,终端自身<1>,采集器<2>,电能表<3>,其它<255>},文件内容 octet-string }'),
     ('7010', '脚本集合', '11', '集合类', '属性', '2', '', 'array 脚本', ''),
     ('7010', '脚本集合', '11', '集合类', '方法', '127', 'Add(脚本)', '', ''),
     ('7010', '脚本集合', '11', '集合类', '方法', '128', 'Delete(脚本 id)', '', ''),
@@ -1032,7 +1032,7 @@ oi_table =\
     ('F204', '直流模拟量', '22', '输入输出设备类', '属性', '2', '(设备对象列表，只读)', 'array 直流模拟量', ''),
     ('F204', '直流模拟量', '22', '输入输出设备类', '属性', '4', '', 'array 直流模拟量配置', 'structure{量程起始值 double-long,量程结束值 double-long,换算及单位 Scaler_Unit}'),
     ('F205', '继电器输出', '22', '输入输出设备类', '属性', '2', '(设备对象列表，只读)', 'array 继电器单元', 'structure{描述符 visible-string,当前状态 enum{ 未输出<0>,输出<1>},开关属性 enum{脉冲式<0>,保持式<1>},接线状态 enum{接入<0>,未接入（ 1)} }'),
-    ('F205', '继电器输出', '22', '输入输出设备类', '属性', '2', '(设备对象列表，只读)', 'array 继电器单元', 'structure{描述符 visible-string,当前状态 enum { 合闸<0>,跳闸<1>},开关属性 enum{脉冲式<0>,保持式<1>},接线状态 enum{接入<0>,未接入（ 1)} }'),
+    ('F205', '继电器输出', '22', '输入输出设备类', '属性', '2', '(设备对象列表，只读)', 'array 继电器单元', 'structure{描述符 visible-string,当前状态 enum{ 合闸<0>,跳闸<1>},开关属性 enum{脉冲式<0>,保持式<1>},接线状态 enum{接入<0>,未接入（ 1)} }'),
     ('F205', '继电器输出', '22', '输入输出设备类', '方法', '127', '修改开关属性(继电器号，开关属性)', 'OAD', ''),
     ('F206', '告警输出', '22', '输入输出设备类', '属性', '2', '(设备对象列表，只读)', 'array 告警输出', 'enum{未输出<0>,输出<1>}'),
     ('F206', '告警输出', '22', '输入输出设备类', '属性', '4', '', 'array 允许告警时段', 'structure{起始时间 Time,结束时间 Time}'),
@@ -1189,6 +1189,79 @@ def get_oad_explain(oad_text):
 def get_omd_explain(omd_text):
     """get omd explain"""
     return __get_explain('omd', omd_text)
+
+
+
+def __get_structure(type, oad_omd_text):
+    """get_oad_structure"""
+    am_type = '属性' if type.strip() in ['oad', 'OAD'] else '方法'
+    oad = re.sub(r'[^0-9a-fA-F]', '', oad_omd_text)[:8].upper()
+    if len(oad) != 8:
+        raise 'format error'
+    oi_text = oad[:4]
+    am_no = int(oad[4:6], 16)
+    index = int(oad[6:8], 16)
+    print('oi_text', oi_text, 'am_no', am_no, 'index', index, 'am_type', am_type)
+
+    # find OI
+    for oi_row in oi_list:
+        if oi_row.oi == oi_text:
+            ic_no = int(oi_row.ic)
+            break
+    else:
+        raise NotFound('OI not found')
+    oi_row = [row for row in oi_list if row.am_choice == am_type\
+                and row.oi == oi_text and int(row.am_no) == am_no]
+    ic_row = [row for row in ic_list if row.am_choice == am_type\
+                and int(row.ic) == ic_no and int(row.am_no) == am_no]
+    if (not ic_row) and (not oi_row):
+        raise NotFound('not defined')
+    print('oi_row:', oi_row)
+    print('ic_row:', ic_row)
+
+    structrue_list = []
+    data_type = oi_row[0].data_type if oi_row and oi_row[0].data_type else ic_row[0].data_type
+    structrue_list.append(data_type.split(' ')[0])
+    if data_type.split(' ')[0] == 'array':
+        pass
+    if data_type.split(' ')[0] == 'structure':
+        if oi_row and oi_row[0].structure.find('structure{') >= 0:
+            structure_text = re.search(r'structure{(.*)}', oi_row[0].structure).group(1)
+            structure_text = __get_brackets(structure_text, '{}', ',').remain
+            structure_text = __get_brackets(structure_text, '()', ',').remain
+            index_list = structure_text.split(',')
+            # print('index_list:', index_list)
+            try:
+                index_explain = index_list[index - 1].strip().split(' ')[0]
+            except IndexError:
+                index_explain = ''
+        if not index_explain and ic_row[0].structure.find('structure{') >= 0:
+            structure_text = re.search(r'structure{(.*)}', ic_row[0].structure).group(1)
+            structure_text = __get_brackets(structure_text, '{}', ',').remain
+            structure_text = __get_brackets(structure_text, '()', ',').remain
+            index_list = structure_text.split(',')
+            # print('index_list:', index_list)
+            try:
+                index_explain = index_list[index - 1].strip().split(' ')[0]
+            except IndexError:
+                index_explain = ''
+
+    am_explain = oi_row[0].am_name if oi_row and oi_row[0].am_name else ic_row[0].am_name\
+                    if ic_row and ic_row[0].am_name else ''
+    index_explain = ''
+    if index:
+        if am_type == '属性':
+            if oi_row[0].data_type[:5] == 'array' if oi_row else ic_row[0].data_type[:5] == 'array'\
+                    if ic_row else False:
+                index_explain = '组%d'%index
+            else:
+        if not index_explain:
+            index_explain = '%s%d'%('索引' if am_type == '属性' else '模式', index)
+
+    if not am_explain:
+        am_explain = '%s%d'%(am_type, am_no)
+    full_explain = '{oi} {am} {index}'.format(oi=oi_explain, am=am_explain, index=index_explain)
+    return full_explain
 
 
 if __name__ == '__main__':

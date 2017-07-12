@@ -134,8 +134,10 @@ class TypeDo():
         return offset
 
 
-    def take_Data(self, m_list, brief='', depth=0):
+    def take_Data(self, m_list, brief='', depth=0, oad=''):
         """take data"""
+        structure = oad_omd.get_structure(oad)
+
         offset = 0
         data_type = m_list[offset]
         if data_type == '00':    # 对null类型特殊处理

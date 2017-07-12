@@ -89,7 +89,7 @@ class Service():
             offset += self.take_TimeTag(m_list[offset:])
         return offset
 
-    def take_Get_Result(self, m_list, brief='', depth=0):
+    def take_Get_Result(self, m_list, brief='', depth=0, oad=''):
         """take_Get_Result"""
         offset = 0
         result = m_list[offset]
@@ -98,20 +98,21 @@ class Service():
         if result == '00':  # 错误信息
             offset += self.typedo.take_DAR(m_list[offset:], '错误信息', depth=depth)
         elif result == '01':  # 数据
-            offset += self.typedo.take_Data(m_list[offset:], '数据', depth=depth)
+            offset += self.typedo.take_Data(m_list[offset:], '数据', depth=depth, oad=oad)
         return offset
 
     def take_A_ResultNormal(self, m_list, brief='', depth=0):
         """take_A_ResultNormal"""
         offset = 0
-        offset += self.typedo.take_OAD(m_list[offset:], '对象属性描述符', depth=depth)
-        offset += self.take_Get_Result(m_list[offset:], '结果', depth=depth)
+        offset += self.typedo.take_OAD(m_list[offset:], 'OAD', depth=depth)
+        oad = ''.join(m_list[offset - 4 : offset])
+        offset += self.take_Get_Result(m_list[offset:], '结果', depth=depth, oad=oad)
         return offset
 
     def take_A_ResultRecord(self, m_list, brief='', depth=0):
         """take_A_ResultRecord"""
         offset = 0
-        offset += self.typedo.take_OAD(m_list[offset:], '记录型对象属性描述符', depth=depth)
+        offset += self.typedo.take_OAD(m_list[offset:], '记录型OAD', depth=depth)
         csd_num = int(m_list[offset], 16)
         offset += self.typedo.take_RCSD(m_list[offset:], '一行记录N列属性描述符', depth=depth)
         re_data_choice = m_list[offset]
@@ -235,16 +236,16 @@ class Service():
     def GetRequestNormal(self, m_list):
         """GetRequestNormal"""
         offset = 0
-        offset += self.typedo.take_PIID(m_list[offset:], '服务序号-优先级')
-        offset += self.typedo.take_OAD(m_list[offset:], '一个对象属性描述符')
+        offset += self.typedo.take_PIID(m_list[offset:], 'PIID')
+        offset += self.typedo.take_OAD(m_list[offset:], '一个OAD')
         return offset
 
     def GetRequestNormalList(self, m_list):
         """GetRequestNormalList"""
         offset = 0
-        offset += self.typedo.take_PIID(m_list[offset:], '服务序号-优先级')
+        offset += self.typedo.take_PIID(m_list[offset:], 'PIID')
         num = int(m_list[offset], 16)
-        self.trans_res.add_row(m_list[offset: offset+1], '若干个对象属性描述符', 'SEQUENCE OF OAD[%d]'%num, num)
+        self.trans_res.add_row(m_list[offset: offset+1], '若干个OAD', 'SEQUENCE OF OAD[%d]'%num, num)
         offset += 1
         for _ in range(num):
             offset += self.typedo.take_OAD(m_list[offset:], depth=1)
@@ -253,8 +254,8 @@ class Service():
     def GetRequestRecord(self, m_list):
         """GetRequestRecord"""
         offset = 0
-        offset += self.typedo.take_PIID(m_list[offset:], '服务序号-优先级')
-        offset += self.typedo.take_OAD(m_list[offset:], '对象属性描述符')
+        offset += self.typedo.take_PIID(m_list[offset:], 'PIID')
+        offset += self.typedo.take_OAD(m_list[offset:], 'OAD')
         offset += self.typedo.take_RSD(m_list[offset:], '记录选择描述符')
         offset += self.typedo.take_RCSD(m_list[offset:], '记录列选择描述符')
         return offset
@@ -262,13 +263,13 @@ class Service():
     def GetRequestRecordList(self, m_list):
         """GetRequestRecordList"""
         offset = 0
-        offset += self.typedo.take_PIID(m_list[offset:], '服务序号-优先级')
+        offset += self.typedo.take_PIID(m_list[offset:], 'PIID')
         num = int(m_list[offset], 16)
         self.trans_res.add_row(m_list[offset: offset+1], '读取若干个记录型对象属性',\
                                 'SEQUENCE OF GetRecord[%d]'%num, num)
         offset += 1
         for _ in range(num):
-            offset += self.typedo.take_OAD(m_list[offset:], '对象属性描述符', depth=1)
+            offset += self.typedo.take_OAD(m_list[offset:], 'OAD', depth=1)
             offset += self.typedo.take_RSD(m_list[offset:], '记录选择描述符', depth=1)
             offset += self.typedo.take_RCSD(m_list[offset:], '记录列选择描述符', depth=1)
         return offset
@@ -276,28 +277,28 @@ class Service():
     def GetRequestNext(self, m_list):
         """GetRequestNext"""
         offset = 0
-        offset += self.typedo.take_PIID(m_list[offset:], '服务序号-优先级')
+        offset += self.typedo.take_PIID(m_list[offset:], 'PIID')
         offset += self.typedo.take_long_unsigned(m_list[offset:], '正确接收的最近一次数据块序号')
         return offset
 
     def GetRequestMD5(self, m_list):
         """GetRequestNext"""
         offset = 0
-        offset += self.typedo.take_PIID(m_list[offset:], '服务序号-优先级')
-        offset += self.typedo.take_OAD(m_list[offset:], '一个对象属性描述符')
+        offset += self.typedo.take_PIID(m_list[offset:], 'PIID')
+        offset += self.typedo.take_OAD(m_list[offset:], '一个OAD')
         return offset
 
     def GetResponseNormal(self, m_list):
         """GetResponseNormal"""
         offset = 0
-        offset += self.typedo.take_PIID_ACD(m_list[offset:], '服务序号-优先级-ACD')
+        offset += self.typedo.take_PIID_ACD(m_list[offset:], 'PIID-ACD')
         offset += self.take_A_ResultNormal(m_list[offset:])
         return offset
 
     def GetResponseNormalList(self, m_list):
         """GetResponseNormalList"""
         offset = 0
-        offset += self.typedo.take_PIID_ACD(m_list[offset:], '服务序号-优先级-ACD')
+        offset += self.typedo.take_PIID_ACD(m_list[offset:], 'PIID-ACD')
         num = int(m_list[offset], 16)
         self.trans_res.add_row(m_list[offset: offset+1], '若干个对象属性及其结果',\
                                 'SEQUENCE OF A_ResultNormal[%d]'%num, num)
@@ -309,14 +310,14 @@ class Service():
     def GetResponseRecord(self, m_list):
         """GetResponseRecord"""
         offset = 0
-        offset += self.typedo.take_PIID_ACD(m_list[offset:], '服务序号-优先级-ACD')
+        offset += self.typedo.take_PIID_ACD(m_list[offset:], 'PIID-ACD')
         offset += self.take_A_ResultRecord(m_list[offset:])
         return offset
 
     def GetResponseRecordList(self, m_list):
         """GetResponseRecordList"""
         offset = 0
-        offset += self.typedo.take_PIID_ACD(m_list[offset:], '服务序号-优先级-ACD')
+        offset += self.typedo.take_PIID_ACD(m_list[offset:], 'PIID-ACD')
         num = int(m_list[offset], 16)
         self.trans_res.add_row(m_list[offset: offset+1],\
                 '若干个记录型对象属性及其结果', 'SEQUENCE OF A_ResultNormal[%d]'%num, num)
@@ -327,7 +328,7 @@ class Service():
 
     def GetResponseNext(self, m_list):
         offset = 0
-        offset += self.typedo.take_PIID_ACD(m_list[offset:], '服务序号-优先级-ACD')
+        offset += self.typedo.take_PIID_ACD(m_list[offset:], 'PIID-ACD')
         offset += self.typedo.take_bool(m_list[offset:], '末帧标志')
         offset += self.typedo.take_long_unsigned(m_list[offset:], '分帧序号')
 
@@ -355,7 +356,7 @@ class Service():
     def GetResponseMD5(self, m_list):
         """GetResponseMD5"""
         offset = 0
-        offset += self.typedo.take_PIID_ACD(m_list[offset:], '服务序号-优先级-ACD')
+        offset += self.typedo.take_PIID_ACD(m_list[offset:], 'PIID-ACD')
         re_choice = m_list[offset]
         choice = {'00': '错误信息', '01': 'MD5值'}
         offset += self.typedo.take_CHOICE(m_list[offset:], '结果', choice_dict=choice)
@@ -368,28 +369,28 @@ class Service():
     def SetRequestNormal(self, m_list):
         """SetRequestNormal"""
         offset = 0
-        offset += self.typedo.take_PIID(m_list[offset:], '服务序号-优先级')
-        offset += self.typedo.take_OAD(m_list[offset:], '一个对象属性描述符')
+        offset += self.typedo.take_PIID(m_list[offset:], 'PIID')
+        offset += self.typedo.take_OAD(m_list[offset:], '一个OAD')
         offset += self.typedo.take_Data(m_list[offset:], '数据')
         return offset
 
     def SetRequestNormalList(self, m_list):
         """SetRequestNormalList"""
         offset = 0
-        offset += self.typedo.take_PIID(m_list[offset:], '服务序号-优先级')
+        offset += self.typedo.take_PIID(m_list[offset:], 'PIID')
         num = int(m_list[offset], 16)
         self.trans_res.add_row(m_list[offset: offset+1],\
                     '若干个对象属性', 'SEQUENCE OF[%d]'%num, num)
         offset += 1
         for _ in range(num):
-            offset += self.typedo.take_OAD(m_list[offset:], '一个对象属性描述符', depth=1)
+            offset += self.typedo.take_OAD(m_list[offset:], '一个OAD', depth=1)
             offset += self.typedo.take_Data(m_list[offset:], '数据', depth=1)
         return offset
 
     def SetThenGetRequestNormalList(self, m_list):
         """SetThenGetRequestNormalList"""
         offset = 0
-        offset += self.typedo.take_PIID(m_list[offset:], '服务序号-优先级')
+        offset += self.typedo.take_PIID(m_list[offset:], 'PIID')
         num = int(m_list[offset], 16)
         self.trans_res.add_row(m_list[offset: offset+1],\
                     '若干个设置后读取对象属性', 'SEQUENCE OF[%d]'%num, num)
@@ -404,43 +405,43 @@ class Service():
     def SetResponseNormal(self, m_list):
         """SetResponseNormal"""
         offset = 0
-        offset += self.typedo.take_PIID_ACD(m_list[offset:], '服务序号-优先级-ACD')
-        offset += self.typedo.take_OAD(m_list[offset:], '一个对象属性描述符')
+        offset += self.typedo.take_PIID_ACD(m_list[offset:], 'PIID-ACD')
+        offset += self.typedo.take_OAD(m_list[offset:], '一个OAD')
         offset += self.typedo.take_DAR(m_list[offset:], '设置执行结果')
         return offset
 
     def SetResponseNormalList(self, m_list):
         """SetResponseNormalList"""
         offset = 0
-        offset += self.typedo.take_PIID_ACD(m_list[offset:], '服务序号-优先级-ACD')
+        offset += self.typedo.take_PIID_ACD(m_list[offset:], 'PIID-ACD')
         num = int(m_list[offset], 16)
         self.trans_res.add_row(m_list[offset: offset+1],\
                     '若干个对象属性设置结果', 'SEQUENCE OF[%d]'%num, num)
         offset += 1
         for _ in range(num):
-            offset += self.typedo.take_OAD(m_list[offset:], '一个对象属性描述符', depth=1)
+            offset += self.typedo.take_OAD(m_list[offset:], '一个OAD', depth=1)
             offset += self.typedo.take_DAR(m_list[offset:], '设置执行结果', depth=1)
         return offset
 
     def SetThenGetResponseNormalList(self, m_list):
         """SetThenGetResponseNormalList"""
         offset = 0
-        offset += self.typedo.take_PIID_ACD(m_list[offset:], '服务序号-优先级-ACD')
+        offset += self.typedo.take_PIID_ACD(m_list[offset:], 'PIID-ACD')
         num = int(m_list[offset], 16)
         self.trans_res.add_row(m_list[offset: offset+1],\
                     '若干个对象属性设置后读取结果', 'SEQUENCE OF[%d]'%num, num)
         offset += 1
         for _ in range(num):
-            offset += self.typedo.take_OAD(m_list[offset:], '一个设置的对象属性描述符', depth=1)
+            offset += self.typedo.take_OAD(m_list[offset:], '一个设置的OAD', depth=1)
             offset += self.typedo.take_DAR(m_list[offset:], '设置执行结果', depth=1)
-            offset += self.typedo.take_OAD(m_list[offset:], '一个读取的对象属性描述符', depth=1)
+            offset += self.typedo.take_OAD(m_list[offset:], '一个读取的OAD', depth=1)
             offset += self.take_Get_Result(m_list[offset:], '读取响应数据', depth=1)
         return offset
 
     def ActionRequest(self, m_list):
         """ActionRequest"""
         offset = 0
-        offset += self.typedo.take_PIID(m_list[offset:], '服务序号-优先级')
+        offset += self.typedo.take_PIID(m_list[offset:], 'PIID')
         offset += self.typedo.take_OMD(m_list[offset:], '一个对象方法描述符')
         offset += self.typedo.take_Data(m_list[offset:], '方法参数')
         return offset
@@ -448,7 +449,7 @@ class Service():
     def ActionRequestList(self, m_list):
         """ActionRequestList"""
         offset = 0
-        offset += self.typedo.take_PIID(m_list[offset:], '服务序号-优先级')
+        offset += self.typedo.take_PIID(m_list[offset:], 'PIID')
         num = int(m_list[offset], 16)
         self.trans_res.add_row(m_list[offset: offset+1],\
                     '若干个对象属性', 'SEQUENCE OF[%d]'%num, num)
@@ -461,7 +462,7 @@ class Service():
     def ActionThenGetRequestNormalList(self, m_list):
         """ActionThenGetRequestNormalList"""
         offset = 0
-        offset += self.typedo.take_PIID(m_list[offset:], '服务序号-优先级')
+        offset += self.typedo.take_PIID(m_list[offset:], 'PIID')
         num = int(m_list[offset], 16)
         self.trans_res.add_row(m_list[offset: offset+1],\
                     '若干个操作对象方法后读取对象属性', 'SEQUENCE OF[%d]'%num, num)
@@ -469,14 +470,14 @@ class Service():
         for _ in range(num):
             offset += self.typedo.take_OMD(m_list[offset:], '一个设置的对象方法描述符', depth=1)
             offset += self.typedo.take_Data(m_list[offset:], '方法参数', depth=1)
-            offset += self.typedo.take_OMD(m_list[offset:], '一个读取的对象属性描述符', depth=1)
+            offset += self.typedo.take_OMD(m_list[offset:], '一个读取的OAD', depth=1)
             offset += self.typedo.take_unsigned(m_list[offset:], '读取延时', depth=1)
         return offset
 
     def ActionResponseNormal(self, m_list):
         """ActionResponseNormal"""
         offset = 0
-        offset += self.typedo.take_PIID_ACD(m_list[offset:], '服务序号-优先级-ACD')
+        offset += self.typedo.take_PIID_ACD(m_list[offset:], 'PIID-ACD')
         offset += self.typedo.take_OMD(m_list[offset:], '一个对象方法描述符')
         offset += self.typedo.take_DAR(m_list[offset:], '操作执行结果')
         optional = m_list[offset]
@@ -488,7 +489,7 @@ class Service():
     def ActionResponseNormalList(self, m_list):
         """ActionResponseNormalList"""
         offset = 0
-        offset += self.typedo.take_PIID_ACD(m_list[offset:], '服务序号-优先级-ACD')
+        offset += self.typedo.take_PIID_ACD(m_list[offset:], 'PIID-ACD')
         num = int(m_list[offset], 16)
         self.trans_res.add_row(m_list[offset: offset+1],\
                     '若干个对象方法操作结果', 'SEQUENCE OF[%d]'%num, num)
@@ -505,7 +506,7 @@ class Service():
     def ActionThenGetResponseNormalList(self, m_list):
         """ActionThenGetResponseNormalList"""
         offset = 0
-        offset += self.typedo.take_PIID_ACD(m_list[offset:], '服务序号-优先级-ACD')
+        offset += self.typedo.take_PIID_ACD(m_list[offset:], 'PIID-ACD')
         num = int(m_list[offset], 16)
         self.trans_res.add_row(m_list[offset: offset+1],\
                     '操作若干个对象方法后读取属性的结果', 'SEQUENCE OF[%d]'%num, num)
@@ -517,17 +518,17 @@ class Service():
             offset += self.typedo.take_OPTIONAL(m_list[offset:], '操作返回数据', depth=1)
             if optional == '01':
                 offset += self.typedo.take_Data(m_list[offset:], '', depth=2)
-            offset += self.typedo.take_OAD(m_list[offset:], '一个读取的对象属性描述符', depth=1)
+            offset += self.typedo.take_OAD(m_list[offset:], '一个读取的OAD', depth=1)
             offset += self.take_Get_Result(m_list[offset:], depth=1)
         return offset
 
     def ReportResponseList(self, m_list):
         """ReportResponseList"""
         offset = 0
-        offset += self.typedo.take_PIID(m_list[offset:], '服务序号-优先级')
+        offset += self.typedo.take_PIID(m_list[offset:], 'PIID')
         num = int(m_list[offset], 16)
         self.trans_res.add_row(m_list[offset: offset+1],\
-                    '对应上报的若干个对象属性描述符', 'SEQUENCE OF OAD[%d]'%num, num)
+                    '对应上报的若干个OAD', 'SEQUENCE OF OAD[%d]'%num, num)
         offset += 1
         for _ in range(num):
             offset += self.typedo.take_OAD(m_list[offset:], depth=1)
@@ -540,13 +541,13 @@ class Service():
     def ReportResponseTransData(self, m_list):
         """ReportResponseTransData"""
         offset = 0
-        offset += self.typedo.take_PIID(m_list[offset:], '服务序号-优先级')
+        offset += self.typedo.take_PIID(m_list[offset:], 'PIID')
         return offset
 
     def ReportNotificationList(self, m_list):
         """ReportNotificationList"""
         offset = 0
-        offset += self.typedo.take_PIID_ACD(m_list[offset:], '服务序号-优先级-ACD')
+        offset += self.typedo.take_PIID_ACD(m_list[offset:], 'PIID-ACD')
         num = int(m_list[offset], 16)
         self.trans_res.add_row(m_list[offset: offset+1],\
                     '若干个对象属性及其数据', 'SEQUENCE OF A-ResultNormal[%d]'%num, num)
@@ -558,7 +559,7 @@ class Service():
     def ReportNotificationRecordList(self, m_list):
         """ReportNotificationRecordList"""
         offset = 0
-        offset += self.typedo.take_PIID_ACD(m_list[offset:], '服务序号-优先级-ACD')
+        offset += self.typedo.take_PIID_ACD(m_list[offset:], 'PIID-ACD')
         num = int(m_list[offset], 16)
         self.trans_res.add_row(m_list[offset: offset+1],\
                     '若干个记录型对象属性及其数据', 'SEQUENCE OF A-ResultNormal[%d]'%num, num)
@@ -570,7 +571,7 @@ class Service():
     def ReportNotificationTransData(self, m_list):
         """ReportNotificationTransData"""
         offset = 0
-        offset += self.typedo.take_PIID_ACD(m_list[offset:], '服务序号-优先级-ACD')
+        offset += self.typedo.take_PIID_ACD(m_list[offset:], 'PIID-ACD')
         offset += self.typedo.take_OAD(m_list[offset:], '数据来源端口')
         num = int(m_list[offset], 16)
         self.trans_res.add_row(m_list[offset: offset+1],\
@@ -583,7 +584,7 @@ class Service():
     def proxy_get_request_list(self, m_list):
         """proxy_get_request_list"""
         offset = 0
-        offset += self.typedo.take_PIID(m_list[offset:], '服务序号-优先级')
+        offset += self.typedo.take_PIID(m_list[offset:], 'PIID')
         offset += self.typedo.take_long_unsigned(m_list[offset:], '整个代理请求的超时时间')
         num = int(m_list[offset], 16)
         self.trans_res.add_row(m_list[offset: offset+1],\
@@ -594,7 +595,7 @@ class Service():
             offset += self.typedo.take_long_unsigned(m_list[offset:], '代理一个服务器的超时时间', depth=1)
             oad_num = int(m_list[offset], 16)
             self.trans_res.add_row(m_list[offset: offset+1],\
-                        '若干个对象属性描述符', 'SEQUENCE OF OAD[%d]'%num, num, depth=1)
+                        '若干个OAD', 'SEQUENCE OF OAD[%d]'%num, num, depth=1)
             offset += 1
             for _ in range(oad_num):
                 offset += self.typedo.take_OAD(m_list[offset:], '', depth=2)
@@ -603,10 +604,10 @@ class Service():
     def ProxyGetRequestRecord(self, m_list):
         """ProxyGetRequestRecord"""
         offset = 0
-        offset += self.typedo.take_PIID(m_list[offset:], '服务序号-优先级')
+        offset += self.typedo.take_PIID(m_list[offset:], 'PIID')
         offset += self.typedo.take_long_unsigned(m_list[offset:], '代理请求的超时时间')
         offset += self.typedo.take_TSA(m_list[offset:], '目标服务器地址')
-        offset += self.typedo.take_OAD(m_list[offset:], '对象属性描述符')
+        offset += self.typedo.take_OAD(m_list[offset:], 'OAD')
         offset += self.typedo.take_RSD(m_list[offset:], '记录选择描述符')
         offset += self.typedo.take_RCSD(m_list[offset:], '记录列选择描述符')
         return offset
@@ -614,7 +615,7 @@ class Service():
     def ProxySetRequestList(self, m_list):
         """ProxySetRequestList"""
         offset = 0
-        offset += self.typedo.take_PIID(m_list[offset:], '服务序号-优先级')
+        offset += self.typedo.take_PIID(m_list[offset:], 'PIID')
         offset += self.typedo.take_long_unsigned(m_list[offset:], '整个代理请求的超时时间')
         num = int(m_list[offset], 16)
         self.trans_res.add_row(m_list[offset: offset+1],\
@@ -625,17 +626,17 @@ class Service():
             offset += self.typedo.take_long_unsigned(m_list[offset:], '代理一个服务器的超时时间', depth=1)
             num1 = int(m_list[offset], 16)
             self.trans_res.add_row(m_list[offset: offset+1],\
-                        '若干个对象属性描述符及其数据', 'SEQUENCE OF[%d]'%num, num, depth=1)
+                        '若干个OAD及其数据', 'SEQUENCE OF[%d]'%num, num, depth=1)
             offset += 1
             for _ in range(num1):
-                offset += self.typedo.take_OAD(m_list[offset:], '对象属性描述符', depth=2)
+                offset += self.typedo.take_OAD(m_list[offset:], 'OAD', depth=2)
                 offset += self.typedo.take_Data(m_list[offset:], '及其数据', depth=2)
         return offset
 
     def ProxySetThenGetRequestList(self, m_list):
         """ProxySetThenGetRequestList"""
         offset = 0
-        offset += self.typedo.take_PIID(m_list[offset:], '服务序号-优先级')
+        offset += self.typedo.take_PIID(m_list[offset:], 'PIID')
         offset += self.typedo.take_long_unsigned(m_list[offset:], '整个代理请求的超时时间')
         num = int(m_list[offset], 16)
         self.trans_res.add_row(m_list[offset: offset+1],\
@@ -649,16 +650,16 @@ class Service():
                         '若干个对象属性的设置后读取', 'SEQUENCE OF[%d]'%num, num, depth=1)
             offset += 1
             for _ in range(num1):
-                offset += self.typedo.take_OAD(m_list[offset:], '设置的对象属性描述符', depth=2)
+                offset += self.typedo.take_OAD(m_list[offset:], '设置的OAD', depth=2)
                 offset += self.typedo.take_Data(m_list[offset:], '及其设置数值', depth=2)
-                offset += self.typedo.take_OAD(m_list[offset:], '读取的对象属性描述符', depth=2)
+                offset += self.typedo.take_OAD(m_list[offset:], '读取的OAD', depth=2)
                 offset += self.typedo.take_unsigned(m_list[offset:], '及其延时读取时间', depth=2)
         return offset
 
     def ProxyActionRequestList(self, m_list):
         """ProxyActionRequestList"""
         offset = 0
-        offset += self.typedo.take_PIID(m_list[offset:], '服务序号-优先级')
+        offset += self.typedo.take_PIID(m_list[offset:], 'PIID')
         offset += self.typedo.take_long_unsigned(m_list[offset:], '整个代理请求的超时时间')
         num = int(m_list[offset], 16)
         self.trans_res.add_row(m_list[offset: offset+1],\
@@ -679,7 +680,7 @@ class Service():
     def ProxyActionThenGetRequestList(self, m_list):
         """ProxyActionThenGetRequestList"""
         offset = 0
-        offset += self.typedo.take_PIID(m_list[offset:], '服务序号-优先级')
+        offset += self.typedo.take_PIID(m_list[offset:], 'PIID')
         offset += self.typedo.take_long_unsigned(m_list[offset:], '整个代理请求的超时时间')
         num = int(m_list[offset], 16)
         self.trans_res.add_row(m_list[offset: offset+1],\
@@ -695,14 +696,14 @@ class Service():
             for _ in range(num1):
                 offset += self.typedo.take_OMD(m_list[offset:], '操作的对象方法描述符', depth=2)
                 offset += self.typedo.take_Data(m_list[offset:], '及其方法参数', depth=2)
-                offset += self.typedo.take_OAD(m_list[offset:], '读取的对象属性描述符', depth=2)
+                offset += self.typedo.take_OAD(m_list[offset:], '读取的OAD', depth=2)
                 offset += self.typedo.take_unsigned(m_list[offset:], '延时读取时间', depth=2)
         return offset
 
     def ProxyTransCommandRequest(self, m_list):
         """ProxyTransCommandRequest"""
         offset = 0
-        offset += self.typedo.take_PIID(m_list[offset:], '服务序号-优先级')
+        offset += self.typedo.take_PIID(m_list[offset:], 'PIID')
         offset += self.typedo.take_OAD(m_list[offset:], '数据转发端口')
         offset += self.typedo.take_COMDCB(m_list[offset:], '端口通信控制块')
         offset += self.typedo.take_long_unsigned(m_list[offset:], '接收等待报文超时时间（秒）')
@@ -713,7 +714,7 @@ class Service():
     def ProxyGetResponseList(self, m_list):
         """ProxyGetResponseList"""
         offset = 0
-        offset += self.typedo.take_PIID_ACD(m_list[offset:], '服务序号-优先级-ACD')
+        offset += self.typedo.take_PIID_ACD(m_list[offset:], 'PIID-ACD')
         num = int(m_list[offset], 16)
         self.trans_res.add_row(m_list[offset: offset+1],\
                     '代理若干个服务器的读取结果', 'SEQUENCE OF[%d]'%num, num)
@@ -722,17 +723,17 @@ class Service():
             offset += self.typedo.take_TSA(m_list[offset:], '一个目标服务器地址', depth=1)
             num1 = int(m_list[offset], 16)
             self.trans_res.add_row(m_list[offset: offset+1],\
-                        '若干个对象属性描述符及其结果', 'SEQUENCE OF[%d]'%num, num, depth=1)
+                        '若干个OAD及其结果', 'SEQUENCE OF[%d]'%num, num, depth=1)
             offset += 1
             for _ in range(num1):
-                offset += self.typedo.take_OAD(m_list[offset:], '对象属性描述符', depth=2)
+                offset += self.typedo.take_OAD(m_list[offset:], 'OAD', depth=2)
                 offset += self.take_Get_Result(m_list[offset:], '及其读取结果', depth=2)
         return offset
 
     def ProxyGetResponseRecord(self, m_list):
         """ProxyGetResponseRecord"""
         offset = 0
-        offset += self.typedo.take_PIID_ACD(m_list[offset:], '服务序号-优先级-ACD')
+        offset += self.typedo.take_PIID_ACD(m_list[offset:], 'PIID-ACD')
         offset += self.typedo.take_TSA(m_list[offset:], '目标服务器地址')
         offset += self.take_A_ResultRecord(m_list[offset:], '一个记录型对象属性及其结果')
         return offset
@@ -740,7 +741,7 @@ class Service():
     def ProxySetResponseList(self, m_list):
         """ProxySetResponseList"""
         offset = 0
-        offset += self.typedo.take_PIID_ACD(m_list[offset:], '服务序号-优先级-ACD')
+        offset += self.typedo.take_PIID_ACD(m_list[offset:], 'PIID-ACD')
         num = int(m_list[offset], 16)
         self.trans_res.add_row(m_list[offset: offset+1],\
                     '代理若干个服务器的读取结果', 'SEQUENCE OF[%d]'%num, num)
@@ -749,17 +750,17 @@ class Service():
             offset += self.typedo.take_TSA(m_list[offset:], '一个目标服务器地址', depth=1)
             num1 = int(m_list[offset], 16)
             self.trans_res.add_row(m_list[offset: offset+1],\
-                        '若干个对象属性描述符及其结果', 'SEQUENCE OF[%d]'%num, num, depth=1)
+                        '若干个OAD及其结果', 'SEQUENCE OF[%d]'%num, num, depth=1)
             offset += 1
             for _ in range(num1):
-                offset += self.typedo.take_OAD(m_list[offset:], '对象属性描述符', depth=2)
+                offset += self.typedo.take_OAD(m_list[offset:], 'OAD', depth=2)
                 offset += self.typedo.take_DAR(m_list[offset:], '及其设置结果', depth=2)
         return offset
 
     def ProxySetThenGetResponseList(self, m_list):
         """ProxySetThenGetResponseList"""
         offset = 0
-        offset += self.typedo.take_PIID_ACD(m_list[offset:], '服务序号-优先级-ACD')
+        offset += self.typedo.take_PIID_ACD(m_list[offset:], 'PIID-ACD')
         num = int(m_list[offset], 16)
         self.trans_res.add_row(m_list[offset: offset+1],\
                     '代理若干个服务器的设置后读取结果', 'SEQUENCE OF[%d]'%num, num)
@@ -771,16 +772,16 @@ class Service():
                         '若干个对象属性设置后读取结果', 'SEQUENCE OF[%d]'%num, num, depth=1)
             offset += 1
             for _ in range(num1):
-                offset += self.typedo.take_OAD(m_list[offset:], '设置的对象属性描述符', depth=2)
+                offset += self.typedo.take_OAD(m_list[offset:], '设置的OAD', depth=2)
                 offset += self.typedo.take_DAR(m_list[offset:], '及其设置结果', depth=2)
-                offset += self.typedo.take_OAD(m_list[offset:], '读取的对象属性描述符', depth=2)
+                offset += self.typedo.take_OAD(m_list[offset:], '读取的OAD', depth=2)
                 offset += self.take_Get_Result(m_list[offset:], '及其读取结果', depth=2)
         return offset
 
     def ProxyActionResponseList(self, m_list):
         """ProxyActionResponseList"""
         offset = 0
-        offset += self.typedo.take_PIID_ACD(m_list[offset:], '服务序号-优先级-ACD')
+        offset += self.typedo.take_PIID_ACD(m_list[offset:], 'PIID-ACD')
         num = int(m_list[offset], 16)
         self.trans_res.add_row(m_list[offset: offset+1],\
                     '代理若干个服务器的操作结果', 'SEQUENCE OF[%d]'%num, num)
@@ -803,7 +804,7 @@ class Service():
     def ProxyActionThenGetResponseList(self, m_list):
         """ProxyActionThenGetResponseList"""
         offset = 0
-        offset += self.typedo.take_PIID_ACD(m_list[offset:], '服务序号-优先级-ACD')
+        offset += self.typedo.take_PIID_ACD(m_list[offset:], 'PIID-ACD')
         num = int(m_list[offset], 16)
         self.trans_res.add_row(m_list[offset: offset+1],\
                     '代理若干个服务器的操作后读取结果', 'SEQUENCE OF[%d]'%num, num)
@@ -821,14 +822,14 @@ class Service():
                 offset += self.typedo.take_OPTIONAL(m_list[offset:], '操作返回数据', depth=2)
                 if optional == '01':
                     offset += self.typedo.take_Data(m_list[offset:], '', depth=3)
-                offset += self.typedo.take_OAD(m_list[offset:], '读取的对象属性描述符', depth=2)
+                offset += self.typedo.take_OAD(m_list[offset:], '读取的OAD', depth=2)
                 offset += self.take_Get_Result(m_list[offset:], '及其读取结果', depth=2)
         return offset
 
     def ProxyTransCommandResponse(self, m_list):
         """ProxyTransCommandResponse"""
         offset = 0
-        offset += self.typedo.take_PIID_ACD(m_list[offset:], '服务序号-优先级-ACD')
+        offset += self.typedo.take_PIID_ACD(m_list[offset:], 'PIID-ACD')
         offset += self.typedo.take_OAD(m_list[offset:], '数据转发端口')
         trans_result_choice = m_list[offset]
         offset += self.typedo.take_CHOICE(m_list[offset:], '透明转发命令返回结果',\

@@ -1,6 +1,5 @@
 """handle with 698 link layer"""
 import master.trans.common as commonfun
-from master import config
 
 
 def take_linklayer1(m_list, trans_res):
@@ -58,7 +57,7 @@ def take_linklayer1(m_list, trans_res):
     trans_res.add_row(m_list[offset: offset+server_addr_len+1], '服务器地址', 'SA',\
                     '逻辑地址[%s], %s[%s]'%(server_logic_addr, server_addr_type, server_addr), priority=0)
     offset += server_addr_len + 1
-    trans_res.add_row(m_list[offset: offset+1], '客户机地址', 'CA', m_list[offset], priority=0)
+    trans_res.add_row(m_list[offset: offset+1], '客户机地址', 'CA', '{0:d}/{0:02X}H'.format(int(m_list[offset], 16)), priority=0)
     offset += 1
 
     # 帧头校验
@@ -107,20 +106,20 @@ def take_linklayer2(m_list, offset, trans_res):
     return offset - offset_temp
 
 
-def add_linkLayer(m_list, CA_text='00', SA_text='00000001', logic_addr=0, SA_type=0, C_text='43'):
+def add_linkLayer(apdu_list, CA_text='00', SA_text='00000001', logic_addr=0, SA_type=0, C_text='43'):
     """add linklayer"""
     SA_list = commonfun.text2list(SA_text)
     SA_list.reverse()  # 小端
     SA_text = ''.join(SA_list)
     if len(SA_text) % 2 == 1:
         SA_text += '0'
-    L_text = '{0:04X}'.format(len(SA_text) // 2 + 9 + len(m_list))
+    L_text = '{0:04X}'.format(len(SA_text) // 2 + 9 + len(apdu_list))
     L_text = L_text[2:4] + L_text[0:2]
     SA_param_text = '{0:02X}'.format(((len(SA_text) // 2 - 1) & 0x0f) | ((logic_addr & 0x03) << 4) | ((SA_type & 0x03) << 6))
     hcs_clac_aera_text = L_text + C_text + SA_param_text + SA_text + CA_text
     hcs_calc = commonfun.get_fcs(commonfun.text2list(hcs_clac_aera_text))
     hcs_calc = ((hcs_calc << 8) | (hcs_calc >> 8)) & 0xffff  # 低位在前
-    fcs_calc_aera_text = hcs_clac_aera_text + '{0:04X}'.format(hcs_calc) + commonfun.list2text(m_list)
+    fcs_calc_aera_text = hcs_clac_aera_text + '{0:04X}'.format(hcs_calc) + commonfun.list2text(apdu_list)
     fcs_calc = commonfun.get_fcs(commonfun.text2list(fcs_calc_aera_text))
     fcs_calc = ((fcs_calc << 8) | (fcs_calc >> 8)) & 0xffff  # 低位在前
 
