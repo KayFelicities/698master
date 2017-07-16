@@ -378,8 +378,8 @@ class ParamWindow(QtGui.QMainWindow, QtGui.QWidget, Ui_ParamWindow):
             offset += 3
             offset += 1
             overtm_retry_num_byte = int(data[offset], 16)
-            self.C_retry_box.setText(str(overtm_retry_num_byte >> 6))
-            self.C_over_tm_box.setText(str(overtm_retry_num_byte & 0x3f))
+            self.C_retry_box.setText(str(overtm_retry_num_byte & 0x03))
+            self.C_over_tm_box.setText(str(overtm_retry_num_byte >> 2))
             offset += 1
             self.C_heart_tm_box.setText(str(param.get_long_unsigned(data[offset:])))
             offset += 3

@@ -52,14 +52,13 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
         self.connect(self.oad_box, QtCore.SIGNAL("returnPressed()"), self.send_read_oad)
         self.oad_box.textChanged.connect(self.explain_oad)
 
-        self.about_action.triggered.connect(self.show_about_window)
+        self.about_action.triggered.connect(lambda: config.ABOUT_WINDOW.show() or config.ABOUT_WINDOW.showNormal() or config.ABOUT_WINDOW.activateWindow())
         self.link_action.triggered.connect(self.show_commu_window)
-        self.general_cmd_action.triggered.connect(self.show_general_cmd_window)
+        self.general_cmd_action.triggered.connect(lambda: self.general_cmd_dialog.show() or self.general_cmd_dialog.showNormal() or self.general_cmd_dialog.activateWindow())
         self.get_set_service_action.triggered.connect(self.show_get_service_window)
-        self.apdu_diy_action.triggered.connect(lambda: self.apdu_diy_dialog.show() or self.apdu_diy_dialog.activateWindow())
-        self.msg_diy_action.triggered.connect(lambda: self.msg_diy_dialog.show() or self.msg_diy_dialog.activateWindow())
-
-        self.remote_update_action.triggered.connect(self.show_remote_update_window)
+        self.apdu_diy_action.triggered.connect(lambda: self.apdu_diy_dialog.show() or self.apdu_diy_dialog.showNormal() or self.apdu_diy_dialog.activateWindow())
+        self.msg_diy_action.triggered.connect(lambda: self.msg_diy_dialog.show() or self.msg_diy_dialog.showNormal() or self.msg_diy_dialog.activateWindow())
+        self.remote_update_action.triggered.connect(lambda: self.remote_update_dialog.show() or self.remote_update_dialog.showNormal() or self.remote_update_dialog.activateWindow())
 
         self.tmn_table_add_b.clicked.connect(lambda:\
                             self.add_tmn_table_row('000000000001', 0, 1, is_checked=True))
@@ -274,24 +273,12 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
 
     def set_reply_link(self):
         """set_reply_link"""
-        self.is_reply_link = True if self.reply_link_cb.isChecked() else False
+        self.is_reply_link = self.reply_link_cb.isChecked()
 
 
     def set_reply_rpt(self):
         """set_reply_rpt"""
-        self.is_reply_rpt = True if self.reply_rpt_cb.isChecked() else False
-
-
-    def show_about_window(self):
-        """show_about_window"""
-        config.ABOUT_WINDOW.show()
-        config.ABOUT_WINDOW.activateWindow()
-
-
-    def show_commu_window(self):
-        """show_commu_window"""
-        self.commu_dialog.show()
-        self.commu_dialog.activateWindow()
+        self.is_reply_rpt = self.reply_rpt_cb.isChecked()
 
 
     def show_get_service_window(self):
@@ -300,17 +287,11 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
         self.get_set_service_dialog.activateWindow()
 
 
-    def show_general_cmd_window(self):
-        """show_general_cmd_window"""
-        self.general_cmd_dialog.show()
-        self.general_cmd_dialog.activateWindow()
-
-
-    def show_remote_update_window(self):
-        """remote_update_dialog"""
-        self.remote_update_dialog.show()
-        self.remote_update_dialog.activateWindow()
-
+    def show_commu_window(self):
+        """show commu window"""
+        self.commu_dialog.show()
+        self.commu_dialog.showNormal()
+        self.commu_dialog.activateWindow()
 
     def send_read_oad(self):
         """send message"""

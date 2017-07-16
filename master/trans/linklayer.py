@@ -57,7 +57,7 @@ def take_linklayer1(m_list, trans_res):
     trans_res.add_row(m_list[offset: offset+server_addr_len+1], '服务器地址', 'SA',\
                     '逻辑地址[%s], %s[%s]'%(server_logic_addr, server_addr_type, server_addr), priority=0)
     offset += server_addr_len + 1
-    trans_res.add_row(m_list[offset: offset+1], '客户机地址', 'CA', '{0:d}/{0:02X}H'.format(int(m_list[offset], 16)), priority=0)
+    trans_res.add_row(m_list[offset: offset+1], '客户机地址', 'CA', '{0:02X}'.format(int(m_list[offset], 16)), priority=0)
     offset += 1
 
     # 帧头校验
