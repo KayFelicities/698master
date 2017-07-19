@@ -1,6 +1,8 @@
 """handle with 698 service"""
 import master.trans.datatype as typedo
+from master.trans import common
 from master.datas import services
+from master.datas import oad_omd
 
 def take_applayer(m_list, trans_res):
     """take_applayer"""
@@ -98,7 +100,10 @@ class Service():
         if result == '00':  # 错误信息
             offset += self.typedo.take_DAR(m_list[offset:], '错误信息', depth=depth)
         elif result == '01':  # 数据
-            offset += self.typedo.take_Data(m_list[offset:], '数据', depth=depth, oad=oad)
+            structure = []
+            if oad:
+                structure = oad_omd.get_structure('oad', oad)
+            offset += self.typedo.take_Data(m_list[offset:], '数据', depth=depth, structure=structure)
         return offset
 
     def take_A_ResultNormal(self, m_list, brief='', depth=0):
@@ -114,6 +119,7 @@ class Service():
         offset = 0
         offset += self.typedo.take_OAD(m_list[offset:], '记录型OAD', depth=depth)
         csd_num = int(m_list[offset], 16)
+        # rcsd_structure = common.get_rcsd_structure(m_list[offset:])
         offset += self.typedo.take_RCSD(m_list[offset:], '一行记录N列属性描述符', depth=depth)
         re_data_choice = m_list[offset]
         offset += self.typedo.take_CHOICE(m_list[offset:], '响应数据',\
@@ -122,7 +128,7 @@ class Service():
             offset += self.typedo.take_DAR(m_list[offset:], '错误信息', depth=depth)
         elif re_data_choice == '01':  # M条记录
             num = int(m_list[offset], 16)
-            self.trans_res.add_row(m_list[offset: offset+1], 'M条记录',\
+            self.trans_res.add_row(m_list[offset: offset+1], '%d条记录'%num,\
                                     'SEQUENCE OF A-RecordRow[%d]'%num, num, depth=depth)
             offset += 1
             for _ in range(num):

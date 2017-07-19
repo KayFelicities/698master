@@ -1,5 +1,6 @@
 """handle with 698 datatypes"""
 from master.datas import oad_omd, units, dars
+import copy
 
 
 class TypeDo():
@@ -134,103 +135,149 @@ class TypeDo():
         return offset
 
 
-    def take_Data(self, m_list, brief='', depth=0, oad=''):
+    def take_Data(self, m_list, brief='', depth=0, structure=None):
         """take data"""
-        # structure = oad_omd.get_structure(oad)
-
+        # print('data structure:', structure)
         offset = 0
         data_type = m_list[offset]
         if data_type == '00':    # 对null类型特殊处理
-            offset += self.take_NULL(m_list[offset:], depth=depth)
+            data_info = structure.pop(0) if structure else None
+            offset += self.take_NULL(m_list[offset:], depth=depth, data_info=data_info)
             return offset
         offset += 1
         self.trans_res.add_row(m_list[:offset], brief, 'Data', data_type, depth=depth)
-        offset += {
-            '00': self.take_NULL,
-            '01': self.take_array,
-            '02': self.take_structure,
-            '03': self.take_bool,
-            '04': self.take_bit_string,
-            '05': self.take_double_long,
-            '06': self.take_double_long_unsigned,
-            '09': self.take_octect_string,
-            '0A': self.take_visible_string,
-            '0C': self.take_UTF8_string,
-            '0F': self.take_integer,
-            '10': self.take_long,
-            '11': self.take_unsigned,
-            '12': self.take_long_unsigned,
-            '14': self.take_long64,
-            '15': self.take_long64_unsigned,
-            '16': self.take_enum,
-            '17': self.take_float32,
-            '18': self.take_float64,
-            '19': self.take_date_time,
-            '1A': self.take_date,
-            '1B': self.take_time,
-            '1C': self.take_date_time_s,
-            '50': self.take_OI,
-            '51': self.take_OAD,
-            '52': self.take_ROAD,
-            '53': self.take_OMD,
-            '54': self.take_TI,
-            '55': self.take_TSA,
-            '56': self.take_MAC,
-            '57': self.take_RN,
-            '58': self.take_Region,
-            '59': self.take_Scaler_Unit,
-            '5A': self.take_RSD,
-            '5B': self.take_CSD,
-            '5C': self.take_MS,
-            '5D': self.take_SID,
-            '5E': self.take_SID_MAC,
-            '5F': self.take_COMDCB,
-            '60': self.take_RCSD,
-        }[data_type](m_list[offset:], brief=brief, depth=depth)
-        return offset
+        if data_type == '01':  # array
+            if structure:
+                data_type = structure.pop(0)
+                if data_type[1] == 'array':
+                    brief += data_type[0] if structure else ''
+                else:
+                    structure = []
+                    print('array data type err: %s'%data_type[1])
+            offset += self.take_array(m_list[offset:], brief=brief, depth=depth, structure=structure)
+            return offset
+        elif data_type == '02':  # structure
+            if structure:
+                data_type = structure.pop(0)
+                if data_type[1] == 'structure':
+                    brief += data_type[0] if structure else ''
+                else:
+                    structure = []
+                    print('structure data type err: %s'%data_type[1])
+            offset += self.take_structure(m_list[offset:], brief=brief, depth=depth, structure=structure)
+            return offset
+        elif data_type == '16':  # enum
+            enum_dict = None
+            if structure:
+                member = structure.pop(0)
+                if member[1] == 'enum':
+                    brief = member[0]
+                    enum_dict = member[2]
+            offset += self.take_enum(m_list[offset:], brief=brief, depth=depth, enum_dict=enum_dict)
+            return offset
+        else:
+            data_info = structure.pop(0) if structure else None
+            offset += {
+                '00': self.take_NULL,
+                # '01': self.take_array,
+                # '02': self.take_structure,
+                '03': self.take_bool,
+                '04': self.take_bit_string,
+                '05': self.take_double_long,
+                '06': self.take_double_long_unsigned,
+                '09': self.take_octect_string,
+                '0A': self.take_visible_string,
+                '0C': self.take_UTF8_string,
+                '0F': self.take_integer,
+                '10': self.take_long,
+                '11': self.take_unsigned,
+                '12': self.take_long_unsigned,
+                '14': self.take_long64,
+                '15': self.take_long64_unsigned,
+                '16': self.take_enum,
+                '17': self.take_float32,
+                '18': self.take_float64,
+                '19': self.take_date_time,
+                '1A': self.take_date,
+                '1B': self.take_time,
+                '1C': self.take_date_time_s,
+                '50': self.take_OI,
+                '51': self.take_OAD,
+                '52': self.take_ROAD,
+                '53': self.take_OMD,
+                '54': self.take_TI,
+                '55': self.take_TSA,
+                '56': self.take_MAC,
+                '57': self.take_RN,
+                '58': self.take_Region,
+                '59': self.take_Scaler_Unit,
+                '5A': self.take_RSD,
+                '5B': self.take_CSD,
+                '5C': self.take_MS,
+                '5D': self.take_SID,
+                '5E': self.take_SID_MAC,
+                '5F': self.take_COMDCB,
+                '60': self.take_RCSD,
+            }[data_type](m_list[offset:], brief=brief, depth=depth, data_info=data_info)
+            return offset
 
 
-    def take_NULL(self, m_list, brief='', depth=0):
+    def take_NULL(self, m_list, brief='', depth=0, data_info=None):
         """take_NULL"""
         offset = 0
         offset += 1
-        self.trans_res.add_row(m_list[:offset], brief, 'NULL', depth=depth)
+        add_brief = data_info[0] if data_info else ''
+        self.trans_res.add_row(m_list[:offset], brief + add_brief, 'NULL', depth=depth)
         return offset
 
 
-    def take_array(self, m_list, brief='', depth=0):
+    def take_array(self, m_list, brief='', depth=0, structure=None, data_info=None):
         """take_array"""
         offset = 0
         num = int(m_list[offset], 16)
         offset += 1
-        self.trans_res.add_row(m_list[:offset], brief, 'array[%d]'%num, num, depth=depth)
+        add_brief = data_info[0] if data_info else ''
+        self.trans_res.add_row(m_list[:offset], brief + add_brief, 'array[%d]'%num, num, depth=depth)
+        array_structure = None
+        if structure:
+            array_structure = structure.pop(0)
+            if array_structure[1] in ['array', 'structure']:
+                array_structure = [array_structure]
+            while array_structure[-1][1] in ['array', 'structure']: # array or structure in array
+                array_structure.append(structure.pop(0))
         for _ in range(num):
-            offset += self.take_Data(m_list[offset:], depth=depth + 1)
+            temp_structure = copy.deepcopy(array_structure)
+            print('array_structure:', temp_structure)
+            offset += self.take_Data(m_list[offset:], depth=depth + 1, structure=temp_structure)
         return offset
 
 
-    def take_structure(self, m_list, brief='', depth=0):
+    def take_structure(self, m_list, brief='', depth=0, structure=None, data_info=None):
         """take_structure"""
         offset = 0
         num = int(m_list[offset], 16)
         offset += 1
-        self.trans_res.add_row(m_list[:offset], brief, 'structure[%d]'%num, num, depth=depth)
+        add_brief = data_info[0] if data_info else ''
+        self.trans_res.add_row(m_list[:offset], brief + add_brief, 'structure[%d]'%num, num, depth=depth)
+        if structure:
+            structure = structure.pop(0)
         for _ in range(num):
-            offset += self.take_Data(m_list[offset:], depth=depth + 1)
+            offset += self.take_Data(m_list[offset:], depth=depth + 1, structure=structure)
         return offset
 
 
-    def take_bool(self, m_list, brief='', depth=0):
+    def take_bool(self, m_list, brief='', depth=0, data_info=None):
         """take_bool"""
         offset = 0
         bool_value = False if m_list[offset] == '00' else True
         offset += 1
+        add_brief = data_info[0] if data_info else ''
         self.trans_res.add_row(m_list[:offset],\
-                brief, 'bool', '真' if bool_value else '假', depth=depth)
+                brief + add_brief, 'bool', '真' if bool_value else '假', depth=depth)
         return offset
 
 
-    def take_bit_string(self, m_list, bit_len=None, brief='', depth=0):
+    def take_bit_string(self, m_list, bit_len=None, brief='', depth=0, data_info=None):
         """take_bit_string"""
         offset = 0
         if bit_len is None:
@@ -242,12 +289,13 @@ class TypeDo():
         offset += byte_len
         bit_value = '空' if byte_len == 0\
                 else str(bin(int(bit_string_text, 16))).split('b')[1].rjust(bit_len, '0')
-        self.trans_res.add_row(m_list[:offset], brief, 'bit-string[%d]'%bit_len,\
+        add_brief = data_info[0] if data_info else ''
+        self.trans_res.add_row(m_list[:offset], brief + add_brief, 'bit-string[%d]'%bit_len,\
                                 bit_value, depth=depth)
         return offset
 
 
-    def take_double_long(self, m_list, brief='', depth=0):
+    def take_double_long(self, m_list, brief='', depth=0, data_info=None):
         """take_double_long"""
         offset = 0
         if int(m_list[offset], 16) >> 7 == 1:  # 负数
@@ -255,34 +303,46 @@ class TypeDo():
         else:
             value = int(''.join(m_list[offset: offset + 4]), 16)
         offset += 4
-        self.trans_res.add_row(m_list[:offset], brief, 'double-long', value, depth=depth)
+        add_brief = data_info[0] if data_info else ''
+        unit = data_info[2].get('unit', '') if data_info else ''
+        scaler = int(data_info[2].get('scaler', '0')) if data_info else 0
+        self.trans_res.add_row(m_list[:offset], brief + add_brief, 'double-long',\
+                                value, unit=unit, scaler=scaler, depth=depth)
         return offset
 
 
-    def take_double_long_unsigned(self, m_list, brief='', depth=0):
+    def take_double_long_unsigned(self, m_list, brief='', depth=0, data_info=None):
         """take_double_long_unsigned"""
         offset = 0
         value = int(''.join(m_list[offset: offset + 4]), 16)
         offset += 4
-        self.trans_res.add_row(m_list[:offset], brief, 'double-long-unsigned', value, depth=depth)
+        add_brief = data_info[0] if data_info else ''
+        unit = data_info[2].get('unit', '') if data_info else ''
+        scaler = int(data_info[2].get('scaler', '0')) if data_info else 0
+        self.trans_res.add_row(m_list[:offset], brief + add_brief, 'double-long-unsigned',\
+                                value, unit=unit, scaler=scaler, depth=depth)
         return offset
 
 
-    def take_octect_string(self, m_list, brief='', string_len=None, depth=0):
+    def take_octect_string(self, m_list, brief='', string_len=None, depth=0, data_info=None):
         """take_octect_string"""
         offset = 0
         if string_len is None:
             res = self.take_axdr_len(m_list[offset:])
             offset += res['offset']
             string_len = res['len']
-        string_text = ''.join(m_list[offset: offset+string_len])
+        add_brief = data_info[0] if data_info else ''
+        if add_brief.find('IP') >= 0 or brief.find('ip') >= 0:
+            string_text = '.'.join([str(int(x, 16)) for x in m_list[offset: offset+string_len]])
+        else:
+            string_text = ''.join(m_list[offset: offset+string_len])
         offset += string_len
-        self.trans_res.add_row(m_list[:offset], brief,\
+        self.trans_res.add_row(m_list[:offset], brief + add_brief,\
                 'octect-string[%d]'%string_len, string_text, depth=depth)
         return offset
 
 
-    def take_visible_string(self, m_list, brief='', string_len=None, depth=0):
+    def take_visible_string(self, m_list, brief='', string_len=None, depth=0, data_info=None):
         """take_visible_string"""
         offset = 0
         if string_len is None:
@@ -293,12 +353,13 @@ class TypeDo():
         for char in m_list[offset: offset + string_len]:
             string_text += chr(int(char, 16))
         offset += string_len
-        self.trans_res.add_row(m_list[:offset], brief,\
+        add_brief = data_info[0] if data_info else ''
+        self.trans_res.add_row(m_list[:offset], brief + add_brief,\
                 'visible-string[%d]'%string_len, string_text, depth=depth)
         return offset
 
 
-    def take_UTF8_string(self, m_list, brief='', string_len=None, depth=0):
+    def take_UTF8_string(self, m_list, brief='', string_len=None, depth=0, data_info=None):
         """take_UTF8_string"""
         offset = 0
         if string_len is None:
@@ -307,12 +368,13 @@ class TypeDo():
             string_len = res['len']
         string_text = ''.join(m_list[offset: offset+string_len])
         offset += string_len
-        self.trans_res.add_row(m_list[:offset], brief,\
+        add_brief = data_info[0] if data_info else ''
+        self.trans_res.add_row(m_list[:offset], brief + add_brief,\
                 'UTF8-string[%d]'%string_len, string_text, depth=depth)
         return offset
 
 
-    def take_integer(self, m_list, brief='', depth=0):
+    def take_integer(self, m_list, brief='', depth=0, data_info=None):
         """take_integer"""
         offset = 0
         if int(m_list[offset], 16) >> 7 == 1:  # 负数
@@ -320,11 +382,15 @@ class TypeDo():
         else:
             value = int(m_list[offset], 16)
         offset += 1
-        self.trans_res.add_row(m_list[:offset], brief, 'integer', value, depth=depth)
+        add_brief = data_info[0] if data_info else ''
+        unit = data_info[2].get('unit', '') if data_info else ''
+        scaler = int(data_info[2].get('scaler', '0')) if data_info else 0
+        self.trans_res.add_row(m_list[:offset], brief + add_brief, 'integer',\
+                                value, unit=unit, scaler=scaler, depth=depth)
         return offset
 
 
-    def take_long(self, m_list, brief='', depth=0):
+    def take_long(self, m_list, brief='', depth=0, data_info=None):
         """take_long"""
         offset = 0
         if int(m_list[offset], 16) >> 7 == 1:  # 负数
@@ -332,29 +398,41 @@ class TypeDo():
         else:
             value = int(m_list[offset] + m_list[offset + 1], 16)
         offset += 2
-        self.trans_res.add_row(m_list[:offset], brief, 'long', value, depth=depth)
+        add_brief = data_info[0] if data_info else ''
+        unit = data_info[2].get('unit', '') if data_info else ''
+        scaler = int(data_info[2].get('scaler', '0')) if data_info else 0
+        self.trans_res.add_row(m_list[:offset], brief + add_brief, 'long',\
+                                value, unit=unit, scaler=scaler, depth=depth)
         return offset
 
 
-    def take_unsigned(self, m_list, brief='', depth=0):
+    def take_unsigned(self, m_list, brief='', depth=0, data_info=None):
         """take_unsigned"""
         offset = 0
         value = int(m_list[offset], 16)
         offset += 1
-        self.trans_res.add_row(m_list[:offset], brief, 'unsigned', value, depth=depth)
+        add_brief = data_info[0] if data_info else ''
+        unit = data_info[2].get('unit', '') if data_info else ''
+        scaler = int(data_info[2].get('scaler', '0')) if data_info else 0
+        self.trans_res.add_row(m_list[:offset], brief + add_brief, 'unsigned',\
+                                value, unit=unit, scaler=scaler, depth=depth)
         return offset
 
 
-    def take_long_unsigned(self, m_list, brief='', depth=0):
+    def take_long_unsigned(self, m_list, brief='', depth=0, data_info=None):
         """take_long_unsigned"""
         offset = 0
         value = int(m_list[offset] + m_list[offset + 1], 16)
         offset += 2
-        self.trans_res.add_row(m_list[:offset], brief, 'long-unsigned', value, depth=depth)
+        add_brief = data_info[0] if data_info else ''
+        unit = data_info[2].get('unit', '') if data_info else ''
+        scaler = int(data_info[2].get('scaler', '0')) if data_info else 0
+        self.trans_res.add_row(m_list[:offset], brief + add_brief, 'long-unsigned',\
+                                value, unit=unit, scaler=scaler, depth=depth)
         return offset
 
 
-    def take_long64(self, m_list, brief='', depth=0):
+    def take_long64(self, m_list, brief='', depth=0, data_info=None):
         """take_long64"""
         offset = 0
         if int(m_list[offset], 16) >> 7 == 1:  # 负数
@@ -362,31 +440,40 @@ class TypeDo():
         else:
             value = int(''.join(m_list[offset : offset + 8]), 16)
         offset += 8
-        self.trans_res.add_row(m_list[:offset], brief, 'long64', value, depth=depth)
+        add_brief = data_info[0] if data_info else ''
+        unit = data_info[2].get('unit', '') if data_info else ''
+        scaler = int(data_info[2].get('scaler', '0')) if data_info else 0
+        self.trans_res.add_row(m_list[:offset], brief + add_brief, 'long64',\
+                                value, unit=unit, scaler=scaler, depth=depth)
         return offset
 
 
-    def take_long64_unsigned(self, m_list, brief='', depth=0):
+    def take_long64_unsigned(self, m_list, brief='', depth=0, data_info=None):
         """take_long64_unsigned"""
         offset = 0
         value = int(''.join(m_list[offset : offset + 8]), 16)
         offset += 8
-        self.trans_res.add_row(m_list[:offset], brief, 'long64-unsigned', value, depth=depth)
+        add_brief = data_info[0] if data_info else ''
+        unit = data_info[2].get('unit', '') if data_info else ''
+        scaler = int(data_info[2].get('scaler', '0')) if data_info else 0
+        self.trans_res.add_row(m_list[:offset], brief + add_brief, 'long64-unsigned',\
+                                value, unit=unit, scaler=scaler, depth=depth)
         return offset
 
 
-    def take_enum(self, m_list, brief='', depth=0, enum_dict=None):
+    def take_enum(self, m_list, brief='', depth=0, enum_dict=None, data_info=None):
         """take_enum"""
         offset = 0
         enum_explain = ''
         if enum_dict is not None:
             enum_explain = enum_dict.get(m_list[offset], '错误')
         offset += 1
-        self.trans_res.add_row(m_list[:offset], brief, 'enum', enum_explain, depth=depth)
+        add_brief = data_info[0] if data_info else ''
+        self.trans_res.add_row(m_list[:offset], brief + add_brief, 'enum', enum_explain, depth=depth)
         return offset
 
 
-    def take_float32(self, m_list, brief='', depth=0):
+    def take_float32(self, m_list, brief='', depth=0, data_info=None):
         """take_float32, Kay check!"""
         offset = 0
         if int(m_list[offset], 16) >> 7 == 1:  # 负数
@@ -394,11 +481,12 @@ class TypeDo():
         else:
             value = int(''.join(m_list[offset : offset + 4]), 16)
         offset += 4
-        self.trans_res.add_row(m_list[:offset], brief, 'float32', value, depth=depth)
+        add_brief = data_info[0] if data_info else ''
+        self.trans_res.add_row(m_list[:offset], brief + add_brief, 'float32', value, depth=depth)
         return offset
 
 
-    def take_float64(self, m_list, brief='', depth=0):
+    def take_float64(self, m_list, brief='', depth=0, data_info=None):
         """take_float64"""
         offset = 0
         if int(m_list[offset], 16) >> 7 == 1:  # 负数
@@ -406,11 +494,12 @@ class TypeDo():
         else:
             value = int(''.join(m_list[offset : offset + 8]), 16)
         offset += 8
-        self.trans_res.add_row(m_list[:offset], brief, 'float64', value, depth=depth)
+        add_brief = data_info[0] if data_info else ''
+        self.trans_res.add_row(m_list[:offset], brief + add_brief, 'float64', value, depth=depth)
         return offset
 
 
-    def take_date_time(self, m_list, brief='', depth=0):
+    def take_date_time(self, m_list, brief='', depth=0, data_info=None):
         """take_date_time"""
         offset = 0
         year = int(m_list[0] + m_list[1], 16)
@@ -421,13 +510,14 @@ class TypeDo():
         second = int(m_list[7], 16)
         milliseconds = int(m_list[8] + m_list[9], 16)
         offset += 10
-        self.trans_res.add_row(m_list[:offset], brief, 'date_time',\
+        add_brief = data_info[0] if data_info else ''
+        self.trans_res.add_row(m_list[:offset], brief + add_brief, 'date_time',\
             '{0:04d}-{1:02d}-{2:02d} {3:02d}:{4:02d}:{5:02d}:{6:03d}'\
             .format(year, month, day, hour, minute, second, milliseconds), depth=depth)
         return offset
 
 
-    def take_date(self, m_list, brief='', depth=0):
+    def take_date(self, m_list, brief='', depth=0, data_info=None):
         """take_date"""
         offset = 0
         year = int(m_list[0] + m_list[1], 16)
@@ -435,24 +525,26 @@ class TypeDo():
         day = int(m_list[3], 16)
         # week = int(m_list[4], 16)
         offset += 5
-        self.trans_res.add_row(m_list[:offset], brief, 'date',\
+        add_brief = data_info[0] if data_info else ''
+        self.trans_res.add_row(m_list[:offset], brief + add_brief, 'date',\
             '{0:04d}-{1:02d}-{2:02d}'.format(year, month, day), depth=depth)
         return offset
 
 
-    def take_time(self, m_list, brief='', depth=0):
+    def take_time(self, m_list, brief='', depth=0, data_info=None):
         """take_time"""
         offset = 0
         hour = int(m_list[0], 16)
         minute = int(m_list[1], 16)
         second = int(m_list[2], 16)
         offset += 3
-        self.trans_res.add_row(m_list[:offset], brief, 'time',\
+        add_brief = data_info[0] if data_info else ''
+        self.trans_res.add_row(m_list[:offset], brief + add_brief, 'time',\
             '{0:02d}:{1:02d}:{2:02d}'.format(hour, minute, second), depth=depth)
         return offset
 
 
-    def take_date_time_s(self, m_list, brief='', depth=0):
+    def take_date_time_s(self, m_list, brief='', depth=0, data_info=None):
         """take_date_time_s"""
         offset = 0
         year = int(m_list[0] + m_list[1], 16)
@@ -462,56 +554,59 @@ class TypeDo():
         minute = int(m_list[5], 16)
         second = int(m_list[6], 16)
         offset += 7
-        self.trans_res.add_row(m_list[:offset], brief, 'date_time_s',\
+        add_brief = data_info[0] if data_info else ''
+        self.trans_res.add_row(m_list[:offset], brief + add_brief, 'date_time_s',\
             '{0:04d}-{1:02d}-{2:02d} {3:02d}:{4:02d}:{5:02d}'\
             .format(year, month, day, hour, minute, second), depth=depth)
         return offset
 
 
-    def take_OI(self, m_list, brief='', depth=0):
+    def take_OI(self, m_list, brief='', depth=0, data_info=None):
         """take_OI"""
         offset = 0
         explain = oad_omd.get_oi_explain(m_list[offset] + m_list[offset + 1])
         offset += 2
-        self.trans_res.add_row(m_list[:offset], brief, 'OI', explain, depth=depth, priority=2)
+        add_brief = data_info[0] if data_info else ''
+        self.trans_res.add_row(m_list[:offset], brief + add_brief, 'OI', explain, depth=depth, priority=2)
         return offset
 
 
-    def take_OAD(self, m_list, brief='', depth=0):
+    def take_OAD(self, m_list, brief='', depth=0, data_info=None):
         """take_OAD"""
         offset = 0
         attr = int(m_list[offset + 2], 16)
         index = int(m_list[offset + 3], 16)
         explain = oad_omd.get_oad_explain(''.join(m_list[offset : offset + 4]))
         offset += 4
-        self.trans_res.add_row(m_list[:offset], brief, 'OAD', explain, depth=depth, priority=2)
+        add_brief = data_info[0] if data_info else ''
+        self.trans_res.add_row(m_list[:offset], brief + add_brief, 'OAD', explain, depth=depth, priority=2)
         return offset
 
 
-    def take_ROAD(self, m_list, brief='', depth=0):
+    def take_ROAD(self, m_list, brief='', depth=0, data_info=None):
         """take_ROAD"""
         offset = 0
         offset += self.take_OAD(m_list[offset:], depth=depth)
         oad_num = int(m_list[offset], 16)
-        self.trans_res.add_row(m_list[offset: offset+1], brief, 'ROAD[%d]'%oad_num, oad_num, depth=depth)
+        add_brief = data_info[0] if data_info else ''
+        self.trans_res.add_row(m_list[offset: offset+1], brief + add_brief, 'ROAD[%d]'%oad_num, oad_num, depth=depth)
         offset += 1
         for _ in range(oad_num):
             offset += self.take_OAD(m_list[offset:], depth=depth + 1)
         return offset
 
 
-    def take_OMD(self, m_list, brief='', depth=0):
+    def take_OMD(self, m_list, brief='', depth=0, data_info=None):
         """take_OMD"""
         offset = 0
-        method = int(m_list[offset + 2], 16)
-        mode = int(m_list[offset + 3], 16)
         explain = oad_omd.get_omd_explain(''.join(m_list[offset : offset + 4]))
         offset += 4
-        self.trans_res.add_row(m_list[:offset], brief, 'OMD', explain, depth=depth, priority=2)
+        add_brief = data_info[0] if data_info else ''
+        self.trans_res.add_row(m_list[:offset], brief + add_brief, 'OMD', explain, depth=depth, priority=2)
         return offset
 
 
-    def take_TI(self, m_list, brief='', depth=0):
+    def take_TI(self, m_list, brief='', depth=0, data_info=None):
         """take_TI"""
         offset = 0
         uint = {
@@ -524,11 +619,12 @@ class TypeDo():
         }.get(m_list[offset], '错误')
         value = int(m_list[offset + 1] + m_list[offset + 2], 16)
         offset = 3
-        self.trans_res.add_row(m_list[:offset], brief, 'TI', value, uint, depth=depth)
+        add_brief = data_info[0] if data_info else ''
+        self.trans_res.add_row(m_list[:offset], brief + add_brief, 'TI', value, uint, depth=depth)
         return offset
 
 
-    def take_TSA(self, m_list, brief='', depth=0):
+    def take_TSA(self, m_list, brief='', depth=0, data_info=None):
         """take_TSA"""
         # print('Kay, take_TSA data:', data)
         offset = 0
@@ -541,25 +637,26 @@ class TypeDo():
         else:
             addr_len = 0
         offset += 1 + TSA_len
-        self.trans_res.add_row(m_list[:offset], brief, 'TSA[%d]'%addr_len, addr_text, depth=depth)
+        add_brief = data_info[0] if data_info else ''
+        self.trans_res.add_row(m_list[:offset], brief + add_brief, 'TSA[%d]'%addr_len, addr_text, depth=depth)
         return offset
 
 
-    def take_MAC(self, m_list, brief='', depth=0):
+    def take_MAC(self, m_list, brief='', depth=0, data_info=None):
         """take_MAC"""
         offset = 0
         offset += self.take_octect_string(m_list[offset:], 'MAC')
         return offset
 
 
-    def take_RN(self, m_list, brief='', depth=0):
+    def take_RN(self, m_list, brief='', depth=0, data_info=None):
         """take_RN"""
         offset = 0
         offset += self.take_octect_string(m_list[offset:], 'RN')
         return offset
 
 
-    def take_RN_MAC(self, m_list, brief='', depth=0):
+    def take_RN_MAC(self, m_list, brief='', depth=0, data_info=None):
         """take_RN_MAC"""
         offset = 0
         offset += self.take_octect_string(m_list[offset:], 'RN')
@@ -567,7 +664,7 @@ class TypeDo():
         return offset
 
 
-    def take_Region(self, m_list, brief='', depth=0):
+    def take_Region(self, m_list, brief='', depth=0, data_info=None):
         """take_Region"""
         offset = 0
         r_uint = {
@@ -576,13 +673,14 @@ class TypeDo():
             '02': '前闭后闭',
             '03': '前开后开',
         }
-        offset += self.take_enum(m_list[offset:], brief, depth=depth, enum_dict=r_uint)
+        add_brief = data_info[0] if data_info else ''
+        offset += self.take_enum(m_list[offset:], brief + add_brief, depth=depth, enum_dict=r_uint)
         offset += self.take_Data(m_list, brief='起始值', depth=depth)
         offset += self.take_Data(m_list, brief='结束值', depth=depth)
         return offset
 
 
-    def take_Scaler_Unit(self, m_list, brief='', depth=0):
+    def take_Scaler_Unit(self, m_list, brief='', depth=0, data_info=None):
         """take_Scaler_Unit"""
         offset = 0
         if int(m_list[offset], 16) >> 7 == 1:  # 负数
@@ -593,11 +691,12 @@ class TypeDo():
 
         unit = units.UNIT.get(int(m_list[offset], 16), '无效单位')
         offset += 1
-        self.trans_res.add_row(m_list[:offset], brief, 'Scaler_Unit', value, unit=unit, depth=depth)
+        add_brief = data_info[0] if data_info else ''
+        self.trans_res.add_row(m_list[:offset], brief + add_brief, 'Scaler_Unit', value, unit=unit, depth=depth)
         return offset
 
 
-    def take_RSD(self, m_list, brief='', depth=0):
+    def take_RSD(self, m_list, brief='', depth=0, data_info=None):
         """take_RSD"""
         offset = 0
         selector = m_list[offset]
@@ -646,7 +745,7 @@ class TypeDo():
         return offset
 
 
-    def take_CSD(self, m_list, brief='', depth=0):
+    def take_CSD(self, m_list, brief='', depth=0, data_info=None):
         """take_CSD"""
         offset = 0
         csd_choice = m_list[offset]
@@ -654,16 +753,16 @@ class TypeDo():
         # print('csd: ', csd_choice)
         if csd_choice == '00':
             self.trans_res.add_row(m_list[:offset], brief, 'CSD', 'OAD', depth=depth)
-            offset += self.take_OAD(m_list[offset:], '对象属性描述符', depth=depth)
+            offset += self.take_OAD(m_list[offset:], '', depth=depth)
         elif csd_choice == '01':
             self.trans_res.add_row(m_list[:offset], brief, 'CSD', 'ROAD', depth=depth)
-            offset += self.take_ROAD(m_list[offset:], '记录型对象属性描述符', depth=depth)
+            offset += self.take_ROAD(m_list[offset:], '', depth=depth)
         else:
             self.trans_res.add_row(m_list[:offset], brief, 'CSD', '未知CSD CHOICE', depth=depth)
         return offset
 
 
-    def take_MS(self, m_list, brief='', depth=0):
+    def take_MS(self, m_list, brief='', depth=0, data_info=None):
         """take_MS"""
         offset = 0
         ms_choice = m_list[0]
@@ -723,7 +822,7 @@ class TypeDo():
         return offset
 
 
-    def take_SID(self, m_list, brief='', depth=0):
+    def take_SID(self, m_list, brief='', depth=0, data_info=None):
         """take_SID"""
         offset = 0
         offset += self.take_double_long_unsigned(m_list[offset:], '标识', depth=depth)
@@ -731,7 +830,7 @@ class TypeDo():
         return offset
 
 
-    def take_SID_MAC(self, m_list, brief='', depth=0):
+    def take_SID_MAC(self, m_list, brief='', depth=0, data_info=None):
         """take_SID_MAC"""
         offset = 0
         offset += self.take_SID(m_list[offset:], '安全标识', depth=depth)
@@ -739,7 +838,7 @@ class TypeDo():
         return offset
 
 
-    def take_COMDCB(self, m_list, brief='', depth=0):
+    def take_COMDCB(self, m_list, brief='', depth=0, data_info=None):
         """take_COMDCB"""
         offset = 0
         rate_dict = {
@@ -768,12 +867,13 @@ class TypeDo():
         return offset
 
 
-    def take_RCSD(self, m_list, brief='', depth=0):
+    def take_RCSD(self, m_list, brief='', depth=0, data_info=None):
         """take_RCSD"""
         offset = 0
         num = int(m_list[offset], 16)
         offset += 1
-        self.trans_res.add_row(m_list[:offset], brief, 'SEQUENCE OF CSD[%d]'%num, num, depth=depth)
+        add_brief = data_info[0] if data_info else ''
+        self.trans_res.add_row(m_list[:offset], brief + add_brief, 'SEQUENCE OF CSD[%d]'%num, num, depth=depth)
         for _ in range(num):
             offset += self.take_CSD(m_list[offset:], depth=depth + 1)
         return offset

@@ -1,28 +1,25 @@
 #coding=utf-8  
 
 
-def del_brackets(str_text, match_text='()'):
-    """del brackets"""
-    match_text = match_text.strip()
-    left = match_text[0]
-    right = match_text[1]
+def fun1():
+    """fun"""
+    fun2(2, False)
 
-    ret_text = str_text
-    while True:
-        left_pos = ret_text.find(left)
-        if left_pos >= 0:
-            depth = 1
-            for count, letter in enumerate(ret_text[left_pos + 1:], 1):
-                if letter == left:
-                    depth += 1
-                if letter == right:
-                    depth -= 1
-                if depth == 0:
-                    ret_text = ret_text[:left_pos] + ret_text[left_pos + count + 1:]
-                    break
-        else:
-            return ret_text
+
+def fun2(value, is_first):
+    """fun"""
+    test = [value]
+    if is_first:
+        fun1()
+    print(test)
+
+
+def fun3(test_list):
+    """fun"""
+    test_list.pop()
 
 if __name__ == '__main__':
-    print(del_brackets('()', 'asb(((jkl)lk)j)o(dfj))lkj'))
+    test_list = [1,2,3,4]
+    fun3(test_list)
+    print(test_list)
 

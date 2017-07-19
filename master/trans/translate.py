@@ -39,6 +39,7 @@ class Translate():
             else:
                 chk_res = False
                 print('chk ERROR:\nm_chk: %s\n m_list: %s\n'%(m_chk, m_list))
+            # print('res_list:', res_list)
             return res_list, chk_res
 
 
@@ -58,6 +59,9 @@ class Translate():
             if row['dtype'] in ['Data', 'CSD']:
                 temp_row = row
                 continue
+            value = row['value']
+            if isinstance(value, int) and int(row['scaler']) < 0:
+                value *= 10**int(row['scaler'])
             res_text += '<tr style="{color};">\
                             <td style="{padding} padding-right: 5px;">{messagerow}</td>\
                             <td>{brief}{value}{unit}{dtype}</td></tr>'\
@@ -68,7 +72,7 @@ class Translate():
                 brief=row['brief']+':' if row['brief'] else '',\
                 dtype='('+temp_row['dtype']+'_'+row['dtype']+')' if temp_row\
                         else ('('+row['dtype']+')' if row['dtype'] else ''),\
-                        value=row['value'], unit=row['unit'])
+                        value=value, unit=row['unit'])
             temp_row = None
         res_text += '</table>'
         # print(res_text)

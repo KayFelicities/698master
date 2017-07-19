@@ -70,6 +70,27 @@ def calc_len(m_text):
     return len(m_list)
 
 
+def get_rcsd_structure(m_list):
+    """get rcsd structure"""
+    rcsd_structure = []
+    # offset = 0
+    # num = int(m_list[offset], 16)
+    # offset += 1
+    # for _ in range(num):
+    #     csd_choice = m_list[offset]
+    #     offset += 1
+    #     if csd_choice == '00':
+    #         rcsd_structure.append((,''.join(m_list[offset: offset + 4])))
+    #         offset += 4
+    #     elif csd_choice == '01':
+    #         self.trans_res.add_row(m_list[:offset], brief, 'CSD', 'ROAD', depth=depth)
+    #         offset += self.take_ROAD(m_list[offset:], '', depth=depth)
+    #     else:
+    #         self.trans_res.add_row(m_list[:offset], brief, 'CSD', '未知CSD CHOICE', depth=depth)
+    
+    #     offset += self.take_CSD(m_list[offset:], depth=depth + 1)
+
+
 def get_fcs(data_list):
     """cs"""
     fcs = 0xffff
@@ -120,10 +141,10 @@ class TransRes():
         self.trans_res = []
 
 
-    def add_row(self, m_list, brief='', dtype='', value='', unit='', conversion=0, depth=0, priority=1):
+    def add_row(self, m_list, brief='', dtype='', value='', unit='', scaler=0, depth=0, priority=1):
         """add trans result row"""
         self.trans_res += [{'m_list': m_list, 'brief': brief, 'dtype': dtype, 'value': value,\
-                    'unit': unit, 'conversion': conversion, 'depth': depth, 'priority': priority}]
+                    'unit': unit, 'scaler': scaler, 'depth': depth, 'priority': priority}]
 
 
     def get_res(self):

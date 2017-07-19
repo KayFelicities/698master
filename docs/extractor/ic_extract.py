@@ -48,6 +48,7 @@ def main():
                     if search_array:
                         data_type = search_array.group()
                         # data_type = re.sub(r'array(.*)', 'array \g<1>', data_type).replace(' ', '')
+                data_type = data_type.strip()
 
                 search_explain = re.search(r'([\w\-]+\s{0,2}\{.*\})', explain)
                 if not search_explain:
@@ -68,11 +69,28 @@ def main():
                 structure = re.sub(r' {1,2}\)', ')', structure)
                 structure = re.sub(r'\((.*?) {1,2}(,.*?)\)', '(\g<1>\g<2>)',  structure)
                 structure = re.sub(r'\((.*?,) {1,2}(.*?)\)', '(\g<1>\g<2>)',  structure)
+                structure = re.sub(r'enum\{(.*?)\}', 'enum[\g<1>]', structure)
 
-                # 类号，属性/方法，编号，读写属性，属性/方法名，数据类型<单位，换算>，结构 
-                ic_text += "('%d', '%s', '%s', '%s', '%s', '%s', '%s'),\n"\
+                structure = re.sub(r'([^-_H])(instance-specific|Data|NULL|array|structure|bool|bit-string|double-long|double-long-unsigned|octet-string|visible-string|UTF8-string|integer|long|unsigned|long-unsigned|long64|long64-unsigned|enum|float32|float64|date_time|date|time|date_time_s|OI|OAD|ROAD|OMD|TI|TSA|MAC|RN|Region|Scaler_Unit|RSD|CSD|MS|SID|SID_MAC|COMDCB|RCSD)([^-_])',\
+                                        '\g<1>:\g<2>\g<3>', structure)
+                structure = re.sub(r'([^-_H:])(instance-specific|Data|NULL|array|structure|bool|bit-string|double-long|double-long-unsigned|octet-string|visible-string|UTF8-string|integer|long|unsigned|long-unsigned|long64|long64-unsigned|enum|float32|float64|date_time|date|time|date_time_s|OI|OAD|ROAD|OMD|TI|TSA|MAC|RN|Region|Scaler_Unit|RSD|CSD|MS|SID|SID_MAC|COMDCB|RCSD)([^-_])',\
+                                        '\g<1>:\g<2>\g<3>', structure)
+                structure = structure.replace(' ', '')
+
+                # replace structure,array
+                structure = re.sub(r'array(.*?)([,\}])(.*?)\1∷=(:structure{.*?})', 'array\g<4>\g<2>\g<3>', structure)
+                structure = re.sub(r',(.*?):structure([,\}])(.*?)\1∷=:structure({.*?})', ',\g<1>:structure\g<4>\g<2>\g<3>', structure)
+                structure = re.sub(r'array(.*?)([,\}])(.*?)\1∷=(:structure{.*?})', 'array\g<4>\g<2>\g<3>', structure)
+                structure = re.sub(r',(.*?):structure([,\}])(.*?)\1∷=:structure({.*?})', ',\g<1>:structure\g<4>\g<2>\g<3>', structure)
+
+                # 类号，属性/方法，编号，读写属性，属性/方法名，数据类型<单位，换算>(结构)
+                ic_text += "('%d', '%s', '%s', '%s', '%s', '%s%s'),\n"\
                                 %(ic_no, ic_tr_type.strip(), no, attr,\
                                     name.strip(), data_type.strip(), structure.strip())
+                ic_text = ic_text.replace(r'structurestructure', 'structure')
+                ic_text = ic_text.replace(r'enumenum', ':enum')
+                ic_text = re.sub(r'array([^\{\},]{0,15}[^-_H])(instance|CHOICE|Data|NULL|array|structure|bool|bit-string|double-long|double-long-unsigned|octet-string|visible-string|UTF8-string|integer|long|unsigned|long-unsigned|long64|long64-unsigned|enum|float32|float64|date_time|date|time|date_time_s|OI|OAD|ROAD|OMD|TI|TSA|MAC|RN|Region|Scaler_Unit|RSD|CSD|MS|SID|SID_MAC|COMDCB|RCSD[^-_])', 'array:\g<2>', ic_text)
+
             else:
                 if ic_td_list[0] == '属性':
                     ic_tr_type = '属性'
@@ -82,6 +100,9 @@ def main():
 
     ic_text =  ic_text.replace('structure {', 'structure{')
     ic_text =  ic_text.replace('CHOICE {', 'CHOICE{')
+    ic_text = re.sub(r'enum\{(.*?)\}', 'enum[\g<1>]', ic_text)
+    for _ in range(10):
+        ic_text = re.sub(r'enum\[(.*?)\((\d+)\)(.*?)\]', 'enum[\g<1><\g<2>>\g<3>]', ic_text)
     ic_text = re.sub(r'< {1,2}(.*?)>', '<\g<1>>',  ic_text)
     ic_text = re.sub(r'<(.*?) {1,2}>', '<\g<1>>',  ic_text)
     ic_text = re.sub(r'<(.*?) {1,2}(,.*?)>', '<\g<1>\g<2>>',  ic_text)
