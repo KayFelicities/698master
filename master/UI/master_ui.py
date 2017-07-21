@@ -12,7 +12,6 @@ from master.trans import linklayer
 from master.trans.translate import Translate
 from master.UI import dialog_ui
 from master.UI import param_ui
-from master import config
 from master.reply import reply
 from master.datas import oad_omd
 from master.others import msg_log
@@ -74,6 +73,8 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
 
         self.msg_log = msg_log.MsgLog()
 
+        self.re_msg_buf = []
+
 
     def apply_config(self):
         """apply config"""
@@ -86,10 +87,13 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
 
     def re_msg_do(self, re_text, chan_index):
         """recieve text"""
-        re_list = common.text2list(re_text)
-        msgs = common.search_msg(re_list)
+        self.re_msg_buf += common.text2list(re_text)
+        if self.re_msg_buf[0] == '68' and self.re_msg_buf[-1] != '16':  # in case of serial msg break
+            return
+        msgs = common.search_msg(self.re_msg_buf)
         for msg in msgs:
             self.add_msg_table_row(msg, chan_index, '←')
+        self.re_msg_buf = []
 
 
     def se_msg_do(self, re_text, chan_index):

@@ -55,7 +55,7 @@ class CommuPanel():
             config.MASTER_WINDOW.send_signal.emit(common.format_text(m_text), 2)
 
 
-    def serial_connect(self, com, baudrate=9600, bytesize=8, parity='E', stopbits=1, timeout=0.05):
+    def serial_connect(self, com, baudrate=9600, bytesize=8, parity='E', stopbits=1, timeout=0):
         """connect serial"""
         if self.is_serial_running:
             return 'err'
@@ -98,7 +98,6 @@ class CommuPanel():
                 re_data = self.serial_handle.readline()
                 for re_char in re_data:
                     re_text += '{0:02X} '.format(re_char)
-                time.sleep(0.3)
                 data_wait = self.serial_handle.inWaiting()
             if re_text != '':
                 config.MASTER_WINDOW.receive_signal.emit(re_text, 0)
