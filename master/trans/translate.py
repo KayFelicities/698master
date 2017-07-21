@@ -51,7 +51,7 @@ class Translate():
     def get_full(self, is_show_level=True, is_show_type=True):
         """get full translate"""
         if self.is_success:
-            res_text = '<table style="table-layout:fixed; word-wrap:break-word;">'
+            res_text = '<table style="table-layout:fixed; word-wrap:break-word; border-style:solid;">'
         else:
             res_text = '<p style="color: red">报文解析过程出现问题，请检查报文。若报文无问题请反馈665593，谢谢！</p>'
         temp_row = None
@@ -74,12 +74,13 @@ class Translate():
 
             res_text += '<tr style="{color};">\
                             <td style="{padding} padding-right: 5px;">{messagerow}</td>\
-                            <td>{brief}{value}{unit}{dtype}</td></tr>'\
+                            <td style="{padding} padding-right: 5px;">{brief}{value}{unit}{dtype}</td></tr>'\
                 .format(color='color: %s;'%config.M_PRIORITY_COLOR[row['priority']],\
                 padding='padding-left: %d px;'%(row['depth'] * 10) if is_show_level else '',\
                 messagerow=commonfun.list2text(temp_row['m_list']+row['m_list']\
                                                 if temp_row else row['m_list']),\
-                brief=row['brief']+':' if row['brief'] else '', dtype=dtype, value=value, unit=row['unit'])
+                brief=row['brief'].replace('<', '(').replace('>', ')') +':'\
+                            if row['brief'] else '', dtype=dtype, value=value, unit=row['unit'])
             temp_row = None
         res_text += '</table>'
         # print(res_text)

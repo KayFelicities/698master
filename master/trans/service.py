@@ -129,8 +129,8 @@ class Service():
             offset += self.typedo.take_DAR(m_list[offset:], '错误信息', depth=depth)
         elif re_data_choice == '01':  # M条记录
             num = int(m_list[offset], 16)
-            self.trans_res.add_row(m_list[offset: offset+1], '%d条记录'%num,\
-                                    'SEQUENCE OF A-RecordRow[%d]'%num, num, depth=depth)
+            self.trans_res.add_row(m_list[offset: offset+1], '记录',\
+                                    'SEQUENCE OF A-RecordRow[%d]'%num, num, depth=depth, unit='条')
             offset += 1
             for _ in range(num):
                 rcsd_copy = copy.deepcopy(rcsd_structure)
@@ -147,18 +147,18 @@ class Service():
         if follow_report_option == '01':
             follow_report_choice = m_list[offset]
             offset += self.typedo.take_CHOICE(m_list[offset:], 'FollowReport', depth=depth,\
-                                choice_dict={'01': '若干个对象属性及其数据', '02': '若干个记录型对象属性及其数据'})
+                                choice_dict={'01': '对象属性及其数据', '02': '记录型对象属性及其数据'})
             if follow_report_choice == '01':
                 num = int(m_list[offset], 16)
-                self.trans_res.add_row(m_list[offset: offset+1], '若干个对象属性及其数据',\
-                                        'SEQUENCE OF A-ResultNormal[%d]'%num, num)
+                self.trans_res.add_row(m_list[offset: offset+1], '对象属性及其数据',\
+                                        'SEQUENCE OF A-ResultNormal[%d]'%num, num, unit='个')
                 offset += 1
                 for _ in range(num):
                     offset += self.take_A_ResultNormal(m_list[offset:], depth=depth)
             elif follow_report_choice == '02':
                 num = int(m_list[offset], 16)
-                self.trans_res.add_row(m_list[offset: offset+1], '若干个记录型对象属性及其数据',\
-                                        'SEQUENCE OF A-ResultRecord[%d]'%num, num)
+                self.trans_res.add_row(m_list[offset: offset+1], '记录型对象属性及其数据',\
+                                        'SEQUENCE OF A-ResultRecord[%d]'%num, num, unit='个')
                 offset += 1
                 for _ in range(num):
                     offset += self.take_A_ResultRecord(m_list[offset:], depth=depth)
@@ -253,7 +253,7 @@ class Service():
         offset = 0
         offset += self.typedo.take_PIID(m_list[offset:], 'PIID')
         num = int(m_list[offset], 16)
-        self.trans_res.add_row(m_list[offset: offset+1], '若干个OAD', 'SEQUENCE OF OAD[%d]'%num, num)
+        self.trans_res.add_row(m_list[offset: offset+1], 'OAD', 'SEQUENCE OF OAD[%d]'%num, value=num, unit='个')
         offset += 1
         for _ in range(num):
             offset += self.typedo.take_OAD(m_list[offset:], depth=1)
@@ -273,8 +273,8 @@ class Service():
         offset = 0
         offset += self.typedo.take_PIID(m_list[offset:], 'PIID')
         num = int(m_list[offset], 16)
-        self.trans_res.add_row(m_list[offset: offset+1], '读取若干个记录型对象属性',\
-                                'SEQUENCE OF GetRecord[%d]'%num, num)
+        self.trans_res.add_row(m_list[offset: offset+1], '读取记录型对象属性',\
+                                'SEQUENCE OF GetRecord[%d]'%num, num, unit='个')
         offset += 1
         for _ in range(num):
             offset += self.typedo.take_OAD(m_list[offset:], 'OAD', depth=1)
@@ -308,8 +308,8 @@ class Service():
         offset = 0
         offset += self.typedo.take_PIID_ACD(m_list[offset:], 'PIID-ACD')
         num = int(m_list[offset], 16)
-        self.trans_res.add_row(m_list[offset: offset+1], '若干个对象属性及其结果',\
-                                'SEQUENCE OF A_ResultNormal[%d]'%num, num)
+        self.trans_res.add_row(m_list[offset: offset+1], '对象属性及其结果',\
+                                'SEQUENCE OF A_ResultNormal[%d]'%num, num, unit='个')
         offset += 1
         for _ in range(num):
             offset += self.take_A_ResultNormal(m_list[offset:], depth=1)
@@ -328,7 +328,7 @@ class Service():
         offset += self.typedo.take_PIID_ACD(m_list[offset:], 'PIID-ACD')
         num = int(m_list[offset], 16)
         self.trans_res.add_row(m_list[offset: offset+1],\
-                '若干个记录型对象属性及其结果', 'SEQUENCE OF A_ResultNormal[%d]'%num, num)
+                '记录型对象属性及其结果', 'SEQUENCE OF A_ResultNormal[%d]'%num, num, unit='个')
         offset += 1
         for _ in range(num):
             offset += self.take_A_ResultRecord(m_list[offset:], depth=1)
@@ -348,14 +348,14 @@ class Service():
         elif re_m_list_choice == '01':  # SEQUENCE OF A-ResultNormal
             num = int(m_list[offset], 16)
             self.trans_res.add_row(m_list[offset: offset+1],\
-                    '对象属性', 'SEQUENCE OF A_ResultNormal[%d]'%num, num)
+                    '对象属性', 'SEQUENCE OF A_ResultNormal[%d]'%num, num, unit='个')
             offset += 1
             for _ in range(num):
                 offset += self.take_A_ResultNormal(m_list[offset:], depth=1)
         elif re_m_list_choice == '02':  # SEQUENCE OF A-ResultRecord
             num = int(m_list[offset], 16)
             self.trans_res.add_row(m_list[offset: offset+1],\
-                    '记录型对象属性', 'SEQUENCE OF A-ResultRecord[%d]'%num, num)
+                    '记录型对象属性', 'SEQUENCE OF A-ResultRecord[%d]'%num, num, unit='个')
             offset += 1
             for _ in range(num):
                 offset += self.take_A_ResultRecord(m_list[offset:], depth=1)
@@ -390,7 +390,7 @@ class Service():
         offset += self.typedo.take_PIID(m_list[offset:], 'PIID')
         num = int(m_list[offset], 16)
         self.trans_res.add_row(m_list[offset: offset+1],\
-                    '若干个对象属性', 'SEQUENCE OF[%d]'%num, num)
+                    '对象属性', 'SEQUENCE OF[%d]'%num, num, unit='个')
         offset += 1
         for _ in range(num):
             offset += self.typedo.take_OAD(m_list[offset:], 'OAD', depth=1)
@@ -405,7 +405,7 @@ class Service():
         offset += self.typedo.take_PIID(m_list[offset:], 'PIID')
         num = int(m_list[offset], 16)
         self.trans_res.add_row(m_list[offset: offset+1],\
-                    '若干个设置后读取对象属性', 'SEQUENCE OF[%d]'%num, num)
+                    '设置后读取对象属性', 'SEQUENCE OF[%d]'%num, num, unit='个')
         offset += 1
         for _ in range(num):
             offset += self.typedo.take_OAD(m_list[offset:], '设置的对象属性', depth=1)
@@ -430,7 +430,7 @@ class Service():
         offset += self.typedo.take_PIID_ACD(m_list[offset:], 'PIID-ACD')
         num = int(m_list[offset], 16)
         self.trans_res.add_row(m_list[offset: offset+1],\
-                    '若干个对象属性设置结果', 'SEQUENCE OF[%d]'%num, num)
+                    '对象属性设置结果', 'SEQUENCE OF[%d]'%num, num, unit='个')
         offset += 1
         for _ in range(num):
             offset += self.typedo.take_OAD(m_list[offset:], 'OAD', depth=1)
@@ -443,7 +443,7 @@ class Service():
         offset += self.typedo.take_PIID_ACD(m_list[offset:], 'PIID-ACD')
         num = int(m_list[offset], 16)
         self.trans_res.add_row(m_list[offset: offset+1],\
-                    '若干个对象属性设置后读取结果', 'SEQUENCE OF[%d]'%num, num)
+                    '对象属性设置后读取结果', 'SEQUENCE OF[%d]'%num, num, unit='个')
         offset += 1
         for _ in range(num):
             offset += self.typedo.take_OAD(m_list[offset:], '设置的OAD', depth=1)
@@ -469,7 +469,7 @@ class Service():
         offset += self.typedo.take_PIID(m_list[offset:], 'PIID')
         num = int(m_list[offset], 16)
         self.trans_res.add_row(m_list[offset: offset+1],\
-                    '若干个对象属性', 'SEQUENCE OF[%d]'%num, num)
+                    '对象属性', 'SEQUENCE OF[%d]'%num, num, unit='个')
         offset += 1
         for _ in range(num):
             offset += self.typedo.take_OMD(m_list[offset:], '对象方法描述符', depth=1)
@@ -484,7 +484,7 @@ class Service():
         offset += self.typedo.take_PIID(m_list[offset:], 'PIID')
         num = int(m_list[offset], 16)
         self.trans_res.add_row(m_list[offset: offset+1],\
-                    '若干个操作对象方法后读取对象属性', 'SEQUENCE OF[%d]'%num, num)
+                    '操作对象方法后读取对象属性', 'SEQUENCE OF[%d]'%num, num, unit='个')
         offset += 1
         for _ in range(num):
             offset += self.typedo.take_OMD(m_list[offset:], '设置的对象方法描述符', depth=1)
@@ -513,7 +513,7 @@ class Service():
         offset += self.typedo.take_PIID_ACD(m_list[offset:], 'PIID-ACD')
         num = int(m_list[offset], 16)
         self.trans_res.add_row(m_list[offset: offset+1],\
-                    '若干个对象方法操作结果', 'SEQUENCE OF[%d]'%num, num)
+                    '对象方法操作结果', 'SEQUENCE OF[%d]'%num, num, unit='个')
         offset += 1
         for _ in range(num):
             offset += self.typedo.take_OMD(m_list[offset:], '对象方法描述符', depth=1)
@@ -530,7 +530,7 @@ class Service():
         offset += self.typedo.take_PIID_ACD(m_list[offset:], 'PIID-ACD')
         num = int(m_list[offset], 16)
         self.trans_res.add_row(m_list[offset: offset+1],\
-                    '操作若干个对象方法后读取属性的结果', 'SEQUENCE OF[%d]'%num, num)
+                    '操作对象方法后读取属性的结果', 'SEQUENCE OF[%d]'%num, num, unit='个')
         offset += 1
         for _ in range(num):
             offset += self.typedo.take_OMD(m_list[offset:], '设置的对象方法描述符', depth=1)
@@ -550,7 +550,7 @@ class Service():
         offset += self.typedo.take_PIID(m_list[offset:], 'PIID')
         num = int(m_list[offset], 16)
         self.trans_res.add_row(m_list[offset: offset+1],\
-                    '对应上报的若干个OAD', 'SEQUENCE OF OAD[%d]'%num, num)
+                    '对应上报的OAD', 'SEQUENCE OF OAD[%d]'%num, num, unit='个')
         offset += 1
         for _ in range(num):
             offset += self.typedo.take_OAD(m_list[offset:], depth=1)
@@ -572,7 +572,7 @@ class Service():
         offset += self.typedo.take_PIID_ACD(m_list[offset:], 'PIID-ACD')
         num = int(m_list[offset], 16)
         self.trans_res.add_row(m_list[offset: offset+1],\
-                    '若干个对象属性及其数据', 'SEQUENCE OF A-ResultNormal[%d]'%num, num)
+                    '对象属性及其数据', 'SEQUENCE OF A-ResultNormal[%d]'%num, num, unit='个')
         offset += 1
         for _ in range(num):
             offset += self.take_A_ResultNormal(m_list[offset:], depth=1)
@@ -584,7 +584,7 @@ class Service():
         offset += self.typedo.take_PIID_ACD(m_list[offset:], 'PIID-ACD')
         num = int(m_list[offset], 16)
         self.trans_res.add_row(m_list[offset: offset+1],\
-                    '若干个记录型对象属性及其数据', 'SEQUENCE OF A-ResultNormal[%d]'%num, num)
+                    '记录型对象属性及其数据', 'SEQUENCE OF A-ResultNormal[%d]'%num, num, unit='个')
         offset += 1
         for _ in range(num):
             offset += self.take_A_ResultRecord(m_list[offset:], depth=1)
@@ -597,7 +597,7 @@ class Service():
         offset += self.typedo.take_OAD(m_list[offset:], '数据来源端口')
         num = int(m_list[offset], 16)
         self.trans_res.add_row(m_list[offset: offset+1],\
-                    '透明数据', 'SEQUENCE OF octet-string[%d]'%num, num)
+                    '透明数据', 'SEQUENCE OF octet-string[%d]'%num, num, unit='个')
         offset += 1
         for _ in range(num):
             offset += self.typedo.take_octect_string(m_list[offset:], depth=1)
@@ -610,14 +610,14 @@ class Service():
         offset += self.typedo.take_long_unsigned(m_list[offset:], '整个代理请求的超时时间')
         num = int(m_list[offset], 16)
         self.trans_res.add_row(m_list[offset: offset+1],\
-                    '代理若干个服务器的对象属性读取', 'SEQUENCE OF[%d]'%num, num)
+                    '代理服务器的对象属性读取', 'SEQUENCE OF[%d]'%num, num, unit='个')
         offset += 1
         for _ in range(num):
             offset += self.typedo.take_TSA(m_list[offset:], '目标服务器地址', depth=1)
             offset += self.typedo.take_long_unsigned(m_list[offset:], '代理服务器的超时时间', depth=1)
             oad_num = int(m_list[offset], 16)
             self.trans_res.add_row(m_list[offset: offset+1],\
-                        '若干个OAD', 'SEQUENCE OF OAD[%d]'%num, num, depth=1)
+                        'OAD', 'SEQUENCE OF OAD[%d]'%oad_num, oad_num, depth=1, unit='个')
             offset += 1
             for _ in range(oad_num):
                 offset += self.typedo.take_OAD(m_list[offset:], '', depth=2)
@@ -641,14 +641,14 @@ class Service():
         offset += self.typedo.take_long_unsigned(m_list[offset:], '整个代理请求的超时时间')
         num = int(m_list[offset], 16)
         self.trans_res.add_row(m_list[offset: offset+1],\
-                    '代理若干个服务器的对象属性设置', 'SEQUENCE OF[%d]'%num, num)
+                    '代理服务器的对象属性设置', 'SEQUENCE OF[%d]'%num, num, unit='个')
         offset += 1
         for _ in range(num):
             offset += self.typedo.take_TSA(m_list[offset:], '目标服务器地址', depth=1)
             offset += self.typedo.take_long_unsigned(m_list[offset:], '代理服务器的超时时间', depth=1)
             num1 = int(m_list[offset], 16)
             self.trans_res.add_row(m_list[offset: offset+1],\
-                        '若干个OAD及其数据', 'SEQUENCE OF[%d]'%num, num, depth=1)
+                        'OAD及其数据', 'SEQUENCE OF[%d]'%num, num, depth=1, unit='个')
             offset += 1
             for _ in range(num1):
                 offset += self.typedo.take_OAD(m_list[offset:], 'OAD', depth=2)
@@ -664,14 +664,14 @@ class Service():
         offset += self.typedo.take_long_unsigned(m_list[offset:], '整个代理请求的超时时间')
         num = int(m_list[offset], 16)
         self.trans_res.add_row(m_list[offset: offset+1],\
-                    '代理若干个服务器的对象属性设置后读取', 'SEQUENCE OF[%d]'%num, num)
+                    '代理服务器的对象属性设置后读取', 'SEQUENCE OF[%d]'%num, num, unit='个')
         offset += 1
         for _ in range(num):
             offset += self.typedo.take_TSA(m_list[offset:], '目标服务器地址', depth=1)
             offset += self.typedo.take_long_unsigned(m_list[offset:], '代理服务器的超时时间', depth=1)
             num1 = int(m_list[offset], 16)
             self.trans_res.add_row(m_list[offset: offset+1],\
-                        '若干个对象属性的设置后读取', 'SEQUENCE OF[%d]'%num, num, depth=1)
+                        '对象属性的设置后读取', 'SEQUENCE OF[%d]'%num, num, depth=1, unit='个')
             offset += 1
             for _ in range(num1):
                 offset += self.typedo.take_OAD(m_list[offset:], '设置的OAD', depth=2)
@@ -689,14 +689,14 @@ class Service():
         offset += self.typedo.take_long_unsigned(m_list[offset:], '整个代理请求的超时时间')
         num = int(m_list[offset], 16)
         self.trans_res.add_row(m_list[offset: offset+1],\
-                    '代理若干个服务器的对象方法操作', 'SEQUENCE OF[%d]'%num, num)
+                    '代理服务器的对象方法操作', 'SEQUENCE OF[%d]'%num, num, unit='个')
         offset += 1
         for _ in range(num):
             offset += self.typedo.take_TSA(m_list[offset:], '目标服务器地址', depth=1)
             offset += self.typedo.take_long_unsigned(m_list[offset:], '代理服务器的超时时间', depth=1)
             num1 = int(m_list[offset], 16)
             self.trans_res.add_row(m_list[offset: offset+1],\
-                        '若干个对象方法描述符及其参数', 'SEQUENCE OF[%d]'%num, num, depth=1)
+                        '对象方法描述符及其参数', 'SEQUENCE OF[%d]'%num, num, depth=1, unit='个')
             offset += 1
             for _ in range(num1):
                 offset += self.typedo.take_OMD(m_list[offset:], '对象方法描述符', depth=2)
@@ -712,14 +712,14 @@ class Service():
         offset += self.typedo.take_long_unsigned(m_list[offset:], '整个代理请求的超时时间')
         num = int(m_list[offset], 16)
         self.trans_res.add_row(m_list[offset: offset+1],\
-                    '代理若干个服务器的操作后读取', 'SEQUENCE OF[%d]'%num, num)
+                    '代理服务器的操作后读取', 'SEQUENCE OF[%d]'%num, num, unit='个')
         offset += 1
         for _ in range(num):
             offset += self.typedo.take_TSA(m_list[offset:], '目标服务器地址', depth=1)
             offset += self.typedo.take_long_unsigned(m_list[offset:], '代理服务器的超时时间', depth=1)
             num1 = int(m_list[offset], 16)
             self.trans_res.add_row(m_list[offset: offset+1],\
-                        '若干个对象方法及属性的操作后读取', 'SEQUENCE OF[%d]'%num, num, depth=1)
+                        '对象方法及属性的操作后读取', 'SEQUENCE OF[%d]'%num, num, depth=1, unit='个')
             offset += 1
             for _ in range(num1):
                 offset += self.typedo.take_OMD(m_list[offset:], '操作的对象方法描述符', depth=2)
@@ -747,17 +747,18 @@ class Service():
         offset += self.typedo.take_PIID_ACD(m_list[offset:], 'PIID-ACD')
         num = int(m_list[offset], 16)
         self.trans_res.add_row(m_list[offset: offset+1],\
-                    '代理若干个服务器的读取结果', 'SEQUENCE OF[%d]'%num, num)
+                    '代理服务器的读取结果', 'SEQUENCE OF[%d]'%num, num, unit='个')
         offset += 1
         for _ in range(num):
             offset += self.typedo.take_TSA(m_list[offset:], '目标服务器地址', depth=1)
             num1 = int(m_list[offset], 16)
             self.trans_res.add_row(m_list[offset: offset+1],\
-                        '若干个OAD及其结果', 'SEQUENCE OF[%d]'%num, num, depth=1)
+                        'OAD及其结果', 'SEQUENCE OF[%d]'%num, num, depth=1, unit='个')
             offset += 1
             for _ in range(num1):
                 offset += self.typedo.take_OAD(m_list[offset:], 'OAD', depth=2)
-                offset += self.take_Get_Result(m_list[offset:], '及其读取结果', depth=2)
+                oad = ''.join(m_list[offset - 4: offset])
+                offset += self.take_Get_Result(m_list[offset:], '及其读取结果', depth=2, oad=oad)
         return offset
 
     def ProxyGetResponseRecord(self, m_list):
@@ -774,13 +775,13 @@ class Service():
         offset += self.typedo.take_PIID_ACD(m_list[offset:], 'PIID-ACD')
         num = int(m_list[offset], 16)
         self.trans_res.add_row(m_list[offset: offset+1],\
-                    '代理若干个服务器的读取结果', 'SEQUENCE OF[%d]'%num, num)
+                    '代理服务器的读取结果', 'SEQUENCE OF[%d]'%num, num, unit='个')
         offset += 1
         for _ in range(num):
             offset += self.typedo.take_TSA(m_list[offset:], '目标服务器地址', depth=1)
             num1 = int(m_list[offset], 16)
             self.trans_res.add_row(m_list[offset: offset+1],\
-                        '若干个OAD及其结果', 'SEQUENCE OF[%d]'%num, num, depth=1)
+                        'OAD及其结果', 'SEQUENCE OF[%d]'%num, num, depth=1, unit='个')
             offset += 1
             for _ in range(num1):
                 offset += self.typedo.take_OAD(m_list[offset:], 'OAD', depth=2)
@@ -793,19 +794,20 @@ class Service():
         offset += self.typedo.take_PIID_ACD(m_list[offset:], 'PIID-ACD')
         num = int(m_list[offset], 16)
         self.trans_res.add_row(m_list[offset: offset+1],\
-                    '代理若干个服务器的设置后读取结果', 'SEQUENCE OF[%d]'%num, num)
+                    '代理服务器的设置后读取结果', 'SEQUENCE OF[%d]'%num, num, unit='个')
         offset += 1
         for _ in range(num):
             offset += self.typedo.take_TSA(m_list[offset:], '目标服务器地址', depth=1)
             num1 = int(m_list[offset], 16)
             self.trans_res.add_row(m_list[offset: offset+1],\
-                        '若干个对象属性设置后读取结果', 'SEQUENCE OF[%d]'%num, num, depth=1)
+                        '对象属性设置后读取结果', 'SEQUENCE OF[%d]'%num, num, depth=1, unit='个')
             offset += 1
             for _ in range(num1):
                 offset += self.typedo.take_OAD(m_list[offset:], '设置的OAD', depth=2)
                 offset += self.typedo.take_DAR(m_list[offset:], '及其设置结果', depth=2)
                 offset += self.typedo.take_OAD(m_list[offset:], '读取的OAD', depth=2)
-                offset += self.take_Get_Result(m_list[offset:], '及其读取结果', depth=2)
+                oad = ''.join(m_list[offset - 4: offset])
+                offset += self.take_Get_Result(m_list[offset:], '及其读取结果', depth=2, oad=oad)
         return offset
 
     def ProxyActionResponseList(self, m_list):
@@ -814,13 +816,13 @@ class Service():
         offset += self.typedo.take_PIID_ACD(m_list[offset:], 'PIID-ACD')
         num = int(m_list[offset], 16)
         self.trans_res.add_row(m_list[offset: offset+1],\
-                    '代理若干个服务器的操作结果', 'SEQUENCE OF[%d]'%num, num)
+                    '代理服务器的操作结果', 'SEQUENCE OF[%d]'%num, num, unit='个')
         offset += 1
         for _ in range(num):
             offset += self.typedo.take_TSA(m_list[offset:], '目标服务器地址', depth=1)
             num1 = int(m_list[offset], 16)
             self.trans_res.add_row(m_list[offset: offset+1],\
-                        '若干个对象属性设置后读取结果', 'SEQUENCE OF[%d]'%num, num, depth=1)
+                        '对象属性设置后读取结果', 'SEQUENCE OF[%d]'%num, num, depth=1, unit='个')
             offset += 1
             for _ in range(num1):
                 offset += self.typedo.take_OMD(m_list[offset:], '对象方法描述符', depth=2)
@@ -837,13 +839,13 @@ class Service():
         offset += self.typedo.take_PIID_ACD(m_list[offset:], 'PIID-ACD')
         num = int(m_list[offset], 16)
         self.trans_res.add_row(m_list[offset: offset+1],\
-                    '代理若干个服务器的操作后读取结果', 'SEQUENCE OF[%d]'%num, num)
+                    '代理服务器的操作后读取结果', 'SEQUENCE OF[%d]'%num, num, unit='个')
         offset += 1
         for _ in range(num):
             offset += self.typedo.take_TSA(m_list[offset:], '目标服务器地址', depth=1)
             num1 = int(m_list[offset], 16)
             self.trans_res.add_row(m_list[offset: offset+1],\
-                        '若干个对象方法和属性操作后读取结果', 'SEQUENCE OF[%d]'%num, num, depth=1)
+                        '对象方法和属性操作后读取结果', 'SEQUENCE OF[%d]'%num, num, depth=1, unit='个')
             offset += 1
             for _ in range(num1):
                 offset += self.typedo.take_OMD(m_list[offset:], '操作的对象方法描述符', depth=2)
@@ -853,7 +855,8 @@ class Service():
                 if optional == '01':
                     offset += self.typedo.take_Data(m_list[offset:], '', depth=3)
                 offset += self.typedo.take_OAD(m_list[offset:], '读取的OAD', depth=2)
-                offset += self.take_Get_Result(m_list[offset:], '及其读取结果', depth=2)
+                oad = ''.join(m_list[offset - 4: offset])
+                offset += self.take_Get_Result(m_list[offset:], '及其读取结果', depth=2, oad=oad)
         return offset
 
     def ProxyTransCommandResponse(self, m_list):
