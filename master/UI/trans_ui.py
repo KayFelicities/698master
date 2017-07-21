@@ -23,7 +23,6 @@ class TransWindow(QtGui.QMainWindow, TransWindowUi):
         self.show_level_cb.setChecked(True)
 
         self.setAcceptDrops(True)
-        self.is_show_level = self.show_level_cb.isChecked()
         self.input_box.cursorPositionChanged.connect(self.cursor_changed)
         self.input_box.textChanged.connect(self.take_input_text)
         self.find_last_b.clicked.connect(lambda: self.find_last(True))
@@ -32,7 +31,8 @@ class TransWindow(QtGui.QMainWindow, TransWindowUi):
         self.input_zoom_out_b.clicked.connect(self.input_box.zoomOut)
         self.output_zoom_in_b.clicked.connect(self.output_box.zoomIn)
         self.output_zoom_out_b.clicked.connect(self.output_box.zoomOut)
-        self.show_level_cb.clicked.connect(self.set_level_visible)
+        self.show_level_cb.clicked.connect(lambda: self.trans_pos(int(self.input_box.textCursor().position())))
+        self.show_dtype_cb.clicked.connect(lambda: self.trans_pos(int(self.input_box.textCursor().position())))
         self.always_top_cb.clicked.connect(self.set_always_top)
         self.open_action.triggered.connect(self.openfile)
         self.close_action.triggered.connect(self.clear_box)
@@ -175,7 +175,7 @@ class TransWindow(QtGui.QMainWindow, TransWindowUi):
         """start_trans"""
         trans = Translate(input_text)
         brief = trans.get_brief()
-        full = trans.get_full(self.is_show_level)
+        full = trans.get_full(self.show_level_cb.isChecked(), self.show_dtype_cb.isChecked())
         self.output_box.setText(r'<b>【概览】</b><p>%s</p><hr><b>【完整】</b>%s'%(brief, full))
 
     def clear_box(self):
@@ -249,11 +249,6 @@ class TransWindow(QtGui.QMainWindow, TransWindowUi):
             self.input_box.setTextCursor(cursor)
         if is_setfocus:
             self.input_box.setFocus()
-
-    def set_level_visible(self):
-        """set_level_visible"""
-        self.is_show_level = self.show_level_cb.isChecked()
-        self.trans_pos(int(self.input_box.textCursor().position()))
 
     def set_always_top(self):
         """set_always_top"""

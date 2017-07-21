@@ -137,7 +137,7 @@ class TypeDo():
 
     def take_Data(self, m_list, brief='', depth=0, structure=None):
         """take data"""
-        # print('data structure:', structure)
+        print('data structure:', structure)
         offset = 0
         data_type = m_list[offset]
         if data_type == '00':    # 对null类型特殊处理
@@ -147,24 +147,12 @@ class TypeDo():
         offset += 1
         self.trans_res.add_row(m_list[:offset], brief, 'Data', data_type, depth=depth)
         if data_type == '01':  # array
-            if structure:
-                data_type = structure.pop(0)
-                if data_type[1] == 'array':
-                    brief += data_type[0] if structure else ''
-                else:
-                    structure = []
-                    print('array data type err: %s'%data_type[1])
-            offset += self.take_array(m_list[offset:], brief=brief, depth=depth, structure=structure)
+            data_info = structure.pop(0) if structure else None
+            offset += self.take_array(m_list[offset:], brief=brief, depth=depth, data_info=data_info)
             return offset
         elif data_type == '02':  # structure
-            if structure:
-                data_type = structure.pop(0)
-                if data_type[1] == 'structure':
-                    brief += data_type[0] if structure else ''
-                else:
-                    structure = []
-                    print('structure data type err: %s'%data_type[1])
-            offset += self.take_structure(m_list[offset:], brief=brief, depth=depth, structure=structure)
+            data_info = structure.pop(0) if structure else None
+            offset += self.take_structure(m_list[offset:], brief=brief, depth=depth, data_info=data_info)
             return offset
         elif data_type == '16':  # enum
             enum_dict = None
@@ -231,38 +219,32 @@ class TypeDo():
         return offset
 
 
-    def take_array(self, m_list, brief='', depth=0, structure=None, data_info=None):
+    def take_array(self, m_list, brief='', depth=0, data_info=None):
         """take_array"""
         offset = 0
         num = int(m_list[offset], 16)
         offset += 1
         add_brief = data_info[0] if data_info else ''
         self.trans_res.add_row(m_list[:offset], brief + add_brief, 'array[%d]'%num, num, depth=depth)
-        array_structure = None
-        if structure:
-            array_structure = structure.pop(0)
-            if array_structure[1] in ['array', 'structure']:
-                array_structure = [array_structure]
-            while array_structure[-1][1] in ['array', 'structure']: # array or structure in array
-                array_structure.append(structure.pop(0))
         for _ in range(num):
-            temp_structure = copy.deepcopy(array_structure)
-            print('array_structure:', temp_structure)
-            offset += self.take_Data(m_list[offset:], depth=depth + 1, structure=temp_structure)
+            if data_info and data_info[1] == 'structure':  # fixme: rcsd array
+                array_structure = [data_info[3].pop(0)] if data_info and data_info[3] else None
+            else:
+                array_structure = copy.deepcopy(data_info[3]) if data_info and data_info[3] else None
+            offset += self.take_Data(m_list[offset:], depth=depth + 1, structure=array_structure)
         return offset
 
 
-    def take_structure(self, m_list, brief='', depth=0, structure=None, data_info=None):
+    def take_structure(self, m_list, brief='', depth=0, data_info=None):
         """take_structure"""
         offset = 0
         num = int(m_list[offset], 16)
         offset += 1
         add_brief = data_info[0] if data_info else ''
         self.trans_res.add_row(m_list[:offset], brief + add_brief, 'structure[%d]'%num, num, depth=depth)
-        if structure:
-            structure = structure.pop(0)
         for _ in range(num):
-            offset += self.take_Data(m_list[offset:], depth=depth + 1, structure=structure)
+            structure_member = [data_info[3].pop(0)] if data_info and data_info[3] else None
+            offset += self.take_Data(m_list[offset:], depth=depth + 1, structure=structure_member)
         return offset
 
 
@@ -273,7 +255,7 @@ class TypeDo():
         offset += 1
         add_brief = data_info[0] if data_info else ''
         self.trans_res.add_row(m_list[:offset],\
-                brief + add_brief, 'bool', '真' if bool_value else '假', depth=depth)
+                brief + add_brief, 'bool', '是' if bool_value else '否', depth=depth)
         return offset
 
 

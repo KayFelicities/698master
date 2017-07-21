@@ -25,6 +25,7 @@ class TransPopDialog(QtGui.QDialog, TransPopDialogUi):
 
         self.msg_box.textChanged.connect(self.trans_msg)
         self.show_level_cb.stateChanged.connect(self.trans_msg)
+        self.show_dtype_cb.stateChanged.connect(self.trans_msg)
         self.always_top_cb.stateChanged.connect(self.set_always_top)
         self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint if self.always_top_cb.isChecked() else QtCore.Qt.Widget)
 
@@ -34,7 +35,7 @@ class TransPopDialog(QtGui.QDialog, TransPopDialogUi):
         msg_text = self.msg_box.toPlainText()
         trans = translate.Translate(msg_text)
         brief = trans.get_brief()
-        full = trans.get_full(self.show_level_cb.isChecked())
+        full = trans.get_full(self.show_level_cb.isChecked(), self.show_dtype_cb.isChecked())
         self.explain_box.setText(r'<b>【概览】</b><p>%s</p><hr><b>【完整】</b>%s'%(brief, full))
 
     def set_always_top(self):
@@ -164,13 +165,14 @@ class ApduDiyDialog(QtGui.QDialog, ApduDiyDialogUi):
         self.chk_valid_cb.setChecked(True)
         self.show_level_cb.setChecked(True)
 
-        self.se_clr_b.clicked.connect(lambda: self.se_msg_box.setPlainText('') or self.se_msg_box.setFocus())
-        self.re_clr_b.clicked.connect(lambda: self.re_msg_box.setPlainText(''))
+        self.se_clr_b.clicked.connect(lambda: self.se_msg_box.clear() or self.se_msg_box.setFocus())
+        self.re_clr_b.clicked.connect(lambda: self.re_msg_box.clear())
         self.send_b.clicked.connect(self.send_apdu)
         self.se_msg_box.textChanged.connect(self.trans_se_msg)
         self.re_msg_box.textChanged.connect(self.trans_re_msg)
         self.chk_valid_cb.stateChanged.connect(self.trans_se_msg)
-        self.show_level_cb.stateChanged.connect(self.trans_se_msg)
+        self.show_level_cb.stateChanged.connect(lambda: self.trans_se_msg() or self.trans_re_msg())
+        self.show_dtype_cb.stateChanged.connect(lambda: self.trans_se_msg() or self.trans_re_msg())
         self.always_top_cb.stateChanged.connect(self.set_always_top)
         self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint if self.always_top_cb.isChecked() else QtCore.Qt.Widget)
 
@@ -179,6 +181,7 @@ class ApduDiyDialog(QtGui.QDialog, ApduDiyDialogUi):
     def send_apdu(self):
         """send apdu"""
         config.MASTER_WINDOW.se_apdu_signal.emit(self.apdu_text)
+        self.re_msg_box.clear()
         config.MASTER_WINDOW.receive_signal.connect(self.re_msg)
 
     def re_msg(self, msg_text):
@@ -189,8 +192,10 @@ class ApduDiyDialog(QtGui.QDialog, ApduDiyDialogUi):
     def trans_se_msg(self):
         """translate"""
         msg_text = self.se_msg_box.toPlainText()
+        if len(msg_text) < 5:
+            return
         trans = translate.Translate(msg_text)
-        full = trans.get_full(self.show_level_cb.isChecked())
+        full = trans.get_full(self.show_level_cb.isChecked(), self.show_dtype_cb.isChecked())
         self.se_explain_box.setText(r'%s'%full)
         if self.chk_valid_cb.isChecked():
             self.send_b.setEnabled(True if trans.is_success else False)
@@ -202,8 +207,10 @@ class ApduDiyDialog(QtGui.QDialog, ApduDiyDialogUi):
     def trans_re_msg(self):
         """translate"""
         msg_text = self.re_msg_box.toPlainText()
+        if len(msg_text) < 5:
+            return
         trans = translate.Translate(msg_text)
-        full = trans.get_full(self.show_level_cb.isChecked())
+        full = trans.get_full(self.show_level_cb.isChecked(), self.show_dtype_cb.isChecked())
         self.re_explain_box.setText(r'%s'%full)
 
     def set_always_top(self):
@@ -228,13 +235,14 @@ class MsgDiyDialog(QtGui.QDialog, MsgDiyDialogUi):
         self.chk_valid_cb.setChecked(True)
         self.show_level_cb.setChecked(True)
 
-        self.se_clr_b.clicked.connect(lambda: self.se_msg_box.setPlainText('') or self.se_msg_box.setFocus())
-        self.re_clr_b.clicked.connect(lambda: self.re_msg_box.setPlainText(''))
+        self.se_clr_b.clicked.connect(lambda: self.se_msg_box.clear() or self.se_msg_box.setFocus())
+        self.re_clr_b.clicked.connect(lambda: self.re_msg_box.clear())
         self.send_b.clicked.connect(self.send_msg)
         self.se_msg_box.textChanged.connect(self.trans_se_msg)
         self.re_msg_box.textChanged.connect(self.trans_re_msg)
         self.chk_valid_cb.stateChanged.connect(self.trans_se_msg)
-        self.show_level_cb.stateChanged.connect(self.trans_se_msg)
+        self.show_level_cb.stateChanged.connect(lambda: self.trans_se_msg() or self.trans_re_msg())
+        self.show_dtype_cb.stateChanged.connect(lambda: self.trans_se_msg() or self.trans_re_msg())
         self.always_top_cb.stateChanged.connect(self.set_always_top)
         self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint if self.always_top_cb.isChecked() else QtCore.Qt.Widget)
 
@@ -243,6 +251,7 @@ class MsgDiyDialog(QtGui.QDialog, MsgDiyDialogUi):
     def send_msg(self):
         """send apdu"""
         config.COMMU.send_msg(self.se_msg_box.toPlainText(), self.chan_cb.currentIndex())
+        self.re_msg_box.clear()
         config.MASTER_WINDOW.receive_signal.connect(self.re_msg)
 
     def re_msg(self, msg_text):
@@ -253,8 +262,10 @@ class MsgDiyDialog(QtGui.QDialog, MsgDiyDialogUi):
     def trans_se_msg(self):
         """translate"""
         msg_text = self.se_msg_box.toPlainText()
+        if len(msg_text) < 5:
+            return
         trans = translate.Translate(msg_text)
-        full = trans.get_full(self.show_level_cb.isChecked())
+        full = trans.get_full(self.show_level_cb.isChecked(), self.show_dtype_cb.isChecked())
         self.se_explain_box.setText(r'%s'%full)
         if self.chk_valid_cb.isChecked():
             self.send_b.setEnabled(True if trans.is_success else False)
@@ -266,8 +277,10 @@ class MsgDiyDialog(QtGui.QDialog, MsgDiyDialogUi):
     def trans_re_msg(self):
         """translate"""
         msg_text = self.re_msg_box.toPlainText()
+        if len(msg_text) < 5:
+            return
         trans = translate.Translate(msg_text)
-        full = trans.get_full(self.show_level_cb.isChecked())
+        full = trans.get_full(self.show_level_cb.isChecked(), self.show_dtype_cb.isChecked())
         self.re_explain_box.setText(r'%s'%full)
 
     def set_always_top(self):

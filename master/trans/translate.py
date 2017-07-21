@@ -48,7 +48,7 @@ class Translate():
         return self.res_list
 
 
-    def get_full(self, is_show_level=True):
+    def get_full(self, is_show_level=True, is_show_type=True):
         """get full translate"""
         if self.is_success:
             res_text = '<table style="table-layout:fixed; word-wrap:break-word;">'
@@ -60,8 +60,18 @@ class Translate():
                 temp_row = row
                 continue
             value = row['value']
-            if isinstance(value, int) and int(row['scaler']) < 0:
+            if isinstance(value, int):
                 value *= 10**int(row['scaler'])
+            if int(row['scaler']) < 0:
+                format_str = '{val:.%df}'%(abs(int(row['scaler'])))
+                value = format_str.format(val=value)
+                print('value:', value)
+            
+            dtype = ''
+            if is_show_type:
+                dtype = '('+temp_row['dtype']+'_'+row['dtype']+')' if temp_row\
+                    else ('('+row['dtype']+')' if row['dtype'] else '')
+
             res_text += '<tr style="{color};">\
                             <td style="{padding} padding-right: 5px;">{messagerow}</td>\
                             <td>{brief}{value}{unit}{dtype}</td></tr>'\
@@ -69,10 +79,7 @@ class Translate():
                 padding='padding-left: %d px;'%(row['depth'] * 10) if is_show_level else '',\
                 messagerow=commonfun.list2text(temp_row['m_list']+row['m_list']\
                                                 if temp_row else row['m_list']),\
-                brief=row['brief']+':' if row['brief'] else '',\
-                dtype='('+temp_row['dtype']+'_'+row['dtype']+')' if temp_row\
-                        else ('('+row['dtype']+')' if row['dtype'] else ''),\
-                        value=value, unit=row['unit'])
+                brief=row['brief']+':' if row['brief'] else '', dtype=dtype, value=value, unit=row['unit'])
             temp_row = None
         res_text += '</table>'
         # print(res_text)
@@ -151,11 +158,12 @@ class Translate():
         else:
             brief = {'dir': '申请' if service_type[0] in ['0', '1'] else '回复'}
         if service_type[1] in ['1']:
-            brief['service'] = '预连接'
             if brief['dir'] == '申请':
+                brief['service'] = ''
                 brief['content'] = list(filter(lambda row: row['dtype'] == 'enum'\
                                         , depth0_list))[0]['value']
             else:
+                brief['service'] = '登录/心跳'
                 brief['content'] = '结果' + list(filter(lambda row: row['dtype'] == 'Result'\
                         , depth0_list))[0]['value']
 
@@ -220,5 +228,5 @@ class Translate():
         elif service_type[1] in ['0']:
             brief['service'] = '安全传输'
 
-        return '%s-%s %s'%(brief.get('dir', ''),\
+        return '%s%s %s'%(brief.get('dir', ''),\
                             brief.get('service', ''), brief.get('content', ''))

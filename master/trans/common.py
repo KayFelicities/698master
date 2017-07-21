@@ -1,5 +1,7 @@
+# coding: utf-8
 """common functions"""
 import time
+from master.datas import oad_omd
 
 
 def text2list(m_text):
@@ -68,27 +70,6 @@ def calc_len(m_text):
     """calculate input text length"""
     m_list = text2list(m_text)
     return len(m_list)
-
-
-def get_rcsd_structure(m_list):
-    """get rcsd structure"""
-    rcsd_structure = []
-    # offset = 0
-    # num = int(m_list[offset], 16)
-    # offset += 1
-    # for _ in range(num):
-    #     csd_choice = m_list[offset]
-    #     offset += 1
-    #     if csd_choice == '00':
-    #         rcsd_structure.append((,''.join(m_list[offset: offset + 4])))
-    #         offset += 4
-    #     elif csd_choice == '01':
-    #         self.trans_res.add_row(m_list[:offset], brief, 'CSD', 'ROAD', depth=depth)
-    #         offset += self.take_ROAD(m_list[offset:], '', depth=depth)
-    #     else:
-    #         self.trans_res.add_row(m_list[:offset], brief, 'CSD', '未知CSD CHOICE', depth=depth)
-    
-    #     offset += self.take_CSD(m_list[offset:], depth=depth + 1)
 
 
 def get_fcs(data_list):
