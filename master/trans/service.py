@@ -1,8 +1,8 @@
 """handle with 698 service"""
 import copy
 import master.trans.datatype as typedo
-from master.datas import services
-from master.datas import oad_omd
+from master.datas import base_data
+from master.datas import k_data
 
 def take_applayer(m_list, trans_res):
     """take_applayer"""
@@ -24,10 +24,10 @@ class Service():
         service_type = m_list[offset]
         if service_type not in ['01', '02', '03', '10', '81', '82', '83', '84', '90']:
             service_type += m_list[offset + 1]
-            explain = services.SERVICE.get(service_type, '未知服务')
+            explain = base_data.get_service(service_type)
             offset += 2
         else:
-            explain = services.SERVICE.get(service_type, '未知服务')
+            explain = base_data.get_service(service_type)
             offset += 1
         self.trans_res.add_row(m_list[:offset], '服务类型', 'service', explain, '', 0, 0)
         offset += {
@@ -102,7 +102,7 @@ class Service():
         elif result == '01':  # 数据
             structure = []
             if oad:
-                structure = oad_omd.get_structure('oad', oad)
+                structure = k_data.get_structure('oad', oad)
             offset += self.typedo.take_Data(m_list[offset:], '', depth=depth, structure=structure)
         return offset
 
@@ -119,7 +119,7 @@ class Service():
         offset = 0
         offset += self.typedo.take_OAD(m_list[offset:], '记录型OAD', depth=depth)
         csd_num = int(m_list[offset], 16)
-        rcsd_structure = oad_omd.get_rcsd_structure(m_list[offset:])
+        rcsd_structure = k_data.get_rcsd_structure(m_list[offset:])
         print('rcsd_structure:', rcsd_structure)
         offset += self.typedo.take_RCSD(m_list[offset:], '一行记录N列属性描述符', depth=depth)
         re_data_choice = m_list[offset]
@@ -380,7 +380,7 @@ class Service():
         offset += self.typedo.take_PIID(m_list[offset:], 'PIID')
         offset += self.typedo.take_OAD(m_list[offset:], 'OAD')
         oad = ''.join(m_list[offset - 4: offset])
-        structure = oad_omd.get_structure('oad', oad)
+        structure = k_data.get_structure('oad', oad)
         offset += self.typedo.take_Data(m_list[offset:], '', structure=structure)
         return offset
 
@@ -395,7 +395,7 @@ class Service():
         for _ in range(num):
             offset += self.typedo.take_OAD(m_list[offset:], 'OAD', depth=1)
             oad = ''.join(m_list[offset - 4: offset])
-            structure = oad_omd.get_structure('oad', oad)
+            structure = k_data.get_structure('oad', oad)
             offset += self.typedo.take_Data(m_list[offset:], '', depth=1, structure=structure)
         return offset
 
@@ -410,7 +410,7 @@ class Service():
         for _ in range(num):
             offset += self.typedo.take_OAD(m_list[offset:], '设置的对象属性', depth=1)
             oad = ''.join(m_list[offset - 4: offset])
-            structure = oad_omd.get_structure('oad', oad)
+            structure = k_data.get_structure('oad', oad)
             offset += self.typedo.take_Data(m_list[offset:], '', depth=1, structure=structure)
             offset += self.typedo.take_OAD(m_list[offset:], '读取的对象属性', depth=1)
             offset += self.typedo.take_unsigned(m_list[offset:], '延时读取时间(秒)', depth=1)
@@ -459,7 +459,7 @@ class Service():
         offset += self.typedo.take_PIID(m_list[offset:], 'PIID')
         offset += self.typedo.take_OMD(m_list[offset:], '对象方法描述符')
         omd = ''.join(m_list[offset - 4: offset])
-        structure = oad_omd.get_structure('omd', omd)
+        structure = k_data.get_structure('omd', omd)
         offset += self.typedo.take_Data(m_list[offset:], '方法参数', structure=structure)
         return offset
 
@@ -474,7 +474,7 @@ class Service():
         for _ in range(num):
             offset += self.typedo.take_OMD(m_list[offset:], '对象方法描述符', depth=1)
             omd = ''.join(m_list[offset - 4: offset])
-            structure = oad_omd.get_structure('omd', omd)
+            structure = k_data.get_structure('omd', omd)
             offset += self.typedo.take_Data(m_list[offset:], '方法参数', depth=1, structure=structure)
         return offset
 
@@ -489,7 +489,7 @@ class Service():
         for _ in range(num):
             offset += self.typedo.take_OMD(m_list[offset:], '设置的对象方法描述符', depth=1)
             omd = ''.join(m_list[offset - 4: offset])
-            structure = oad_omd.get_structure('omd', omd)
+            structure = k_data.get_structure('omd', omd)
             offset += self.typedo.take_Data(m_list[offset:], '方法参数', depth=1, structure=structure)
             offset += self.typedo.take_OMD(m_list[offset:], '读取的OAD', depth=1)
             offset += self.typedo.take_unsigned(m_list[offset:], '读取延时(秒)', depth=1)
@@ -653,7 +653,7 @@ class Service():
             for _ in range(num1):
                 offset += self.typedo.take_OAD(m_list[offset:], 'OAD', depth=2)
                 oad = ''.join(m_list[offset - 4: offset])
-                structure = oad_omd.get_structure('oad', oad)
+                structure = k_data.get_structure('oad', oad)
                 offset += self.typedo.take_Data(m_list[offset:], '', depth=2, structure=structure)
         return offset
 
@@ -676,7 +676,7 @@ class Service():
             for _ in range(num1):
                 offset += self.typedo.take_OAD(m_list[offset:], '设置的OAD', depth=2)
                 oad = ''.join(m_list[offset - 4: offset])
-                structure = oad_omd.get_structure('oad', oad)
+                structure = k_data.get_structure('oad', oad)
                 offset += self.typedo.take_Data(m_list[offset:], '及其设置数值', depth=2, structure=structure)
                 offset += self.typedo.take_OAD(m_list[offset:], '读取的OAD', depth=2)
                 offset += self.typedo.take_unsigned(m_list[offset:], '及其延时读取时间(秒)', depth=2)
@@ -701,7 +701,7 @@ class Service():
             for _ in range(num1):
                 offset += self.typedo.take_OMD(m_list[offset:], '对象方法描述符', depth=2)
                 omd = ''.join(m_list[offset - 4: offset])
-                structure = oad_omd.get_structure('omd', omd)
+                structure = k_data.get_structure('omd', omd)
                 offset += self.typedo.take_Data(m_list[offset:], '及其方法参数', depth=2, structure=structure)
         return offset
 
@@ -724,7 +724,7 @@ class Service():
             for _ in range(num1):
                 offset += self.typedo.take_OMD(m_list[offset:], '操作的对象方法描述符', depth=2)
                 omd = ''.join(m_list[offset - 4: offset])
-                structure = oad_omd.get_structure('omd', omd)
+                structure = k_data.get_structure('omd', omd)
                 offset += self.typedo.take_Data(m_list[offset:], '及其方法参数', depth=2, structure=structure)
                 offset += self.typedo.take_OAD(m_list[offset:], '读取的OAD', depth=2)
                 offset += self.typedo.take_unsigned(m_list[offset:], '延时读取时间(秒)', depth=2)

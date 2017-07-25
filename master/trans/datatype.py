@@ -1,5 +1,5 @@
 """handle with 698 datatypes"""
-from master.datas import oad_omd, units, dars
+from master.datas import k_data, base_data
 import copy
 
 
@@ -77,7 +77,7 @@ class TypeDo():
     def take_DAR(self, m_list, brief='', depth=0):
         """take_DAR"""
         offset = 0
-        explain = dars.DAR.get(int(m_list[0], 16), '无效DAR')
+        explain = base_data.get_dar(int(m_list[0], 16))
         offset += 1
         self.trans_res.add_row(m_list[:offset], brief, 'DAR', explain, depth=depth)
         return offset
@@ -548,7 +548,7 @@ class TypeDo():
     def take_OI(self, m_list, brief='', depth=0, data_info=None):
         """take_OI"""
         offset = 0
-        explain = oad_omd.get_oi_explain(m_list[offset] + m_list[offset + 1])
+        explain = k_data.get_oi_explain(m_list[offset] + m_list[offset + 1])
         offset += 2
         add_brief = data_info[0] if data_info else ''
         self.trans_res.add_row(m_list[:offset], brief + add_brief, 'OI', explain, depth=depth, priority=2)
@@ -560,7 +560,7 @@ class TypeDo():
         offset = 0
         attr = int(m_list[offset + 2], 16)
         index = int(m_list[offset + 3], 16)
-        explain = oad_omd.get_oad_explain(''.join(m_list[offset : offset + 4]))
+        explain = k_data.get_oad_explain(''.join(m_list[offset : offset + 4]))
         offset += 4
         add_brief = data_info[0] if data_info else ''
         self.trans_res.add_row(m_list[:offset], brief + add_brief, 'OAD', explain, depth=depth, priority=2)
@@ -583,7 +583,7 @@ class TypeDo():
     def take_OMD(self, m_list, brief='', depth=0, data_info=None):
         """take_OMD"""
         offset = 0
-        explain = oad_omd.get_omd_explain(''.join(m_list[offset : offset + 4]))
+        explain = k_data.get_omd_explain(''.join(m_list[offset : offset + 4]))
         offset += 4
         add_brief = data_info[0] if data_info else ''
         self.trans_res.add_row(m_list[:offset], brief + add_brief, 'OMD', explain, depth=depth, priority=2)
@@ -673,7 +673,7 @@ class TypeDo():
             value = int(m_list[offset], 16)
         offset += 1
 
-        unit = units.UNIT.get(int(m_list[offset], 16), '无效单位')
+        unit = base_data.get_unit(int(m_list[offset], 16))
         offset += 1
         add_brief = data_info[0] if data_info else ''
         self.trans_res.add_row(m_list[:offset], brief + add_brief, 'Scaler_Unit', value, unit=unit, depth=depth)

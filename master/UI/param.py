@@ -1,6 +1,6 @@
 """param"""
 from master.trans import common
-from master.datas import dars
+from master.datas import base_data
 
 
 def read_set_dar(re_text):
@@ -12,14 +12,14 @@ def read_set_dar(re_text):
         if data[offset] == '00':
             return 'ok'
         else:
-            return dars.DAR.get(int(data[offset], 16), '无效DAR')
+            return base_data.get_dar(int(data[offset], 16))
     if data[offset] == '02':
         offset += 2
         dar_sum = int(data[offset], 16)
         offset += 5
         for _ in range(dar_sum):
             if data[offset] != '00':
-                return dars.DAR.get(int(data[offset], 16), '无效DAR')
+                return base_data.get_dar(int(data[offset], 16))
             else:
                 offset += 5
         return 'ok'

@@ -13,7 +13,7 @@ from master.trans.translate import Translate
 from master.UI import dialog_ui
 from master.UI import param_ui
 from master.reply import reply
-from master.datas import oad_omd
+from master.datas import k_data
 from master.others import msg_log
 from master.others import master_config
 
@@ -312,7 +312,7 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
         """explain_oad"""
         oad_text = self.oad_box.text().replace(' ', '')
         if len(oad_text) == 8:
-            explain = oad_omd.get_oad_explain(oad_text)
+            explain = k_data.get_oad_explain(oad_text)
             self.oad_explain_l.setText(explain)
         else:
             self.oad_explain_l.setText('')

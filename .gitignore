@@ -50,3 +50,6 @@ Temporary Items
 *.pyc
 build/
 dist/
+master/datas/pyd.py
+master/datas/k_data.py
+master/datas/k_data.c

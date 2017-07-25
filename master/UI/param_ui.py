@@ -6,7 +6,7 @@ from master import config
 from master.trans import common
 from master.UI.param_window import Ui_ParamWindow
 from master.UI import param
-from master.datas import dars
+from master.datas import base_data
 
 
 class ParamWindow(QtGui.QMainWindow, QtGui.QWidget, Ui_ParamWindow):
@@ -114,7 +114,7 @@ class ParamWindow(QtGui.QMainWindow, QtGui.QWidget, Ui_ParamWindow):
             self.DT_box.setDateTime(DT_read)
         else:
             self.res_b.setStyleSheet('color: red')
-            self.res_b.setText('失败：' + dars.DAR.get(int(data[offset + 1], 16), '无效DAR'))
+            self.res_b.setText('失败：' + base_data.get_dar(int(data[offset + 1], 16)))
         config.MASTER_WINDOW.receive_signal.disconnect(self.re_DT)
 
 
@@ -153,7 +153,7 @@ class ParamWindow(QtGui.QMainWindow, QtGui.QWidget, Ui_ParamWindow):
             self.SA_box.setText(SA_text)
         else:
             self.res_b.setStyleSheet('color: red')
-            self.res_b.setText('失败：' + dars.DAR.get(int(data[offset + 1], 16), '无效DAR'))
+            self.res_b.setText('失败：' + base_data.get_dar(int(data[offset + 1], 16)))
         config.MASTER_WINDOW.receive_signal.disconnect(self.re_SA)
 
 
@@ -199,7 +199,7 @@ class ParamWindow(QtGui.QMainWindow, QtGui.QWidget, Ui_ParamWindow):
             offset += 2
         else:
             self.res_b.setStyleSheet('color: red')
-            self.res_b.setText('失败：' + dars.DAR.get(int(data[offset + 1], 16), '无效DAR'))
+            self.res_b.setText('失败：' + base_data.get_dar(int(data[offset + 1], 16)))
         config.MASTER_WINDOW.receive_signal.disconnect(self.re_DT_param)
 
 
@@ -305,7 +305,7 @@ class ParamWindow(QtGui.QMainWindow, QtGui.QWidget, Ui_ParamWindow):
             offset += ret['offset']
         else:
             self.res_b.setStyleSheet('color: red')
-            self.res_b.setText('失败：' + dars.DAR.get(int(data[offset + 1], 16), '无效DAR'))
+            self.res_b.setText('失败：' + base_data.get_dar(int(data[offset + 1], 16)))
         config.MASTER_WINDOW.receive_signal.disconnect(self.re_local_net)
 
 
@@ -385,7 +385,7 @@ class ParamWindow(QtGui.QMainWindow, QtGui.QWidget, Ui_ParamWindow):
             offset += 3
         else:
             self.res_b.setStyleSheet('color: red')
-            self.res_b.setText('失败：' + dars.DAR.get(int(data[offset + 1], 16), '无效DAR'))
+            self.res_b.setText('失败：' + base_data.get_dar(int(data[offset + 1], 16)))
         config.MASTER_WINDOW.receive_signal.disconnect(self.re_communication)
 
 
@@ -407,7 +407,7 @@ class ParamWindow(QtGui.QMainWindow, QtGui.QWidget, Ui_ParamWindow):
             offset += ret['offset']
         else:
             res_sum = False
-            self.esam_no_box.setText('失败：' + dars.DAR.get(int(data[offset + 1], 16), '无效DAR'))
+            self.esam_no_box.setText('失败：' + base_data.get_dar(int(data[offset + 1], 16)))
 
         offset = common.list2text(data).replace(' ', '').find('F1000300') // 2 + 4
         if data[offset] == '01':
@@ -417,7 +417,7 @@ class ParamWindow(QtGui.QMainWindow, QtGui.QWidget, Ui_ParamWindow):
             offset += ret['offset']
         else:
             res_sum = False
-            self.esam_ver_box.setText('失败：' + dars.DAR.get(int(data[offset + 1], 16), '无效DAR'))
+            self.esam_ver_box.setText('失败：' + base_data.get_dar(int(data[offset + 1], 16)))
 
         offset = common.list2text(data).replace(' ', '').find('F1000400') // 2 + 4
         if data[offset] == '01':
@@ -427,7 +427,7 @@ class ParamWindow(QtGui.QMainWindow, QtGui.QWidget, Ui_ParamWindow):
             offset += ret['offset']
         else:
             res_sum = False
-            self.esam_key_box.setText('失败：' + dars.DAR.get(int(data[offset + 1], 16), '无效DAR'))
+            self.esam_key_box.setText('失败：' + base_data.get_dar(int(data[offset + 1], 16)))
 
         offset = common.list2text(data).replace(' ', '').find('F1000500') // 2 + 4
         if data[offset] == '01':
@@ -436,7 +436,7 @@ class ParamWindow(QtGui.QMainWindow, QtGui.QWidget, Ui_ParamWindow):
             offset += 5
         else:
             res_sum = False
-            self.esam_dialog_tm_box.setText('失败：' + dars.DAR.get(int(data[offset + 1], 16), '无效DAR'))
+            self.esam_dialog_tm_box.setText('失败：' + base_data.get_dar(int(data[offset + 1], 16)))
 
         offset = common.list2text(data).replace(' ', '').find('F1000600') // 2 + 4
         if data[offset] == '01':
@@ -445,7 +445,7 @@ class ParamWindow(QtGui.QMainWindow, QtGui.QWidget, Ui_ParamWindow):
             offset += 5
         else:
             res_sum = False
-            self.esam_dialog_remain_box.setText('失败：' + dars.DAR.get(int(data[offset + 1], 16), '无效DAR'))
+            self.esam_dialog_remain_box.setText('失败：' + base_data.get_dar(int(data[offset + 1], 16)))
 
         offset = common.list2text(data).replace(' ', '').find('F1000700') // 2 + 4
         if data[offset] == '01':
@@ -458,9 +458,9 @@ class ParamWindow(QtGui.QMainWindow, QtGui.QWidget, Ui_ParamWindow):
             offset += 5
         else:
             res_sum = False
-            self.esam_addr_ctr_box.setText('失败：' + dars.DAR.get(int(data[offset + 1], 16), '无效DAR'))
-            self.esam_rpt_ctr_box.setText('失败：' + dars.DAR.get(int(data[offset + 1], 16), '无效DAR'))
-            self.esam_app_radio_box.setText('失败：' + dars.DAR.get(int(data[offset + 1], 16), '无效DAR'))
+            self.esam_addr_ctr_box.setText('失败：' + base_data.get_dar(int(data[offset + 1], 16)))
+            self.esam_rpt_ctr_box.setText('失败：' + base_data.get_dar(int(data[offset + 1], 16)))
+            self.esam_app_radio_box.setText('失败：' + base_data.get_dar(int(data[offset + 1], 16)))
 
         offset = common.list2text(data).replace(' ', '').find('F1000800') // 2 + 4
         if data[offset] == '01':
@@ -473,8 +473,8 @@ class ParamWindow(QtGui.QMainWindow, QtGui.QWidget, Ui_ParamWindow):
             offset += ret['offset']
         else:
             res_sum = False
-            self.esam_terminal_ver_box.setText('失败：' + dars.DAR.get(int(data[offset + 1], 16), '无效DAR'))
-            self.esam_host_ver_box.setText('失败：' + dars.DAR.get(int(data[offset + 1], 16), '无效DAR'))
+            self.esam_terminal_ver_box.setText('失败：' + base_data.get_dar(int(data[offset + 1], 16)))
+            self.esam_host_ver_box.setText('失败：' + base_data.get_dar(int(data[offset + 1], 16)))
 
         if res_sum is True:
             self.res_b.setStyleSheet('color: green')
@@ -506,7 +506,7 @@ class ParamWindow(QtGui.QMainWindow, QtGui.QWidget, Ui_ParamWindow):
         else:
             offset += 1
             res_sum = False
-            self.esam_certi_ver_box.setText('失败：' + dars.DAR.get(int(data[offset], 16), '无效DAR'))
+            self.esam_certi_ver_box.setText('失败：' + base_data.get_dar(int(data[offset], 16)))
         offset += 4
         if data[offset] == '01':
             offset += 1
@@ -517,7 +517,7 @@ class ParamWindow(QtGui.QMainWindow, QtGui.QWidget, Ui_ParamWindow):
         else:
             offset += 1
             res_sum = False
-            self.esam_certi_box.setText('失败：' + dars.DAR.get(int(data[offset], 16), '无效DAR'))
+            self.esam_certi_box.setText('失败：' + base_data.get_dar(int(data[offset], 16)))
         if res_sum is True:
             self.res_b.setStyleSheet('color: green')
             self.res_b.setText('成功')
@@ -598,7 +598,7 @@ class ParamWindow(QtGui.QMainWindow, QtGui.QWidget, Ui_ParamWindow):
                             eval('self.rpt_c_' + str(evt_no) + '.setChecked(False)')
         else:
             self.res_b.setStyleSheet('color: red')
-            self.res_b.setText('失败：' + dars.DAR.get(int(data[offset + 1], 16), '无效DAR'))
+            self.res_b.setText('失败：' + base_data.get_dar(int(data[offset + 1], 16)))
         config.MASTER_WINDOW.receive_signal.disconnect(self.re_evt)
 
 
@@ -687,7 +687,7 @@ class ParamWindow(QtGui.QMainWindow, QtGui.QWidget, Ui_ParamWindow):
         else:
             offset += 1
             res_sum = False
-            self.esam_no_box.setText('失败：' + dars.DAR.get(int(data[offset + 1], 16), '无效DAR'))
+            self.esam_no_box.setText('失败：' + base_data.get_dar(int(data[offset + 1], 16)))
         offset += 4
         if data[offset] == '01':
             offset += 2
@@ -696,7 +696,7 @@ class ParamWindow(QtGui.QMainWindow, QtGui.QWidget, Ui_ParamWindow):
         else:
             offset += 1
             res_sum = False
-            self.esam_ver_box.setText('失败：' + dars.DAR.get(int(data[offset + 1], 16), '无效DAR'))
+            self.esam_ver_box.setText('失败：' + base_data.get_dar(int(data[offset + 1], 16)))
         offset += 4
         if data[offset] == '01':
             offset += 2
@@ -705,7 +705,7 @@ class ParamWindow(QtGui.QMainWindow, QtGui.QWidget, Ui_ParamWindow):
         else:
             offset += 1
             res_sum = False
-            self.esam_key_box.setText('失败：' + dars.DAR.get(int(data[offset + 1], 16), '无效DAR'))
+            self.esam_key_box.setText('失败：' + base_data.get_dar(int(data[offset + 1], 16)))
         offset += 4
         if data[offset] == '01':
             offset += 2
@@ -722,7 +722,7 @@ class ParamWindow(QtGui.QMainWindow, QtGui.QWidget, Ui_ParamWindow):
         else:
             offset += 1
             res_sum = False
-            self.esam_dialog_tm_box.setText('失败：' + dars.DAR.get(int(data[offset + 1], 16), '无效DAR'))
+            self.esam_dialog_tm_box.setText('失败：' + base_data.get_dar(int(data[offset + 1], 16)))
 
         if res_sum is True:
             self.res_b.setStyleSheet('color: green')
