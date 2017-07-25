@@ -1,5 +1,5 @@
 """main"""
-from master.app import main
+from master.app_master import main
 
 
 main()

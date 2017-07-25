@@ -18,6 +18,8 @@ MASTER_WINDOW = None
 
 COMMU = None
 
+K_DATA = None
+
 if getattr(sys, 'frozen', False):
     SORTWARE_PATH = sys._MEIPASS
 else:

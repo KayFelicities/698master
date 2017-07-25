@@ -49,7 +49,6 @@ class TransWindow(QtGui.QMainWindow, TransWindowUi):
 
     def dragEnterEvent(self, event):
         """drag"""
-        print('dragEnterEvent')
         if event.mimeData().hasUrls:
             event.accept()
         else:
@@ -57,7 +56,6 @@ class TransWindow(QtGui.QMainWindow, TransWindowUi):
 
     def dragMoveEvent(self, event):
         """drag"""
-        print('dragMoveEvent')
         if event.mimeData().hasUrls:
             event.setDropAction(QtCore.Qt.CopyAction)
             event.accept()
@@ -66,7 +64,6 @@ class TransWindow(QtGui.QMainWindow, TransWindowUi):
 
     def dropEvent(self, event):
         """drop file"""
-        print('dropEvent')
         if event.mimeData().hasUrls:
             event.setDropAction(QtCore.Qt.CopyAction)
             event.accept()

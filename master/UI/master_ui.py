@@ -312,7 +312,7 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
         """explain_oad"""
         oad_text = self.oad_box.text().replace(' ', '')
         if len(oad_text) == 8:
-            explain = k_data.get_oad_explain(oad_text)
+            explain = config.K_DATA.get_oad_explain(oad_text)
             self.oad_explain_l.setText(explain)
         else:
             self.oad_explain_l.setText('')

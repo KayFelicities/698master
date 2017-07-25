@@ -1,5 +1,6 @@
 """handle with 698 datatypes"""
 from master.datas import k_data, base_data
+from master import config
 import copy
 
 
@@ -548,7 +549,7 @@ class TypeDo():
     def take_OI(self, m_list, brief='', depth=0, data_info=None):
         """take_OI"""
         offset = 0
-        explain = k_data.get_oi_explain(m_list[offset] + m_list[offset + 1])
+        explain = config.K_DATA.get_oi_explain(m_list[offset] + m_list[offset + 1])
         offset += 2
         add_brief = data_info[0] if data_info else ''
         self.trans_res.add_row(m_list[:offset], brief + add_brief, 'OI', explain, depth=depth, priority=2)
@@ -560,7 +561,7 @@ class TypeDo():
         offset = 0
         attr = int(m_list[offset + 2], 16)
         index = int(m_list[offset + 3], 16)
-        explain = k_data.get_oad_explain(''.join(m_list[offset : offset + 4]))
+        explain = config.K_DATA.get_oad_explain(''.join(m_list[offset : offset + 4]))
         offset += 4
         add_brief = data_info[0] if data_info else ''
         self.trans_res.add_row(m_list[:offset], brief + add_brief, 'OAD', explain, depth=depth, priority=2)
@@ -583,7 +584,7 @@ class TypeDo():
     def take_OMD(self, m_list, brief='', depth=0, data_info=None):
         """take_OMD"""
         offset = 0
-        explain = k_data.get_omd_explain(''.join(m_list[offset : offset + 4]))
+        explain = config.K_DATA.get_omd_explain(''.join(m_list[offset : offset + 4]))
         offset += 4
         add_brief = data_info[0] if data_info else ''
         self.trans_res.add_row(m_list[:offset], brief + add_brief, 'OMD', explain, depth=depth, priority=2)
