@@ -67,11 +67,14 @@ class TypeDo():
             axdr_len = len_flag
         else:
             len_of_len = len_flag & 0x7f
-            string_len = ''
-            for count in range(len_of_len):
-                string_len += m_list[offset + count]
-            offset += len_of_len
-            axdr_len = int(string_len, 16)
+            if len_of_len != 0:
+                string_len = ''
+                for count in range(len_of_len):
+                    string_len += m_list[offset + count]
+                offset += len_of_len
+                axdr_len = int(string_len, 16)
+            else:
+                axdr_len = 128
         return {'offset': offset, 'len': axdr_len}
 
 
@@ -159,8 +162,8 @@ class TypeDo():
             enum_dict = None
             if structure:
                 member = structure.pop(0)
+                brief = member[0]
                 if member[1] == 'enum':
-                    brief = member[0]
                     enum_dict = member[2]
             offset += self.take_enum(m_list[offset:], brief=brief, depth=depth, enum_dict=enum_dict)
             return offset

@@ -8,7 +8,6 @@ from PyQt4 import QtCore, QtGui
 from master.UI.ui_setup import TransWindowUi
 from master.trans.translate import Translate
 from master import config
-import master.trans.common as commonfun
 
 
 class TransWindow(QtGui.QMainWindow, TransWindowUi):
@@ -50,14 +49,7 @@ class TransWindow(QtGui.QMainWindow, TransWindowUi):
     def dragEnterEvent(self, event):
         """drag"""
         if event.mimeData().hasUrls:
-            event.accept()
-        else:
-            event.ignore()
-
-    def dragMoveEvent(self, event):
-        """drag"""
-        if event.mimeData().hasUrls:
-            event.setDropAction(QtCore.Qt.CopyAction)
+            print('has')
             event.accept()
         else:
             event.ignore()
@@ -71,8 +63,7 @@ class TransWindow(QtGui.QMainWindow, TransWindowUi):
             for url in event.mimeData().urls():
                 links.append(str(url.toLocalFile()))
             print('url:', links[0])
-            if links[0].split('.')[-1] in ['txt', 'TXT', 'log', 'LOG']:
-                self.openfile(links[0])
+            self.openfile(links[0])
         else:
             event.ignore()
 
@@ -90,7 +81,7 @@ class TransWindow(QtGui.QMainWindow, TransWindowUi):
     def openfile(self, filepath=''):
         """open file"""
         if not filepath:
-            filepath = QtGui.QFileDialog.getOpenFileName(self, caption='请选择698日志文件', filter='*.txt *.log')
+            filepath = QtGui.QFileDialog.getOpenFileName(self, caption='请选择698日志文件', filter='*')
         if filepath:
             print('filepath: ', filepath)
             file_size = os.path.getsize(filepath)
