@@ -608,14 +608,14 @@ class Service():
         """proxy_get_request_list"""
         offset = 0
         offset += self.typedo.take_PIID(m_list[offset:], 'PIID')
-        offset += self.typedo.take_long_unsigned(m_list[offset:], '整个代理请求的超时时间')
+        offset += self.typedo.take_long_unsigned(m_list[offset:], '整个代理请求的超时时间(秒)')
         num = int(m_list[offset], 16)
         self.trans_res.add_row(m_list[offset: offset+1],\
                     '代理服务器的对象属性读取', 'SEQUENCE OF[%d]'%num, num, unit='个')
         offset += 1
         for _ in range(num):
             offset += self.typedo.take_TSA(m_list[offset:], '目标服务器地址', depth=1)
-            offset += self.typedo.take_long_unsigned(m_list[offset:], '代理服务器的超时时间', depth=1)
+            offset += self.typedo.take_long_unsigned(m_list[offset:], '代理服务器的超时时间(秒)', depth=1)
             oad_num = int(m_list[offset], 16)
             self.trans_res.add_row(m_list[offset: offset+1],\
                         'OAD', 'SEQUENCE OF OAD[%d]'%oad_num, oad_num, depth=1, unit='个')
@@ -628,7 +628,7 @@ class Service():
         """ProxyGetRequestRecord"""
         offset = 0
         offset += self.typedo.take_PIID(m_list[offset:], 'PIID')
-        offset += self.typedo.take_long_unsigned(m_list[offset:], '代理请求的超时时间')
+        offset += self.typedo.take_long_unsigned(m_list[offset:], '代理请求的超时时间(秒)')
         offset += self.typedo.take_TSA(m_list[offset:], '目标服务器地址')
         offset += self.typedo.take_OAD(m_list[offset:], 'OAD')
         offset += self.typedo.take_RSD(m_list[offset:], '记录选择描述符')
@@ -639,17 +639,17 @@ class Service():
         """ProxySetRequestList"""
         offset = 0
         offset += self.typedo.take_PIID(m_list[offset:], 'PIID')
-        offset += self.typedo.take_long_unsigned(m_list[offset:], '整个代理请求的超时时间')
+        offset += self.typedo.take_long_unsigned(m_list[offset:], '整个代理请求的超时时间(秒)')
         num = int(m_list[offset], 16)
         self.trans_res.add_row(m_list[offset: offset+1],\
                     '代理服务器的对象属性设置', 'SEQUENCE OF[%d]'%num, num, unit='个')
         offset += 1
         for _ in range(num):
             offset += self.typedo.take_TSA(m_list[offset:], '目标服务器地址', depth=1)
-            offset += self.typedo.take_long_unsigned(m_list[offset:], '代理服务器的超时时间', depth=1)
+            offset += self.typedo.take_long_unsigned(m_list[offset:], '代理服务器的超时时间(秒)', depth=1)
             num1 = int(m_list[offset], 16)
             self.trans_res.add_row(m_list[offset: offset+1],\
-                        'OAD及其数据', 'SEQUENCE OF[%d]'%num, num, depth=1, unit='个')
+                        'OAD及其数据', 'SEQUENCE OF[%d]'%num1, num1, depth=1, unit='个')
             offset += 1
             for _ in range(num1):
                 offset += self.typedo.take_OAD(m_list[offset:], 'OAD', depth=2)
@@ -662,17 +662,17 @@ class Service():
         """ProxySetThenGetRequestList"""
         offset = 0
         offset += self.typedo.take_PIID(m_list[offset:], 'PIID')
-        offset += self.typedo.take_long_unsigned(m_list[offset:], '整个代理请求的超时时间')
+        offset += self.typedo.take_long_unsigned(m_list[offset:], '整个代理请求的超时时间(秒)')
         num = int(m_list[offset], 16)
         self.trans_res.add_row(m_list[offset: offset+1],\
                     '代理服务器的对象属性设置后读取', 'SEQUENCE OF[%d]'%num, num, unit='个')
         offset += 1
         for _ in range(num):
             offset += self.typedo.take_TSA(m_list[offset:], '目标服务器地址', depth=1)
-            offset += self.typedo.take_long_unsigned(m_list[offset:], '代理服务器的超时时间', depth=1)
+            offset += self.typedo.take_long_unsigned(m_list[offset:], '代理服务器的超时时间(秒)', depth=1)
             num1 = int(m_list[offset], 16)
             self.trans_res.add_row(m_list[offset: offset+1],\
-                        '对象属性的设置后读取', 'SEQUENCE OF[%d]'%num, num, depth=1, unit='个')
+                        '对象属性的设置后读取', 'SEQUENCE OF[%d]'%num1, num1, depth=1, unit='个')
             offset += 1
             for _ in range(num1):
                 offset += self.typedo.take_OAD(m_list[offset:], '设置的OAD', depth=2)
@@ -687,17 +687,17 @@ class Service():
         """ProxyActionRequestList"""
         offset = 0
         offset += self.typedo.take_PIID(m_list[offset:], 'PIID')
-        offset += self.typedo.take_long_unsigned(m_list[offset:], '整个代理请求的超时时间')
+        offset += self.typedo.take_long_unsigned(m_list[offset:], '整个代理请求的超时时间(秒)')
         num = int(m_list[offset], 16)
         self.trans_res.add_row(m_list[offset: offset+1],\
                     '代理服务器的对象方法操作', 'SEQUENCE OF[%d]'%num, num, unit='个')
         offset += 1
         for _ in range(num):
             offset += self.typedo.take_TSA(m_list[offset:], '目标服务器地址', depth=1)
-            offset += self.typedo.take_long_unsigned(m_list[offset:], '代理服务器的超时时间', depth=1)
+            offset += self.typedo.take_long_unsigned(m_list[offset:], '代理服务器的超时时间(秒)', depth=1)
             num1 = int(m_list[offset], 16)
             self.trans_res.add_row(m_list[offset: offset+1],\
-                        '对象方法描述符及其参数', 'SEQUENCE OF[%d]'%num, num, depth=1, unit='个')
+                        '对象方法描述符及其参数', 'SEQUENCE OF[%d]'%num1, num1, depth=1, unit='个')
             offset += 1
             for _ in range(num1):
                 offset += self.typedo.take_OMD(m_list[offset:], '对象方法描述符', depth=2)
@@ -710,17 +710,17 @@ class Service():
         """ProxyActionThenGetRequestList"""
         offset = 0
         offset += self.typedo.take_PIID(m_list[offset:], 'PIID')
-        offset += self.typedo.take_long_unsigned(m_list[offset:], '整个代理请求的超时时间')
+        offset += self.typedo.take_long_unsigned(m_list[offset:], '整个代理请求的超时时间(秒)')
         num = int(m_list[offset], 16)
         self.trans_res.add_row(m_list[offset: offset+1],\
                     '代理服务器的操作后读取', 'SEQUENCE OF[%d]'%num, num, unit='个')
         offset += 1
         for _ in range(num):
             offset += self.typedo.take_TSA(m_list[offset:], '目标服务器地址', depth=1)
-            offset += self.typedo.take_long_unsigned(m_list[offset:], '代理服务器的超时时间', depth=1)
+            offset += self.typedo.take_long_unsigned(m_list[offset:], '代理服务器的超时时间(秒)', depth=1)
             num1 = int(m_list[offset], 16)
             self.trans_res.add_row(m_list[offset: offset+1],\
-                        '对象方法及属性的操作后读取', 'SEQUENCE OF[%d]'%num, num, depth=1, unit='个')
+                        '对象方法及属性的操作后读取', 'SEQUENCE OF[%d]'%num1, num1, depth=1, unit='个')
             offset += 1
             for _ in range(num1):
                 offset += self.typedo.take_OMD(m_list[offset:], '操作的对象方法描述符', depth=2)
@@ -737,8 +737,8 @@ class Service():
         offset += self.typedo.take_PIID(m_list[offset:], 'PIID')
         offset += self.typedo.take_OAD(m_list[offset:], '数据转发端口')
         offset += self.typedo.take_COMDCB(m_list[offset:], '端口通信控制块')
-        offset += self.typedo.take_long_unsigned(m_list[offset:], '接收等待报文超时时间（秒）')
-        offset += self.typedo.take_long_unsigned(m_list[offset:], '接收等待字节超时时间（毫秒）')
+        offset += self.typedo.take_long_unsigned(m_list[offset:], '接收等待报文超时时间(秒)')
+        offset += self.typedo.take_long_unsigned(m_list[offset:], '接收等待字节超时时间(毫秒)')
         offset += self.typedo.take_octect_string(m_list[offset:], '透明转发命令')
         return offset
 
@@ -754,7 +754,7 @@ class Service():
             offset += self.typedo.take_TSA(m_list[offset:], '目标服务器地址', depth=1)
             num1 = int(m_list[offset], 16)
             self.trans_res.add_row(m_list[offset: offset+1],\
-                        'OAD及其结果', 'SEQUENCE OF[%d]'%num, num, depth=1, unit='个')
+                        'OAD及其结果', 'SEQUENCE OF[%d]'%num1, num1, depth=1, unit='个')
             offset += 1
             for _ in range(num1):
                 offset += self.typedo.take_OAD(m_list[offset:], 'OAD', depth=2)
@@ -782,7 +782,7 @@ class Service():
             offset += self.typedo.take_TSA(m_list[offset:], '目标服务器地址', depth=1)
             num1 = int(m_list[offset], 16)
             self.trans_res.add_row(m_list[offset: offset+1],\
-                        'OAD及其结果', 'SEQUENCE OF[%d]'%num, num, depth=1, unit='个')
+                        'OAD及其结果', 'SEQUENCE OF[%d]'%num1, num1, depth=1, unit='个')
             offset += 1
             for _ in range(num1):
                 offset += self.typedo.take_OAD(m_list[offset:], 'OAD', depth=2)
@@ -801,7 +801,7 @@ class Service():
             offset += self.typedo.take_TSA(m_list[offset:], '目标服务器地址', depth=1)
             num1 = int(m_list[offset], 16)
             self.trans_res.add_row(m_list[offset: offset+1],\
-                        '对象属性设置后读取结果', 'SEQUENCE OF[%d]'%num, num, depth=1, unit='个')
+                        '对象属性设置后读取结果', 'SEQUENCE OF[%d]'%num1, num1, depth=1, unit='个')
             offset += 1
             for _ in range(num1):
                 offset += self.typedo.take_OAD(m_list[offset:], '设置的OAD', depth=2)
@@ -823,7 +823,7 @@ class Service():
             offset += self.typedo.take_TSA(m_list[offset:], '目标服务器地址', depth=1)
             num1 = int(m_list[offset], 16)
             self.trans_res.add_row(m_list[offset: offset+1],\
-                        '对象属性设置后读取结果', 'SEQUENCE OF[%d]'%num, num, depth=1, unit='个')
+                        '对象属性设置后读取结果', 'SEQUENCE OF[%d]'%num1, num1, depth=1, unit='个')
             offset += 1
             for _ in range(num1):
                 offset += self.typedo.take_OMD(m_list[offset:], '对象方法描述符', depth=2)
@@ -846,7 +846,7 @@ class Service():
             offset += self.typedo.take_TSA(m_list[offset:], '目标服务器地址', depth=1)
             num1 = int(m_list[offset], 16)
             self.trans_res.add_row(m_list[offset: offset+1],\
-                        '对象方法和属性操作后读取结果', 'SEQUENCE OF[%d]'%num, num, depth=1, unit='个')
+                        '对象方法和属性操作后读取结果', 'SEQUENCE OF[%d]'%num1, num1, depth=1, unit='个')
             offset += 1
             for _ in range(num1):
                 offset += self.typedo.take_OMD(m_list[offset:], '操作的对象方法描述符', depth=2)

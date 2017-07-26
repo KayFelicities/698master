@@ -101,7 +101,8 @@ def take_linklayer2(m_list, offset, trans_res):
         hcs_check = '(错误，正确值{0:04X})'.format(fcs_calc)
     trans_res.add_row(m_list[offset: offset+2], '帧校验', '', '{0:04X}'.format(fcs_now) + hcs_check, priority=0)
     offset += 2
-    trans_res.add_row(m_list[offset: offset+1], '结束符', value=16, priority=0)
+    trans_res.add_row(m_list[offset: offset+1], '结束符%s'%('(错误)' if m_list[offset] != '16' else ''),\
+                        value=m_list[offset], priority=0)
     offset += 1
     return offset - offset_temp
 
