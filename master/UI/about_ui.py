@@ -1,8 +1,11 @@
 """about ui"""
 import os
 import sys
-from PySide import QtGui, QtCore
 from master import config
+if config.IS_USE_PYSIDE:
+    from PySide import QtGui, QtCore
+else:
+    from PyQt4 import QtGui, QtCore
 
 
 class AboutWindow(QtGui.QDialog):

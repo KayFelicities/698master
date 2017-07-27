@@ -1,7 +1,10 @@
 """ui setup class"""
 import os
-from PySide import QtGui, QtCore
 from master import config
+if config.IS_USE_PYSIDE:
+    from PySide import QtGui, QtCore
+else:
+    from PyQt4 import QtGui, QtCore
 
 
 class MasterWindowUi():
@@ -26,10 +29,10 @@ class MasterWindowUi():
         self.action_service_action.setShortcut('F6')
         self.proxy_service_action = QtGui.QAction('&代理', self)
         self.proxy_service_action.setShortcut('F7')
-        # self.commu_menu = self.menubar.addMenu('&服务')
-        # self.commu_menu.addAction(self.get_set_service_action)
-        # self.commu_menu.addAction(self.action_service_action)
-        # self.commu_menu.addAction(self.proxy_service_action)
+        self.commu_menu = self.menubar.addMenu('&服务')
+        self.commu_menu.addAction(self.get_set_service_action)
+        self.commu_menu.addAction(self.action_service_action)
+        self.commu_menu.addAction(self.proxy_service_action)
 
         self.general_cmd_action = QtGui.QAction('&常用命令', self)
         self.general_cmd_action.setShortcut('F9')

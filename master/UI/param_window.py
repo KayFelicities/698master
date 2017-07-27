@@ -3,8 +3,11 @@
 # Form implementation generated from reading ui file 'param_window.ui'
 #
 # WARNING! All changes made in this file will be lost!
-
-from PySide import QtCore, QtGui
+from master import config
+if config.IS_USE_PYSIDE:
+    from PySide import QtGui, QtCore
+else:
+    from PyQt4 import QtGui, QtCore
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8

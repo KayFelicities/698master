@@ -1,5 +1,9 @@
 """load type"""
-from PySide import QtGui, QtCore
+from master import config
+if config.IS_USE_PYSIDE:
+    from PySide import QtGui, QtCore
+else:
+    from PyQt4 import QtGui, QtCore
 
 
 def take_axdr_len(m_list):

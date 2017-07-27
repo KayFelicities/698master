@@ -3,9 +3,12 @@ import sys
 import os
 from master.UI.trans_ui import TransWindow
 from master.UI.about_ui import AboutWindow
-from PySide import QtGui
 from master import config
 from master.datas import k_data
+if config.IS_USE_PYSIDE:
+    from PySide import QtGui
+else:
+    from PyQt4 import QtGui
 
 
 def main(file_path=''):

@@ -5,7 +5,6 @@ import threading
 import time
 import re
 import random
-from PySide import QtGui, QtCore
 from master.UI.ui_setup import ApduDiyDialogUi, MsgDiyDialogUi, TransPopDialogUi, CommuDialogUi, RemoteUpdateDialogUI
 from master.trans import translate, linklayer
 from master.trans import common
@@ -14,6 +13,10 @@ from master.commu import communication
 from master.datas import get_set_oads
 from master.trans import loadtype
 from master.others import master_config
+if config.IS_USE_PYSIDE:
+    from PySide import QtGui, QtCore
+else:
+    from PyQt4 import QtGui, QtCore
 
 
 class TransPopDialog(QtGui.QDialog, TransPopDialogUi):
@@ -297,7 +300,7 @@ class MsgDiyDialog(QtGui.QDialog, MsgDiyDialogUi):
 
 class RemoteUpdateDialog(QtGui.QDialog, RemoteUpdateDialogUI):
     """remote update window"""
-    update_signal = QtCore.Signal(int, int)
+    update_signal = QtCore.Signal(int, int) if config.IS_USE_PYSIDE else QtCore.pyqtSignal(int, int)
     def __init__(self):
         super(RemoteUpdateDialog, self).__init__()
         self.setup_ui()

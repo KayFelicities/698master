@@ -1,7 +1,11 @@
 """trans window's ui setup"""
 import os
-from PySide import QtGui, QtCore
 from master import config
+if config.IS_USE_PYSIDE:
+    from PySide import QtGui, QtCore
+else:
+    from PyQt4 import QtGui, QtCore
+
 
 class TransWindowUi():
     """ApduDiyDialogUi"""

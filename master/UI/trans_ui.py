@@ -4,16 +4,19 @@ import os
 import sys
 import threading
 import chardet
-from PySide import QtCore, QtGui
 from master.UI.trans_ui_setup import TransWindowUi
 from master.trans.translate import Translate
 from master import config
+if config.IS_USE_PYSIDE:
+    from PySide import QtGui, QtCore
+else:
+    from PyQt4 import QtGui, QtCore
 
 
 class TransWindow(QtGui.QMainWindow, TransWindowUi):
     """translate window"""
-    load_file = QtCore.Signal(str)
-    set_progress = QtCore.Signal(int)
+    load_file = QtCore.Signal(str) if config.IS_USE_PYSIDE else QtCore.pyqtSignal(str)
+    set_progress = QtCore.Signal(int) if config.IS_USE_PYSIDE else QtCore.pyqtSignal(int)
 
     def __init__(self):
         super(TransWindow, self).__init__()

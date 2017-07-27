@@ -2,10 +2,8 @@
 import sys
 import os
 from master import config
-from PySide import QtCore, QtGui
 import traceback
 import time
-
 from master.UI.ui_setup import MasterWindowUi
 from master.trans import common
 from master.trans import linklayer
@@ -16,13 +14,17 @@ from master.reply import reply
 from master.datas import k_data
 from master.others import msg_log
 from master.others import master_config
+if config.IS_USE_PYSIDE:
+    from PySide import QtGui, QtCore
+else:
+    from PyQt4 import QtGui, QtCore
 
 
 class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
     """serial window"""
-    receive_signal = QtCore.Signal(str, int)
-    send_signal = QtCore.Signal(str, int)
-    se_apdu_signal = QtCore.Signal(str)
+    receive_signal = QtCore.Signal(str, int) if config.IS_USE_PYSIDE else QtCore.pyqtSignal(str, int)
+    send_signal = QtCore.Signal(str, int) if config.IS_USE_PYSIDE else QtCore.pyqtSignal(str, int)
+    se_apdu_signal = QtCore.Signal(str) if config.IS_USE_PYSIDE else QtCore.pyqtSignal(str)
 
     def __init__(self):
         super(MasterWindow, self).__init__()
@@ -31,6 +33,7 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
         self.reply_link_cb.setChecked(True)
         self.is_reply_link = True if self.reply_link_cb.isChecked() else False
         self.is_reply_rpt = True if self.reply_rpt_cb.isChecked() else False
+        # self.tmn_table.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
 
         self.apply_config()
 
@@ -48,7 +51,7 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
         self.reply_link_cb.clicked.connect(self.set_reply_link)
         self.reply_rpt_cb.clicked.connect(self.set_reply_rpt)
         self.read_oad_b.clicked.connect(self.send_read_oad)
-        self.connect(self.oad_box, QtCore.SIGNAL("returnPressed()"), self.send_read_oad)
+        self.oad_box.returnPressed.connect(self.send_read_oad)
         self.oad_box.textChanged.connect(self.explain_oad)
 
         self.about_action.triggered.connect(lambda: config.ABOUT_WINDOW.show() or config.ABOUT_WINDOW.showNormal() or config.ABOUT_WINDOW.activateWindow())

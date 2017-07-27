@@ -1,12 +1,14 @@
 """param ui"""
 import os
-from PySide import QtCore
-from PySide import QtGui
 from master import config
 from master.trans import common
 from master.UI.param_window import Ui_ParamWindow
 from master.UI import param
 from master.datas import base_data
+if config.IS_USE_PYSIDE:
+    from PySide import QtGui, QtCore
+else:
+    from PyQt4 import QtGui, QtCore
 
 
 class ParamWindow(QtGui.QMainWindow, QtGui.QWidget, Ui_ParamWindow):

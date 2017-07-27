@@ -20,14 +20,17 @@ COMMU = None
 
 K_DATA = None
 
-if getattr(sys, 'frozen', False):
-    SORTWARE_PATH = sys._MEIPASS
-else:
-    SORTWARE_PATH = os.path.join(os.path.split(os.path.realpath(__file__))[0], '..')
-
 M_PRIORITY_COLOR = {0: 'grey', 1: 'black', 2: 'blue', 3: 'red'}
 
 MSG_TABLE_ROW_MAX = 1024
 
 CONFIG_FILE_PATH = os.path.join(os.path.expanduser('~'), '.698master/698master.conf')
 MSG_LOG_DIR = os.path.join(os.path.expanduser('~'), '.698master/logs/')
+
+IS_USE_PYSIDE = False
+
+if getattr(sys, 'frozen', False):
+    SORTWARE_PATH = sys._MEIPASS
+else:
+    SORTWARE_PATH = os.path.join(os.path.split(os.path.realpath(__file__))[0], '..')
+
