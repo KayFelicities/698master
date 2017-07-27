@@ -4,16 +4,16 @@ import os
 import sys
 import threading
 import chardet
-from PyQt4 import QtCore, QtGui
-from master.UI.ui_setup import TransWindowUi
+from PySide import QtCore, QtGui
+from master.UI.trans_ui_setup import TransWindowUi
 from master.trans.translate import Translate
 from master import config
 
 
 class TransWindow(QtGui.QMainWindow, TransWindowUi):
     """translate window"""
-    load_file = QtCore.pyqtSignal(str)
-    set_progress = QtCore.pyqtSignal(int)
+    load_file = QtCore.Signal(str)
+    set_progress = QtCore.Signal(int)
 
     def __init__(self):
         super(TransWindow, self).__init__()

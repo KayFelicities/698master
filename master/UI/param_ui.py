@@ -1,7 +1,7 @@
 """param ui"""
 import os
-from PyQt4 import QtCore
-from PyQt4 import QtGui
+from PySide import QtCore
+from PySide import QtGui
 from master import config
 from master.trans import common
 from master.UI.param_window import Ui_ParamWindow

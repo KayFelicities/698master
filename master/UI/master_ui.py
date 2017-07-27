@@ -2,7 +2,7 @@
 import sys
 import os
 from master import config
-from PyQt4 import QtCore, QtGui
+from PySide import QtCore, QtGui
 import traceback
 import time
 
@@ -20,9 +20,9 @@ from master.others import master_config
 
 class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
     """serial window"""
-    receive_signal = QtCore.pyqtSignal(str, int)
-    send_signal = QtCore.pyqtSignal(str, int)
-    se_apdu_signal = QtCore.pyqtSignal(str)
+    receive_signal = QtCore.Signal(str, int)
+    send_signal = QtCore.Signal(str, int)
+    se_apdu_signal = QtCore.Signal(str)
 
     def __init__(self):
         super(MasterWindow, self).__init__()
@@ -85,6 +85,7 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
                                     logic_addr=tmn[2], chan_index=tmn[3])
         self.always_top_cb.setChecked(apply_config.get_windows_top())
 
+    # @QtCore.Slot(str, int)
     def re_msg_do(self, re_text, chan_index):
         """recieve text"""
         self.re_msg_buf += common.text2list(re_text)
@@ -96,6 +97,7 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
         self.re_msg_buf = []
 
 
+    # @QtCore.Slot(str, int)
     def se_msg_do(self, re_text, chan_index):
         """recieve text"""
         self.add_msg_table_row(re_text, chan_index, '→')
@@ -169,16 +171,16 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
         self.msg_table.insertRow(row_pos)
 
         item = QtGui.QTableWidgetItem(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
-        # item.setBackgroundColor(text_color)
+        # item.setBackground(text_color)
         self.msg_table.setItem(row_pos, 0, item)
 
         addr_text = '{SA}:{logic}'.format(SA=server_addr, logic=logic_addr)
         item = QtGui.QTableWidgetItem(addr_text)
-        # item.setBackgroundColor(text_color)
+        # item.setBackground(text_color)
         self.msg_table.setItem(row_pos, 1, item)
 
         item = QtGui.QTableWidgetItem(chan_text + direction)
-        item.setBackgroundColor(text_color)
+        item.setBackground(text_color)
         self.msg_table.setItem(row_pos, 2, item)
 
         item = QtGui.QTableWidgetItem(brief)
@@ -188,7 +190,7 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
 
         msg_text = common.format_text(m_text)
         item = QtGui.QTableWidgetItem(msg_text)
-        # item.setBackgroundColor(text_color)
+        # item.setBackground(text_color)
         self.msg_table.setItem(row_pos, 4, item)
 
         if row_pos > config.MSG_TABLE_ROW_MAX:
@@ -210,6 +212,7 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
                             logic_addr=logic_addr, chan_index=chan_index, C_text='03')
 
 
+    # @QtCore.Slot(str)
     def send_apdu(self, apdu_text, tmn_addr='', logic_addr=-1, chan_index=-1, C_text='43'):
         """apdu to compelete msg to send"""
         for row in [x for x in range(self.tmn_table.rowCount())\

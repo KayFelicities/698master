@@ -5,7 +5,7 @@ import threading
 import time
 import re
 import random
-from PyQt4 import QtGui, QtCore
+from PySide import QtGui, QtCore
 from master.UI.ui_setup import ApduDiyDialogUi, MsgDiyDialogUi, TransPopDialogUi, CommuDialogUi, RemoteUpdateDialogUI
 from master.trans import translate, linklayer
 from master.trans import common
@@ -297,7 +297,7 @@ class MsgDiyDialog(QtGui.QDialog, MsgDiyDialogUi):
 
 class RemoteUpdateDialog(QtGui.QDialog, RemoteUpdateDialogUI):
     """remote update window"""
-    update_signal = QtCore.pyqtSignal(int, int)
+    update_signal = QtCore.Signal(int, int)
     def __init__(self):
         super(RemoteUpdateDialog, self).__init__()
         self.setup_ui()
@@ -451,7 +451,7 @@ class GetSetServiceDialog(QtGui.QDialog):
 
         self.object_table_w = QtGui.QWidget()
         self.object_table_vbox = QtGui.QVBoxLayout(self.object_table_w)
-        self.object_table_vbox.setMargin(1)
+        self.object_table_vbox.setContentsMargins(1, 1, 1, 1)
         self.object_table_vbox.setSpacing(0)
         self.object_table = QtGui.QTableWidget(self.object_table_w)
         self.object_table.setEditTriggers(QtGui.QTableWidget.NoEditTriggers) # 表格不可编辑
@@ -488,7 +488,7 @@ class GetSetServiceDialog(QtGui.QDialog):
 
         self.re_table_w = QtGui.QWidget()
         self.re_table_vbox = QtGui.QVBoxLayout(self.re_table_w)
-        self.re_table_vbox.setMargin(1)
+        self.re_table_vbox.setContentsMargins(1, 1, 1, 1)
         self.re_table_vbox.setSpacing(0)
         self.re_table = QtGui.QTableWidget(self.re_table_w)
         self.re_table.verticalHeader().setVisible(False)
@@ -532,7 +532,7 @@ class GetSetServiceDialog(QtGui.QDialog):
         self.cb_hbox.addWidget(self.show_level_cb)
 
         self.main_vbox = QtGui.QVBoxLayout()
-        self.main_vbox.setMargin(1)
+        self.main_vbox.setContentsMargins(1, 1, 1, 1)
         self.main_vbox.setSpacing(1)
         self.main_vbox.addWidget(self.splitter)
         self.main_vbox.addLayout(self.cb_hbox)

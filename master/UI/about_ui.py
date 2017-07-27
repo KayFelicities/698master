@@ -1,7 +1,7 @@
 """about ui"""
 import os
 import sys
-from PyQt4 import QtGui, QtCore
+from PySide import QtGui, QtCore
 from master import config
 
 
@@ -42,7 +42,7 @@ class AboutWindow(QtGui.QDialog):
         self.foot_hbox.addStretch(1)
 
         self.main_vbox = QtGui.QVBoxLayout()
-        self.main_vbox.setMargin(1)
+        self.main_vbox.setContentsMargins(1, 1, 1, 1)
         self.main_vbox.setSpacing(5)
         self.main_vbox.addLayout(self.head_hbox)
         self.main_vbox.addWidget(self.about_box)

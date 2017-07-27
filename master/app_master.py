@@ -5,7 +5,7 @@ from master.UI.trans_ui import TransWindow
 from master.UI.about_ui import AboutWindow
 from master.UI.master_ui import MasterWindow
 from master.commu import communication
-from PyQt4 import QtGui
+from PySide import QtGui
 from master import config
 from master.datas import k_data
 
