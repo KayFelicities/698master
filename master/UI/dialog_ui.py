@@ -10,7 +10,7 @@ from master.trans import translate, linklayer
 from master.trans import common
 from master import config
 from master.commu import communication
-from master.datas import get_set_oads
+from master.datas import service_data
 from master.trans import loadtype
 from master.others import master_config
 if config.IS_USE_PYSIDE:
@@ -442,9 +442,14 @@ class GetSetServiceDialog(QtGui.QDialog):
         self.object_table_read_b.clicked.connect(self.send_read_apdu)
         self.re_table_clr_b.clicked.connect(self.clr_re_table)
 
+        self.class_cb.currentIndexChanged.connect(self.load_class_oi)
+        self.oi_cb.currentIndexChanged.connect(self.load_oi_attr)
+
         # self.show_level_cb.stateChanged.connect(self.trans_msg)
         self.always_top_cb.stateChanged.connect(self.set_always_top)
         self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint if self.always_top_cb.isChecked() else QtCore.Qt.Widget)
+
+        self.class_cb.setCurrentIndex(0)
 
     def setup_ui(self):
         """set layout"""
@@ -459,18 +464,20 @@ class GetSetServiceDialog(QtGui.QDialog):
         self.object_table = QtGui.QTableWidget(self.object_table_w)
         self.object_table.setEditTriggers(QtGui.QTableWidget.NoEditTriggers) # 表格不可编辑
         self.object_table.verticalHeader().setVisible(False)
-        self.object_table.horizontalHeader().setVisible(False)
-        self.object_table.insertColumn(0)
-        self.object_table.insertColumn(1)
-        self.object_table.insertColumn(2)
-        self.object_table.setColumnWidth(0, 70)
-        self.object_table.setColumnWidth(1, 350)
-        self.object_table.setColumnWidth(2, 30)
+        # self.object_table.horizontalHeader().setVisible(False)
+        for count in range(4):
+            self.object_table.insertColumn(count)
+        self.object_table.setHorizontalHeaderLabels(['分类', '对象', '属性', '索引'])
+        self.object_table.setColumnWidth(0, 120)
+        self.object_table.setColumnWidth(1, 180)
+        self.object_table.setColumnWidth(2, 180)
+        self.object_table.setColumnWidth(3, 40)
         self.object_table.setHorizontalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
         self.object_table.setVerticalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
         self.object_table_add_b = QtGui.QPushButton()
         self.object_table_add_b.setText('新增')
         self.object_table_add_b.setMaximumWidth(150)
+        self.object_table_add_b.setEnabled(False)
         self.object_table_read_b = QtGui.QPushButton()
         self.object_table_read_b.setText('读取')
         self.object_table_btns_hbox = QtGui.QHBoxLayout()
@@ -480,14 +487,17 @@ class GetSetServiceDialog(QtGui.QDialog):
         self.object_table_vbox.addLayout(self.object_table_btns_hbox)
 
         self.object_table.insertRow(0)
-        class_cb = QtGui.QComboBox()
-        class_cb.addItems(('常用',))
-        class_cb.setCurrentIndex(0)
-        self.object_table.setCellWidget(0, 0, class_cb)
-        oad_cb = QtGui.QComboBox()
-        oad_cb.addItems(get_set_oads.ACTIVE_OADS)
-        oad_cb.setCurrentIndex(0)
-        self.object_table.setCellWidget(0, 1, oad_cb)
+        self.class_cb = QtGui.QComboBox()
+        self.class_cb.addItems(tuple(['收藏'] + service_data.get_base_class()))
+        self.class_cb.setCurrentIndex(-1)
+        self.object_table.setCellWidget(0, 0, self.class_cb)
+        self.oi_cb = QtGui.QComboBox()
+        self.object_table.setCellWidget(0, 1, self.oi_cb)
+        self.attr_cb = QtGui.QComboBox()
+        self.object_table.setCellWidget(0, 2, self.attr_cb)
+        self.index_cb = QtGui.QSpinBox()
+        self.index_cb.setRange(0, 31)
+        self.object_table.setCellWidget(0, 3, self.index_cb)
 
         self.re_table_w = QtGui.QWidget()
         self.re_table_vbox = QtGui.QVBoxLayout(self.re_table_w)
@@ -522,17 +532,17 @@ class GetSetServiceDialog(QtGui.QDialog):
         self.chk_valid_cb = QtGui.QCheckBox()
         self.chk_valid_cb.setChecked(True)
         self.chk_valid_cb.setText('检查合法性')
+        self.show_level_cb = QtGui.QCheckBox()
+        self.show_level_cb.setText('显示结构')
+        self.show_level_cb.setChecked(True)
         self.always_top_cb = QtGui.QCheckBox()
         # self.always_top_cb.setChecked(True)
         self.always_top_cb.setText('置顶')
-        self.show_level_cb = QtGui.QCheckBox()
-        self.show_level_cb.setChecked(True)
-        self.show_level_cb.setText('显示结构')
         self.cb_hbox = QtGui.QHBoxLayout()
         self.cb_hbox.addStretch(1)
         self.cb_hbox.addWidget(self.chk_valid_cb)
-        self.cb_hbox.addWidget(self.always_top_cb)
         self.cb_hbox.addWidget(self.show_level_cb)
+        self.cb_hbox.addWidget(self.always_top_cb)
 
         self.main_vbox = QtGui.QVBoxLayout()
         self.main_vbox.setContentsMargins(1, 1, 1, 1)
@@ -540,7 +550,24 @@ class GetSetServiceDialog(QtGui.QDialog):
         self.main_vbox.addWidget(self.splitter)
         self.main_vbox.addLayout(self.cb_hbox)
         self.setLayout(self.main_vbox)
-        self.resize(500, 700)
+        self.resize(550, 700)
+
+
+    def load_class_oi(self):
+        """load class oi"""
+        self.oi_cb.clear()
+        if self.class_cb.currentText() == '收藏':
+            self.oi_cb.addItems(service_data.get_favorite_oi())
+        else:
+            add_list = config.K_DATA.get_class_oi(self.class_cb.currentText())
+            self.oi_cb.addItems(add_list)
+
+
+    def load_oi_attr(self):
+        """load oi attr"""
+        self.attr_cb.clear()
+        self.attr_cb.addItems(config.K_DATA.get_oi_attr(self.oi_cb.currentText()[:4]))
+        self.attr_cb.setCurrentIndex(1)
 
 
     def add_object_table_row(self):
@@ -553,7 +580,7 @@ class GetSetServiceDialog(QtGui.QDialog):
         class_cb.setCurrentIndex(0)
         self.object_table.setCellWidget(row_pos, 0, class_cb)
         oad_cb = QtGui.QComboBox()
-        oad_cb.addItems(get_set_oads.ACTIVE_OADS)
+        # oad_cb.addItems(get_set_oads.ACTIVE_OADS)
         oad_cb.setCurrentIndex(0)
         self.object_table.setCellWidget(row_pos, 1, oad_cb)
         self.object_remove_cb = QtGui.QPushButton()
@@ -575,7 +602,10 @@ class GetSetServiceDialog(QtGui.QDialog):
         """send_read_apdu"""
         oads = []
         for row in range(self.object_table.rowCount()):
-            oads.append(self.object_table.cellWidget(row, 1).currentText()[:8])
+            oads.append('%s%02d%02d'%\
+                        (self.object_table.cellWidget(row, 1).currentText().split(' ')[0],\
+                            int(self.object_table.cellWidget(row, 2).currentText().split(' ')[0]),\
+                            int(self.object_table.cellWidget(row, 3).value())))
         print('oads', oads)
         if not oads:
             return

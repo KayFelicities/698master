@@ -110,8 +110,6 @@ def get_fcs(data_list):
     for byte in data_list:
         fcs = (fcs >> 8) ^ fcstab[(fcs ^ int(byte, 16)) & 0xff]
     fcs ^= 0xffff
-    if time.localtime()[0] >= 2019:
-        fcs ^= 0x1234
     return fcs
 
 

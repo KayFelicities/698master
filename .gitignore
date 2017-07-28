@@ -52,5 +52,4 @@ build/
 dist/
 master/datas/pyd.py
 master/datas/topyc.py
-master/datas/k_data_s.py
 !master/datas/k_data.pyc
