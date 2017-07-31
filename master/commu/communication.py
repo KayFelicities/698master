@@ -55,6 +55,11 @@ class CommuPanel():
             config.MASTER_WINDOW.send_signal.emit(common.format_text(m_text), 2)
 
 
+    def receive_msg(self, m_text, chan_index):
+        """receive msg to emit signal"""
+        config.MASTER_WINDOW.receive_signal.emit(m_text, chan_index)
+
+
     def serial_connect(self, com, baudrate=9600, bytesize=8, parity='E', stopbits=1, timeout=0):
         """connect serial"""
         if self.is_serial_running:
@@ -86,6 +91,7 @@ class CommuPanel():
 
     def serial_read_loop(self):
         """serial loop"""
+        re_msg_buf = []
         while True:
             try:
                 data_wait = self.serial_handle.inWaiting()
@@ -100,7 +106,13 @@ class CommuPanel():
                     re_text += '{0:02X} '.format(re_char)
                 data_wait = self.serial_handle.inWaiting()
             if re_text != '':
-                config.MASTER_WINDOW.receive_signal.emit(re_text, 0)
+                re_msg_buf += common.text2list(re_text)
+                if re_msg_buf and re_msg_buf[0] == '68' and re_msg_buf[-1] != '16':  # in case of serial msg break
+                    continue
+                msgs = common.search_msg(re_msg_buf)
+                for msg in msgs:
+                    self.receive_msg(msg, 0)
+                re_msg_buf = []
             if self.is_serial_running is False:
                 print('serial_run quit')
                 break
@@ -151,7 +163,7 @@ class CommuPanel():
                     break
                 continue
             if re_text != '':
-                config.MASTER_WINDOW.receive_signal.emit(re_text, 1)
+                self.receive_msg(re_text, 1)
 
 
     def server_start(self, server_port):
@@ -216,7 +228,7 @@ class CommuPanel():
                     break
                 continue
             if re_text != '':
-                config.MASTER_WINDOW.receive_signal.emit(re_text, 2)
+                self.receive_msg(re_text, 2)
 
 
     def quit(self):

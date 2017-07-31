@@ -9,10 +9,11 @@ class Translate():
     """translate class"""
     def __init__(self, m_text):
         """init"""
+        self.is_full_msg = True
         self.trans_res = commonfun.TransRes()
         m_list = commonfun.text2list(m_text)
         self.res_list, self.is_success = self.trans_all(m_list)
-        self.is_full_msg = False
+        self.is_access_successed = self.get_access_res()
 
 
     def trans_all(self, m_list):
@@ -29,10 +30,10 @@ class Translate():
                 offset += applayer_do.take_applayer(m_list[offset:], self.trans_res)
         except Exception:
             traceback.print_exc()
-            res_list = self.trans_res.get_res()
+            res_list = self.trans_res.get_trans_res()
             return res_list, False
         else:
-            res_list = self.trans_res.get_res()
+            res_list = self.trans_res.get_trans_res()
             m_chk = [byte for row in res_list for byte in row['m_list']]
             if m_chk == m_list:
                 chk_res = True
@@ -46,6 +47,22 @@ class Translate():
     def get_res_list(self):
         """get result list"""
         return self.res_list
+
+
+    def get_access_res(self):
+        """get access res"""
+        access_res = self.trans_res.get_access_res()
+        print('access_res: ', access_res)
+        for oad_res in access_res:
+            if access_res[oad_res] != '00':
+                return False
+        return True
+
+
+    def get_access_dict(self):
+        """get access result dict"""
+        access_res = self.trans_res.get_access_res()
+        return access_res
 
 
     def get_full(self, is_show_level=True, is_show_type=True):
@@ -149,15 +166,19 @@ class Translate():
         if not self.is_success:
             return '无效报文'
 
+        brief = {}
+        if not self.is_access_successed:
+            brief['access_res'] = '(访问失败)'
+
         depth0_list = [row for row in self.res_list if row['depth'] == 0]
         depth1_list = [row for row in self.res_list if row['depth'] == 1]
         depth2_list = [row for row in self.res_list if row['depth'] == 2]
         service_type = commonfun.list2text(list(filter(lambda row: row['dtype'] == 'service'\
                                                         , depth0_list))[0]['m_list'])
         if service_type[1] == '8':
-            brief = {'dir': '应答' if service_type[0] == '0' else '主动'}
+            brief['dir'] = '应答' if service_type[0] == '0' else '主动'
         else:
-            brief = {'dir': '申请' if service_type[0] in ['0', '1'] else '回复'}
+            brief['dir'] = '申请' if service_type[0] in ['0', '1'] else '回复'
         if service_type[1] in ['1']:
             if brief['dir'] == '申请':
                 brief['service'] = ''
@@ -229,5 +250,5 @@ class Translate():
         elif service_type[1] in ['0']:
             brief['service'] = '安全传输'
 
-        return '%s%s %s'%(brief.get('dir', ''),\
+        return '%s%s%s %s'%(brief.get('access_res', ''), brief.get('dir', ''),\
                             brief.get('service', ''), brief.get('content', ''))

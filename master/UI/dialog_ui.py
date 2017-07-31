@@ -180,17 +180,29 @@ class ApduDiyDialog(QtGui.QDialog, ApduDiyDialogUi):
         self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint if self.always_top_cb.isChecked() else QtCore.Qt.Widget)
 
         self.apdu_text = ''
+        self.service_no = 0xff
+        self.send_tm = 0
 
     def send_apdu(self):
         """send apdu"""
+        self.service_no = common.get_apdu_service_no(self.apdu_text)
         config.MASTER_WINDOW.se_apdu_signal.emit(self.apdu_text)
         self.re_msg_box.clear()
         config.MASTER_WINDOW.receive_signal.connect(self.re_msg)
+        self.send_tm = time.time()
 
     def re_msg(self, msg_text):
         """re msg"""
+        if self.service_no != common.get_msg_service_no(msg_text):
+            return
+        if abs(time.time() - self.send_tm) > config.RE_MSG_TIMEOUT:
+            print('re msg timeout!')
+            config.MASTER_WINDOW.receive_signal.disconnect(self.re_msg)
+            self.service_no = 0xff
+            return
         self.re_msg_box.setPlainText(msg_text)
         config.MASTER_WINDOW.receive_signal.disconnect(self.re_msg)
+        self.service_no = 0xff
 
     def trans_se_msg(self):
         """translate"""
@@ -252,7 +264,7 @@ class MsgDiyDialog(QtGui.QDialog, MsgDiyDialogUi):
         self.apdu_text = ''
 
     def send_msg(self):
-        """send apdu"""
+        """send full msg"""
         config.COMMU.send_msg(self.se_msg_box.toPlainText(), self.chan_cb.currentIndex())
         self.re_msg_box.clear()
         config.MASTER_WINDOW.receive_signal.connect(self.re_msg)
@@ -320,6 +332,9 @@ class RemoteUpdateDialog(QtGui.QDialog, RemoteUpdateDialogUI):
         self.stop_update_b.setEnabled(False)
 
         self.is_updating = False
+        self.is_tmn_ready = False
+        self.service_no = 0xff
+        self.send_tm = 0
 
     def dragEnterEvent(self, event):
         """drag"""
@@ -389,14 +404,21 @@ class RemoteUpdateDialog(QtGui.QDialog, RemoteUpdateDialogUI):
 
     def send_file(self, filepath, block_size):
         """send file thread"""
-        start_apdu_text = '070100 f0010700 0203 0206 0a00 0a00 06 {filesize:08X}\
+        config.MASTER_WINDOW.receive_signal.connect(self.re_msg)
+        self.service_no = 0x3f
+        self.send_tm = time.time()
+        start_apdu_text = '07013f f0010700 0203 0206 0a00 0a00 06 {filesize:08X}\
                         0403e0 0a00 1600 12 {blocksize:04X} 0202 1600 0900 00'\
                         .format(filesize=os.path.getsize(filepath), blocksize=block_size)
         config.MASTER_WINDOW.se_apdu_signal.emit(start_apdu_text)
-        time.sleep(6)
+        self.is_updating = True
+        self.is_tmn_ready = False
+        while not self.is_tmn_ready:
+            if not self.is_updating:
+                print('remote update timeout')
+                return
         self.start_update_b.setEnabled(False)
         self.stop_update_b.setEnabled(True)
-        self.is_updating = True
 
         file_size = os.path.getsize(filepath)
         block_num = file_size // block_size + (0 if file_size % block_size == 0 else 1)
@@ -405,20 +427,45 @@ class RemoteUpdateDialog(QtGui.QDialog, RemoteUpdateDialogUI):
             file_text = ''.join(['%02X'%x for x in file_text])
             text_list = [file_text[x: x + block_size*2] for x in range(0, len(file_text), block_size*2)]
             for block_no, block_text in enumerate(text_list):
+                while not self.is_tmn_ready:
+                    if not self.is_updating:
+                        self.stop_update_b.setEnabled(False)
+                        self.start_update_b.setEnabled(True)
+                        self.start_update_b.setText('开始升级')
+                        return
+                self.is_tmn_ready = False
+                self.send_tm = time.time()
                 send_len = len(block_text)/2
+                self.service_no = block_no % 64
                 send_apdu_text = '0701{piid:02X} f0010800 0202 12{blockno:04X} 09'\
-                                    .format(piid=block_no % 64, blockno=block_no)\
+                                    .format(piid=self.service_no, blockno=block_no)\
                                     + ('%02X'%send_len if send_len < 128\
                                         else '82%04X'%send_len) + block_text + '00'
                 config.MASTER_WINDOW.se_apdu_signal.emit(send_apdu_text)
                 self.update_signal.emit(block_no + 1, block_num)
-                time.sleep(2)
-                if not self.is_updating:
-                    break
         self.stop_update_b.setEnabled(False)
         self.start_update_b.setEnabled(True)
         self.start_update_b.setText('开始升级')
         print('send file thread quit')
+
+
+    def re_msg(self, msg_text):
+        """re msg"""
+        if self.service_no != common.get_msg_service_no(msg_text):
+            return
+        if abs(time.time() - self.send_tm) > config.RE_MSG_TIMEOUT:
+            config.MASTER_WINDOW.receive_signal.disconnect(self.re_msg)
+            self.service_no = 0xff
+            print('re msg timeout!')
+            self.is_updating = False
+            return
+        msg_trans = translate.Translate(msg_text)
+        if msg_trans.is_access_successed:
+            self.is_tmn_ready = True
+        else:
+            print('remote update failed')
+            self.is_updating = False
+        self.service_no = 0xff
 
 
     def update_proc(self, block_no, block_num):

@@ -99,8 +99,10 @@ class Service():
         offset += self.typedo.take_CHOICE(m_list[offset:], brief, depth=depth,\
                                     choice_dict={'00': '错误信息', '01': '数据'})
         if result == '00':  # 错误信息
+            self.trans_res.add_access_res(oad, m_list[offset])
             offset += self.typedo.take_DAR(m_list[offset:], '错误信息', depth=depth)
         elif result == '01':  # 数据
+            self.trans_res.add_access_res(oad, '00')
             structure = []
             if oad:
                 structure = config.K_DATA.get_structure('oad', oad)
@@ -119,6 +121,7 @@ class Service():
         """take_A_ResultRecord"""
         offset = 0
         offset += self.typedo.take_OAD(m_list[offset:], '记录型OAD', depth=depth)
+        oad = ''.join(m_list[offset - 4 : offset])
         csd_num = int(m_list[offset], 16)
         rcsd_structure = config.K_DATA.get_rcsd_structure(m_list[offset:])
         print('rcsd_structure:', rcsd_structure)
@@ -127,8 +130,10 @@ class Service():
         offset += self.typedo.take_CHOICE(m_list[offset:], '响应数据',\
                                             choice_dict={'00': '错误信息', '01': 'M条记录'})
         if re_data_choice == '00':
+            self.trans_res.add_access_res(oad, m_list[offset])
             offset += self.typedo.take_DAR(m_list[offset:], '错误信息', depth=depth)
         elif re_data_choice == '01':  # M条记录
+            self.trans_res.add_access_res(oad, '00')
             num = int(m_list[offset], 16)
             self.trans_res.add_row(m_list[offset: offset+1], '记录',\
                                     'SEQUENCE OF A-RecordRow[%d]'%num, num, depth=depth, unit='条')
@@ -345,6 +350,7 @@ class Service():
         choice = {'00': '错误信息', '01': '对象属性', '02': '记录型对象属性'}
         offset += self.typedo.take_CHOICE(m_list[offset:], '分帧响应', choice_dict=choice)
         if re_m_list_choice == '00':
+            self.trans_res.add_access_res('', m_list[offset + 1])
             offset += self.typedo.take_DAR(m_list[offset + 1:], '错误信息')
         elif re_m_list_choice == '01':  # SEQUENCE OF A-ResultNormal
             num = int(m_list[offset], 16)
@@ -370,8 +376,10 @@ class Service():
         choice = {'00': '错误信息', '01': 'MD5值'}
         offset += self.typedo.take_CHOICE(m_list[offset:], '结果', choice_dict=choice)
         if re_choice == '00':
+            self.trans_res.add_access_res('', m_list[offset + 1])
             offset += self.typedo.take_DAR(m_list[offset + 1:], '错误信息')
         elif re_choice == '01':
+            self.trans_res.add_access_res('', '00')
             offset += self.typedo.take_octect_string(m_list[offset + 1:], 'MD5值')
         return offset
 
@@ -422,6 +430,7 @@ class Service():
         offset = 0
         offset += self.typedo.take_PIID_ACD(m_list[offset:], 'PIID-ACD')
         offset += self.typedo.take_OAD(m_list[offset:], 'OAD')
+        self.trans_res.add_access_res(''.join(m_list[offset - 4: offset]), m_list[offset])
         offset += self.typedo.take_DAR(m_list[offset:], '设置执行结果')
         return offset
 
@@ -435,6 +444,7 @@ class Service():
         offset += 1
         for _ in range(num):
             offset += self.typedo.take_OAD(m_list[offset:], 'OAD', depth=1)
+            self.trans_res.add_access_res(''.join(m_list[offset - 4: offset]), m_list[offset])
             offset += self.typedo.take_DAR(m_list[offset:], '设置执行结果', depth=1)
         return offset
 
@@ -448,9 +458,11 @@ class Service():
         offset += 1
         for _ in range(num):
             offset += self.typedo.take_OAD(m_list[offset:], '设置的OAD', depth=1)
+            self.trans_res.add_access_res(''.join(m_list[offset - 4: offset]), m_list[offset])
             offset += self.typedo.take_DAR(m_list[offset:], '设置执行结果', depth=1)
             offset += self.typedo.take_OAD(m_list[offset:], '读取的OAD', depth=1)
             oad = ''.join(m_list[offset - 4: offset])
+            self.trans_res.add_access_res(oad, m_list[offset])
             offset += self.take_Get_Result(m_list[offset:], '读取响应数据', depth=1, oad=oad)
         return offset
 
@@ -501,6 +513,7 @@ class Service():
         offset = 0
         offset += self.typedo.take_PIID_ACD(m_list[offset:], 'PIID-ACD')
         offset += self.typedo.take_OMD(m_list[offset:], '对象方法描述符')
+        self.trans_res.add_access_res(''.join(m_list[offset - 4: offset]), m_list[offset])
         offset += self.typedo.take_DAR(m_list[offset:], '操作执行结果')
         optional = m_list[offset]
         offset += self.typedo.take_OPTIONAL(m_list[offset:], '操作返回数据')
@@ -518,6 +531,7 @@ class Service():
         offset += 1
         for _ in range(num):
             offset += self.typedo.take_OMD(m_list[offset:], '对象方法描述符', depth=1)
+            self.trans_res.add_access_res(''.join(m_list[offset - 4: offset]), m_list[offset])
             offset += self.typedo.take_DAR(m_list[offset:], '设置执行结果', depth=1)
             optional = m_list[offset]
             offset += self.typedo.take_OPTIONAL(m_list[offset:], '操作返回数据', depth=1)
@@ -535,6 +549,7 @@ class Service():
         offset += 1
         for _ in range(num):
             offset += self.typedo.take_OMD(m_list[offset:], '设置的对象方法描述符', depth=1)
+            self.trans_res.add_access_res(''.join(m_list[offset - 4: offset]), m_list[offset])
             offset += self.typedo.take_DAR(m_list[offset:], '设置执行结果', depth=1)
             optional = m_list[offset]
             offset += self.typedo.take_OPTIONAL(m_list[offset:], '操作返回数据', depth=1)
@@ -542,6 +557,7 @@ class Service():
                 offset += self.typedo.take_Data(m_list[offset:], '', depth=2)
             offset += self.typedo.take_OAD(m_list[offset:], '读取的OAD', depth=1)
             oad = ''.join(m_list[offset - 4: offset])
+            self.trans_res.add_access_res(oad, m_list[offset])
             offset += self.take_Get_Result(m_list[offset:], depth=1, oad=oad)
         return offset
 

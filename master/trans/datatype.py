@@ -141,7 +141,7 @@ class TypeDo():
 
     def take_Data(self, m_list, brief='', depth=0, structure=None):
         """take data"""
-        print('data structure:', structure)
+        # print('data structure:', structure)
         offset = 0
         data_type = m_list[offset]
         if data_type == '00':    # 对null类型特殊处理

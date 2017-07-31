@@ -76,8 +76,6 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
 
         self.msg_log = msg_log.MsgLog()
 
-        self.re_msg_buf = []
-
 
     def apply_config(self):
         """apply config"""
@@ -91,13 +89,7 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
     # @QtCore.Slot(str, int)
     def re_msg_do(self, re_text, chan_index):
         """recieve text"""
-        self.re_msg_buf += common.text2list(re_text)
-        if self.re_msg_buf[0] == '68' and self.re_msg_buf[-1] != '16':  # in case of serial msg break
-            return
-        msgs = common.search_msg(self.re_msg_buf)
-        for msg in msgs:
-            self.add_msg_table_row(msg, chan_index, '←')
-        self.re_msg_buf = []
+        self.add_msg_table_row(re_text, chan_index, '←')
 
 
     # @QtCore.Slot(str, int)
@@ -189,6 +181,8 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
         item = QtGui.QTableWidgetItem(brief)
         if brief == '无效报文':
             item.setTextColor(QtCore.Qt.red)
+        if brief.find('(访问失败)') == 0:
+            item.setTextColor(QtGui.QColor(255, 140, 0))
         self.msg_table.setItem(row_pos, 3, item)
 
         msg_text = common.format_text(m_text)

@@ -1091,7 +1091,7 @@ class Data698():
         oi_text = oad[:4]
         am_no = int(oad[4:6], 16) & 0x0f
         index = int(oad[6:8], 16)
-        print('oi_text', oi_text, 'am_no', am_no, 'index', index, 'am_type', am_type)
+        # print('oi_text', oi_text, 'am_no', am_no, 'index', index, 'am_type', am_type)
 
         # find OI
         for oi_row in self.oi_list:
@@ -1117,7 +1117,7 @@ class Data698():
                 structure_text = oi_row[0].structure
             elif ic_row and ic_row[0]:
                 structure_text = oi_row[0].oi_name + ':' + ic_row[0].structure
-        print('structure_text:', structure_text)
+        # print('structure_text:', structure_text)
 
         def get_enum_dict(enum_text):
             member_match = re.search(r'(.*?)(enum\[.*?\])', enum_text)
@@ -1229,7 +1229,7 @@ class Data698():
             except IndexError:
                 traceback.print_exc()
                 structure_list = []
-        print('structure_list:', structure_list)
+        # print('structure_list:', structure_list)
         return structure_list
 
 
@@ -1242,7 +1242,7 @@ class Data698():
         oi_text = oad[:4]
         am_no = int(oad[4:6], 16) & 0x0f
         index = int(oad[6:8], 16)
-        print('oi_text', oi_text, 'am_no', am_no, 'index', index, 'am_type', am_type)
+        # print('oi_text', oi_text, 'am_no', am_no, 'index', index, 'am_type', am_type)
 
         for oi_row in self.oi_list:
             if oi_row.oi == oi_text:

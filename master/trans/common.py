@@ -61,9 +61,32 @@ def search_msg(m_list):
 
 def get_apdu_list(m_list):
     """get apdu"""
+    if m_list[0] != '68':
+        return []
     msg_len = int(m_list[2] + m_list[1], 16) + 2
     server_addr_len = (int(m_list[4], 16) & 0x0f) + 1
     return m_list[8 + server_addr_len : msg_len - 3]
+
+
+def get_msg_service_no(m_text):
+    """get piid"""
+    m_list = text2list(m_text)
+    if m_list[0] != '68':
+        return 0xff
+    server_addr_len = (int(m_list[4], 16) & 0x0f) + 1
+    service_len = 1 if m_list[8 + server_addr_len] in ['01', '02', '03', '81', '82', '83', '10', '90'] else 2
+    service_no = int(m_list[8 + server_addr_len + service_len], 16) & 0x3f
+    print("service no: ", service_no)
+    return service_no
+
+
+def get_apdu_service_no(apdu_text):
+    """get piid"""
+    m_list = text2list(apdu_text)
+    service_len = 1 if m_list[0] in ['01', '02', '03', '81', '82', '83', '10', '90'] else 2
+    service_no = int(m_list[service_len], 16) & 0x3f
+    print("service no: ", service_no)
+    return service_no
 
 
 def calc_len(m_text):
@@ -118,6 +141,7 @@ class TransRes():
     def __init__(self):
         """init"""
         self.trans_res = []
+        self.access_res = {}
 
 
     def add_row(self, m_list, brief='', dtype='', value='', unit='', scaler=0, depth=0, priority=1):
@@ -126,7 +150,16 @@ class TransRes():
                     'unit': unit, 'scaler': scaler, 'depth': depth, 'priority': priority}]
 
 
-    def get_res(self):
+    def add_access_res(self, oad, dar):
+        """add access result row"""
+        self.access_res[oad] = dar
+
+
+    def get_trans_res(self):
         """get result"""
         return self.trans_res
 
+
+    def get_access_res(self):
+        """get access result"""
+        return self.access_res
