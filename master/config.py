@@ -25,6 +25,18 @@ M_PRIORITY_COLOR = {0: 'grey', 1: 'black', 2: 'blue', 3: 'red'}
 MSG_TABLE_ROW_MAX = 1024
 
 RE_MSG_TIMEOUT = 15
+class Service():
+    """service class"""
+    def __init__(self):
+        self.service_no = 0
+
+    def get_service_no(self):
+        """get service no"""
+        self.service_no += 1
+        if self.service_no >= 64:
+            self.service_no = 1
+        return self.service_no
+SERVICE = Service()
 
 CONFIG_FILE_PATH = os.path.join(os.path.expanduser('~'), '.698master/698master.conf')
 MSG_LOG_DIR = os.path.join(os.path.expanduser('~'), '.698master/logs/')

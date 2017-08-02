@@ -5,7 +5,7 @@ import threading
 import time
 import re
 import random
-from master.UI.ui_setup import ApduDiyDialogUi, MsgDiyDialogUi, TransPopDialogUi, CommuDialogUi, RemoteUpdateDialogUI
+from master.UI import ui_setup
 from master.trans import translate, linklayer
 from master.trans import common
 from master import config
@@ -19,7 +19,7 @@ else:
     from PyQt4 import QtGui, QtCore
 
 
-class TransPopDialog(QtGui.QDialog, TransPopDialogUi):
+class TransPopDialog(QtGui.QDialog, ui_setup.TransPopDialogUi):
     """translate window"""
     def __init__(self):
         super(TransPopDialog, self).__init__()
@@ -53,7 +53,7 @@ class TransPopDialog(QtGui.QDialog, TransPopDialogUi):
         self.move(window_pos)
 
 
-class CommuDialog(QtGui.QDialog, CommuDialogUi):
+class CommuDialog(QtGui.QDialog, ui_setup.CommuDialogUi):
     """communication config window"""
     def __init__(self):
         super(CommuDialog, self).__init__()
@@ -158,7 +158,7 @@ class CommuDialog(QtGui.QDialog, CommuDialogUi):
         event.accept()
 
 
-class ApduDiyDialog(QtGui.QDialog, ApduDiyDialogUi):
+class ApduDiyDialog(QtGui.QDialog, ui_setup.ApduDiyDialogUi):
     """apdu DIY dialog class"""
     def __init__(self):
         super(ApduDiyDialog, self).__init__()
@@ -240,7 +240,7 @@ class ApduDiyDialog(QtGui.QDialog, ApduDiyDialogUi):
         self.move(window_pos)
 
 
-class MsgDiyDialog(QtGui.QDialog, MsgDiyDialogUi):
+class MsgDiyDialog(QtGui.QDialog, ui_setup.MsgDiyDialogUi):
     """apdu DIY dialog class"""
     def __init__(self):
         super(MsgDiyDialog, self).__init__()
@@ -310,7 +310,7 @@ class MsgDiyDialog(QtGui.QDialog, MsgDiyDialogUi):
         self.move(window_pos)
 
 
-class RemoteUpdateDialog(QtGui.QDialog, RemoteUpdateDialogUI):
+class RemoteUpdateDialog(QtGui.QDialog, ui_setup.RemoteUpdateDialogUI):
     """remote update window"""
     update_signal = QtCore.Signal(int, int) if config.IS_USE_PYSIDE else QtCore.pyqtSignal(int, int)
     def __init__(self):
@@ -405,11 +405,11 @@ class RemoteUpdateDialog(QtGui.QDialog, RemoteUpdateDialogUI):
     def send_file(self, filepath, block_size):
         """send file thread"""
         config.MASTER_WINDOW.receive_signal.connect(self.re_msg)
-        self.service_no = 0x3f
+        self.service_no = config.SERVICE.get_service_no()
         self.send_tm = time.time()
-        start_apdu_text = '07013f f0010700 0203 0206 0a00 0a00 06 {filesize:08X}\
+        start_apdu_text = '0701{piid:%02X} f0010700 0203 0206 0a00 0a00 06 {filesize:08X}\
                         0403e0 0a00 1600 12 {blocksize:04X} 0202 1600 0900 00'\
-                        .format(filesize=os.path.getsize(filepath), blocksize=block_size)
+                        .format(piid=self.service_no, filesize=os.path.getsize(filepath), blocksize=block_size)
         config.MASTER_WINDOW.se_apdu_signal.emit(start_apdu_text)
         self.is_updating = True
         self.is_tmn_ready = False
@@ -436,7 +436,7 @@ class RemoteUpdateDialog(QtGui.QDialog, RemoteUpdateDialogUI):
                 self.is_tmn_ready = False
                 self.send_tm = time.time()
                 send_len = len(block_text)/2
-                self.service_no = block_no % 64
+                self.service_no = config.SERVICE.get_service_no()
                 send_apdu_text = '0701{piid:02X} f0010800 0202 12{blockno:04X} 09'\
                                     .format(piid=self.service_no, blockno=block_no)\
                                     + ('%02X'%send_len if send_len < 128\
@@ -478,11 +478,14 @@ class RemoteUpdateDialog(QtGui.QDialog, RemoteUpdateDialogUI):
         self.is_updating = False
 
 
-class GetSetServiceDialog(QtGui.QDialog):
+class GetSetServiceDialog(QtGui.QDialog, ui_setup.GetSetServiceDialogUI):
     """get service dialog class"""
     def __init__(self):
         super(GetSetServiceDialog, self).__init__()
         self.setup_ui()
+
+        self.class_cb.addItems(tuple(['收藏'] + service_data.get_base_class()))
+        self.class_cb.setCurrentIndex(-1)
 
         self.object_table_add_b.clicked.connect(self.add_object_table_row)
         self.object_table_read_b.clicked.connect(self.clr_re_table)
@@ -498,106 +501,8 @@ class GetSetServiceDialog(QtGui.QDialog):
 
         self.class_cb.setCurrentIndex(0)
 
-    def setup_ui(self):
-        """set layout"""
-        # self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
-        self.setWindowTitle('Get/Set Service')
-        self.setWindowIcon(QtGui.QIcon(os.path.join(config.SORTWARE_PATH, config.MASTER_ICO_PATH)))
-
-        self.object_table_w = QtGui.QWidget()
-        self.object_table_vbox = QtGui.QVBoxLayout(self.object_table_w)
-        self.object_table_vbox.setContentsMargins(1, 1, 1, 1)
-        self.object_table_vbox.setSpacing(0)
-        self.object_table = QtGui.QTableWidget(self.object_table_w)
-        self.object_table.setEditTriggers(QtGui.QTableWidget.NoEditTriggers) # 表格不可编辑
-        self.object_table.verticalHeader().setVisible(False)
-        # self.object_table.horizontalHeader().setVisible(False)
-        for count in range(4):
-            self.object_table.insertColumn(count)
-        self.object_table.setHorizontalHeaderLabels(['分类', '对象', '属性', '索引'])
-        self.object_table.setColumnWidth(0, 120)
-        self.object_table.setColumnWidth(1, 180)
-        self.object_table.setColumnWidth(2, 180)
-        self.object_table.setColumnWidth(3, 40)
-        self.object_table.setHorizontalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
-        self.object_table.setVerticalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
-        self.object_table_add_b = QtGui.QPushButton()
-        self.object_table_add_b.setText('新增')
-        self.object_table_add_b.setMaximumWidth(150)
-        self.object_table_add_b.setEnabled(False)
-        self.object_table_read_b = QtGui.QPushButton()
-        self.object_table_read_b.setText('读取')
-        self.object_table_btns_hbox = QtGui.QHBoxLayout()
-        self.object_table_btns_hbox.addWidget(self.object_table_add_b)
-        self.object_table_btns_hbox.addWidget(self.object_table_read_b)
-        self.object_table_vbox.addWidget(self.object_table)
-        self.object_table_vbox.addLayout(self.object_table_btns_hbox)
-
-        self.object_table.insertRow(0)
-        self.class_cb = QtGui.QComboBox()
-        self.class_cb.addItems(tuple(['收藏'] + service_data.get_base_class()))
-        self.class_cb.setCurrentIndex(-1)
-        self.object_table.setCellWidget(0, 0, self.class_cb)
-        self.oi_cb = QtGui.QComboBox()
-        self.object_table.setCellWidget(0, 1, self.oi_cb)
-        self.attr_cb = QtGui.QComboBox()
-        self.object_table.setCellWidget(0, 2, self.attr_cb)
-        self.index_cb = QtGui.QSpinBox()
-        self.index_cb.setRange(0, 31)
-        self.object_table.setCellWidget(0, 3, self.index_cb)
-
-        self.re_table_w = QtGui.QWidget()
-        self.re_table_vbox = QtGui.QVBoxLayout(self.re_table_w)
-        self.re_table_vbox.setContentsMargins(1, 1, 1, 1)
-        self.re_table_vbox.setSpacing(0)
-        self.re_table = QtGui.QTableWidget(self.re_table_w)
-        self.re_table.verticalHeader().setVisible(False)
-        self.re_table.horizontalHeader().setVisible(False)
-        self.re_table.insertColumn(0)
-        self.re_table.insertColumn(1)
-        self.re_table.setColumnWidth(0, 100)
-        self.re_table.setColumnWidth(1, 350)
-        self.re_table.setHorizontalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
-        self.re_table.setVerticalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
-        self.re_table_clr_b = QtGui.QPushButton()
-        self.re_table_clr_b.setText('清空')
-        self.re_table_clr_b.setMaximumWidth(150)
-        self.re_table_set_b = QtGui.QPushButton()
-        self.re_table_set_b.setText('设置')
-        self.re_table_btns_hbox = QtGui.QHBoxLayout()
-        self.re_table_btns_hbox.addWidget(self.re_table_clr_b)
-        self.re_table_btns_hbox.addWidget(self.re_table_set_b)
-        self.re_table_vbox.addWidget(self.re_table)
-        self.re_table_vbox.addLayout(self.re_table_btns_hbox)
-
-        self.splitter = QtGui.QSplitter(QtCore.Qt.Vertical)
-        self.splitter.addWidget(self.object_table_w)
-        self.splitter.addWidget(self.re_table_w)
-        self.splitter.setStretchFactor(0, 1)
-        self.splitter.setStretchFactor(1, 3)
-
-        self.chk_valid_cb = QtGui.QCheckBox()
-        self.chk_valid_cb.setChecked(True)
-        self.chk_valid_cb.setText('检查合法性')
-        self.show_level_cb = QtGui.QCheckBox()
-        self.show_level_cb.setText('显示结构')
-        self.show_level_cb.setChecked(True)
-        self.always_top_cb = QtGui.QCheckBox()
-        # self.always_top_cb.setChecked(True)
-        self.always_top_cb.setText('置顶')
-        self.cb_hbox = QtGui.QHBoxLayout()
-        self.cb_hbox.addStretch(1)
-        self.cb_hbox.addWidget(self.chk_valid_cb)
-        self.cb_hbox.addWidget(self.show_level_cb)
-        self.cb_hbox.addWidget(self.always_top_cb)
-
-        self.main_vbox = QtGui.QVBoxLayout()
-        self.main_vbox.setContentsMargins(1, 1, 1, 1)
-        self.main_vbox.setSpacing(1)
-        self.main_vbox.addWidget(self.splitter)
-        self.main_vbox.addLayout(self.cb_hbox)
-        self.setLayout(self.main_vbox)
-        self.resize(550, 700)
+        self.service_no = 0xff
+        self.send_tm = time.time()
 
 
     def load_class_oi(self):
@@ -657,17 +562,27 @@ class GetSetServiceDialog(QtGui.QDialog):
         if not oads:
             return
         service = '0501' if len(oads) == 1 else '0502'
+        self.service_no = config.SERVICE.get_service_no()
         apdu_text = '{service}{piid:02X}{array}{oad}00'\
-                        .format(service=service, piid=0,\
+                        .format(service=service, piid=self.service_no,\
                                 array='' if len(oads) == 1 else '%02X'%len(oads),\
                                 oad=''.join(oads))
         print('apdu_text: ', apdu_text)
+        self.send_tm = time.time()
         config.MASTER_WINDOW.se_apdu_signal.emit(apdu_text)
         config.MASTER_WINDOW.receive_signal.connect(self.re_msg)
 
 
-    def re_msg(self, re_text, channel):
+    def re_msg(self, re_text):
         """recieve text"""
+        if self.service_no != common.get_msg_service_no(re_text):
+            return
+        if abs(time.time() - self.send_tm) > config.RE_MSG_TIMEOUT:
+            print('re msg timeout!')
+            config.MASTER_WINDOW.receive_signal.disconnect(self.re_msg)
+            self.service_no = 0xff
+            return
+        self.service_no = 0xff
         re_list = common.text2list(re_text)
         m_text = common.search_msg(re_list)[0]
         m_list = common.text2list(m_text)
@@ -680,7 +595,8 @@ class GetSetServiceDialog(QtGui.QDialog):
 
     def clr_re_table(self):
         """clear re msg table"""
-        self.re_table.setRowCount(0)
+        for _ in range(self.re_table.rowCount()):
+            self.re_table.removeRow(0)
 
 
     def set_always_top(self):

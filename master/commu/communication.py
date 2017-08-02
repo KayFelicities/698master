@@ -152,6 +152,7 @@ class CommuPanel():
     def frontend_read_loop(self):
         """frontend loop"""
         self.frontend_handle.setblocking(False)
+        re_msg_buf = []
         while True:
             try:
                 re_byte = self.frontend_handle.recv(4096)
@@ -163,7 +164,13 @@ class CommuPanel():
                     break
                 continue
             if re_text != '':
-                self.receive_msg(re_text, 1)
+                re_msg_buf += common.text2list(re_text)
+                if re_msg_buf and re_msg_buf[0] == '68' and re_msg_buf[-1] != '16':  # in case of msg break
+                    continue
+                msgs = common.search_msg(re_msg_buf)
+                for msg in msgs:
+                    self.receive_msg(msg, 1)
+                re_msg_buf = []
 
 
     def server_start(self, server_port):
@@ -215,6 +222,7 @@ class CommuPanel():
     def server_read_loop(self, client_handle, client_addr):
         """server loop"""
         client_handle.setblocking(False)
+        re_msg_buf = []
         while True:
             try:
                 re_byte = client_handle.recv(4096)
@@ -228,7 +236,13 @@ class CommuPanel():
                     break
                 continue
             if re_text != '':
-                self.receive_msg(re_text, 2)
+                re_msg_buf += common.text2list(re_text)
+                if re_msg_buf and re_msg_buf[0] == '68' and re_msg_buf[-1] != '16':  # in case of msg break
+                    continue
+                msgs = common.search_msg(re_msg_buf)
+                for msg in msgs:
+                    self.receive_msg(msg, 2)
+                re_msg_buf = []
 
 
     def quit(self):
