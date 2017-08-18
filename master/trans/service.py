@@ -23,7 +23,7 @@ class Service():
         """take app layer"""
         offset = 0
         service_type = m_list[offset]
-        if service_type not in ['01', '02', '03', '10', '81', '82', '83', '84', '90']:
+        if service_type not in ['01', '02', '03', '10', '81', '82', '83', '84', '90', '6E', 'EE']:
             service_type += m_list[offset + 1]
             explain = base_data.get_service(service_type)
             offset += 2
@@ -84,11 +84,13 @@ class Service():
             '8907': self.ProxyTransCommandResponse,
             '10': self.security_request,
             '90': self.security_response,
+            '6E': self.ERRORResponse,
+            'EE': self.ERRORResponse,
         }.get(service_type)(m_list[offset:])
-        if m_list[0] in ['82', '83', '84', '85', '86', '87', '88', '89']:
+        if m_list[0] in ['82', '83', '84', '85', '86', '87', '88', '89', 'EE']:
             offset += self.take_FollowReport(m_list[offset:])
             offset += self.take_TimeTag(m_list[offset:])
-        elif m_list[0] in ['02', '03', '05', '06', '07', '08', '09']:
+        elif m_list[0] in ['02', '03', '05', '06', '07', '08', '09', '6E']:
             offset += self.take_TimeTag(m_list[offset:])
         return offset
 
@@ -937,4 +939,12 @@ class Service():
                             choice_dict={'00': '数据MAC'})
             if check_choice == '00':
                 offset += self.typedo.take_MAC(m_list[offset:], '数据MAC')
+        return offset
+
+    def ERRORResponse(self, m_list):
+        """ERRORResponse"""
+        offset = 0
+        offset += self.typedo.take_PIID_ACD(m_list[offset:], 'PIID-ACD')
+        offset += self.typedo.take_enum(m_list[offset:], brief='异常类型',\
+                        enum_dict={'01': 'APDU 无法解析', '02': '服务不支持', 'FF': '其他'})
         return offset
