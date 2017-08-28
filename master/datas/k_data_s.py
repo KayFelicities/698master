@@ -1264,7 +1264,7 @@ class Data698():
         
         index_explain = ''
         if index > 0:
-            member_info = self.get_structure(type, oad[:6] + '02')[0]
+            member_info = self.get_structure(type, oad[:6] + '00')[0]
             if member_info[1] == 'array':
                 index_explain = '组%d'%index
             elif member_info[1] == 'structure':

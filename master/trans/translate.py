@@ -250,5 +250,8 @@ class Translate():
         elif service_type[1] in ['0']:
             brief['service'] = '安全传输'
 
+        elif service_type[1] in ['E']:
+            brief['service'] = '异常响应'
+
         return '%s%s%s %s'%(brief.get('access_res', ''), brief.get('dir', ''),\
                             brief.get('service', ''), brief.get('content', ''))
