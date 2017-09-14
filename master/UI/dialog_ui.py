@@ -407,7 +407,7 @@ class RemoteUpdateDialog(QtGui.QDialog, ui_setup.RemoteUpdateDialogUI):
         config.MASTER_WINDOW.receive_signal.connect(self.re_msg)
         self.service_no = config.SERVICE.get_service_no()
         self.send_tm = time.time()
-        start_apdu_text = '0701{piid:%02X} f0010700 0203 0206 0a00 0a00 06 {filesize:08X}\
+        start_apdu_text = '0701{piid:02X} f0010700 0203 0206 0a00 0a00 06 {filesize:08X}\
                         0403e0 0a00 1600 12 {blocksize:04X} 0202 1600 0900 00'\
                         .format(piid=self.service_no, filesize=os.path.getsize(filepath), blocksize=block_size)
         config.MASTER_WINDOW.se_apdu_signal.emit(start_apdu_text)
