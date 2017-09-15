@@ -248,6 +248,7 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
         """translate massage"""
         self.pop_dialog.msg_box.setPlainText(self.msg_table.item(row, 4).text())
         self.pop_dialog.show()
+        self.pop_dialog.showNormal()
         self.pop_dialog.activateWindow()
 
 
