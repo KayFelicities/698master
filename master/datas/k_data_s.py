@@ -872,6 +872,7 @@ class Data698():
             ('4515', '以太网通信模块6', '26', '参变量类', '属性', '0', '', ''),
             ('4516', '以太网通信模块7', '26', '参变量类', '属性', '0', '', ''),
             ('4517', '以太网通信模块8', '26', '参变量类', '属性', '0', '', ''),
+            ('4520', '备用通道', '8', '参变量类', '属性', '2', '', '备用通道:array:structure{运营商:enum[CMCC（移动）<0>,CTCC（电信）<1>,CUCC（联通）<2>,未知<255>],网络类型:enum[2G<0>,3G<1>,4G<2>,未知<255>],APN:visible-string,用户名:visible-string,密码:visible-string,代理服务器地址:octet-string,代理端口:long-unsigned,主站通信参数:array:structure{IP地址:octet-string,端口:long-unsigned,},'),
             ('5000', '瞬时冻结', '9', '冻结类', '属性', '2', '', '瞬时冻结:,'),
             ('5001', '秒冻结', '9', '冻结类', '属性', '2', '', '秒冻结:,'),
             ('5002', '分钟冻结', '9', '冻结类', '属性', '2', '', '分钟冻结:,'),
@@ -1115,8 +1116,8 @@ class Data698():
         if oi_row:
             if oi_row[0].structure:
                 structure_text = oi_row[0].structure
-            elif ic_row and ic_row[0]:
-                structure_text = oi_row[0].oi_name + ':' + ic_row[0].structure
+        elif ic_row and ic_row[0]:
+            structure_text = ic_row[0].am_name + ':' + ic_row[0].structure
         # print('structure_text:', structure_text)
 
         def get_enum_dict(enum_text):

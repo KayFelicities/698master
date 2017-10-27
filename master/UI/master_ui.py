@@ -31,6 +31,7 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
         self.setup_ui()
         self.reply_rpt_cb.setChecked(True)
         self.reply_link_cb.setChecked(True)
+        self.show_level_cb.setChecked(True)
         self.is_reply_link = True if self.reply_link_cb.isChecked() else False
         self.is_reply_rpt = True if self.reply_rpt_cb.isChecked() else False
         # self.tmn_table.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
@@ -46,7 +47,14 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
         self.tmn_table_scan_b.clicked.connect(self.tmn_scan)
         self.clr_b.clicked.connect(lambda: self.clr_table(self.msg_table))
         self.open_log_b.clicked.connect(self.open_log_dir)
+        self.msg_table.cellClicked.connect(self.trans_row)
         self.msg_table.cellDoubleClicked.connect(self.trans_msg)
+        self.se_clr_b.clicked.connect(lambda: self.se_msg_box.clear() or self.se_msg_box.setFocus())
+        self.se_send_b.clicked.connect(lambda: self.se_apdu_signal.emit(self.apdu_text))
+        self.se_msg_box.textChanged.connect(lambda: self.trans_se_msg(self.se_msg_box.toPlainText()))
+        self.se_msg_box.installEventFilter(self)
+        self.show_level_cb.stateChanged.connect(lambda: self.trans_se_msg(''))
+        self.show_dtype_cb.stateChanged.connect(lambda: self.trans_se_msg(''))
         self.always_top_cb.clicked.connect(self.set_always_top)
         self.reply_link_cb.clicked.connect(self.set_reply_link)
         self.reply_rpt_cb.clicked.connect(self.set_reply_rpt)
@@ -76,6 +84,8 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
 
         self.msg_log = msg_log.MsgLog()
 
+        self.apdu_text = ''
+
 
     def apply_config(self):
         """apply config"""
@@ -85,6 +95,14 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
             self.add_tmn_table_row(is_checked=tmn[0], tmn_addr=tmn[1],\
                                     logic_addr=tmn[2], chan_index=tmn[3])
         self.always_top_cb.setChecked(apply_config.get_windows_top())
+
+
+    def eventFilter(self, widget, event):
+        """test"""
+        if event.type() == QtCore.QEvent.FocusIn:
+            self.trans_se_msg()
+        return QtGui.QMainWindow.eventFilter(self, widget, event)
+
 
     # @QtCore.Slot(str, int)
     def re_msg_do(self, re_text, chan_index):
@@ -209,6 +227,21 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
                             logic_addr=logic_addr, chan_index=chan_index, C_text='03')
 
 
+    def trans_se_msg(self, msg_text=''):
+        """translate"""
+        if not msg_text:
+            msg_text = self.se_msg_box.toPlainText()
+            print('msg_text: ', msg_text)
+        if len(msg_text) < 5:
+            return
+        trans = Translate(msg_text)
+        full = trans.get_full(self.show_level_cb.isChecked(), self.show_dtype_cb.isChecked())
+        self.explain_box.setText(r'%s'%full)
+        self.se_send_b.setEnabled(True if trans.is_success else False)
+        if self.se_send_b.isEnabled():
+            self.apdu_text = trans.get_apdu_text()
+
+
     # @QtCore.Slot(str)
     def send_apdu(self, apdu_text, tmn_addr='', logic_addr=-1, chan_index=-1, C_text='43'):
         """apdu to compelete msg to send"""
@@ -251,6 +284,10 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
         self.pop_dialog.showNormal()
         self.pop_dialog.activateWindow()
 
+
+    def trans_row(self, row):
+         """translate row massage"""
+         self.trans_se_msg(self.msg_table.item(row, 4).text())
 
     def clr_table(self, table):
         """clear table widget"""

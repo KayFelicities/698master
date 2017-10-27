@@ -247,7 +247,7 @@ class TypeDo():
         offset += 1
         add_brief = data_info[0] if data_info else ''
         self.trans_res.add_row(m_list[:offset], brief + add_brief, dtype='structure[%d]'%num,\
-                                value=num, unit='个', depth=depth)
+                                value=num, unit='个成员', depth=depth)
         for _ in range(num):
             structure_member = [data_info[3].pop(0)] if data_info and data_info[3] else None
             offset += self.take_Data(m_list[offset:], depth=depth + 1, structure=structure_member)
