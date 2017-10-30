@@ -619,7 +619,7 @@ class TypeDo():
         TSA_len = int(m_list[offset], 16)
         addr_text = ''
         if TSA_len != 0:
-            addr_len = int(m_list[offset + 1], 16) + 1
+            addr_len = (int(m_list[offset + 1], 16) & 0x0f) + 1
             for tsa_count in range(addr_len):
                 addr_text += m_list[offset + 2 + tsa_count]
         else:

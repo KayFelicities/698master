@@ -6,7 +6,7 @@ from master.UI.about_ui import AboutWindow
 from master.UI.master_ui import MasterWindow
 from master.commu import communication
 from master import config
-from master.datas import k_data
+from master.datas import k_data_s
 if config.IS_USE_PYSIDE:
     from PySide import QtGui
 else:
@@ -15,7 +15,7 @@ else:
 
 def main():
     """main"""
-    config.K_DATA = k_data.Data698('123456')
+    config.K_DATA = k_data_s.Data698('123456')
     APP = QtGui.QApplication(sys.argv)
     config.COMMU = communication.CommuPanel()
     config.ABOUT_WINDOW = AboutWindow()

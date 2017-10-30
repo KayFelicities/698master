@@ -4,7 +4,7 @@ import os
 from master.UI.trans_ui import TransWindow
 from master.UI.about_ui import AboutWindow
 from master import config
-from master.datas import k_data
+from master.datas import k_data_s
 if config.IS_USE_PYSIDE:
     from PySide import QtGui
 else:
@@ -13,7 +13,7 @@ else:
 
 def main(file_path=''):
     """main"""
-    config.K_DATA = k_data.Data698('123456')
+    config.K_DATA = k_data_s.Data698('123456')
     APP = QtGui.QApplication(sys.argv)
     config.ABOUT_WINDOW = AboutWindow()
     config.TRANS_WINDOW = TransWindow()

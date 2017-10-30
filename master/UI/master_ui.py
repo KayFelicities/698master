@@ -4,6 +4,7 @@ import os
 from master import config
 import traceback
 import time
+import threading
 from master.UI.ui_setup import MasterWindowUi
 from master.trans import common
 from master.trans import linklayer
@@ -85,6 +86,7 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
         self.msg_log = msg_log.MsgLog()
 
         self.apdu_text = ''
+        self.is_auto_r = False
 
 
     def apply_config(self):
@@ -337,13 +339,39 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
 
     def send_read_oad(self):
         """send message"""
+        if self.is_auto_r:
+            self.is_auto_r = False
+            self.read_oad_b.setText('读取')
+            self.oad_auto_r_cb.setEnabled(True)
+            self.oad_auto_r_spin.setEnabled(True)
+            self.oad_auto_unit_l.setEnabled(True)
+            return
         oad_text = self.oad_box.text().replace(' ', '')
         if len(oad_text) == 8:
             apdu_text = '050100 %s 00'%oad_text
-            self.se_apdu_signal.emit(apdu_text)
+            if self.oad_auto_r_cb.isChecked():
+                self.is_auto_r = True
+                self.read_oad_b.setText('停止')
+                self.oad_auto_r_cb.setEnabled(False)
+                self.oad_auto_r_spin.setEnabled(False)
+                self.oad_auto_unit_l.setEnabled(False)
+                threading.Thread(target=self.auto_r_oad,\
+                    args=(apdu_text,)).start()
+            else:
+                self.se_apdu_signal.emit(apdu_text)
         else:
             self.oad_explain_l.setTextFormat(QtCore.Qt.RichText)
             self.oad_explain_l.setText('<p style="color: red">请输入正确的OAD</p>')
+
+    
+    def auto_r_oad(self, apdu_text):
+        """auto read oad thread"""
+        delay_s = max(self.oad_auto_r_spin.value(), 0.1)
+        if delay_s == 0:
+            delay_s = 0.2
+        while self.is_auto_r:
+            self.se_apdu_signal.emit(apdu_text)
+            time.sleep(delay_s)
 
 
     def explain_oad(self):

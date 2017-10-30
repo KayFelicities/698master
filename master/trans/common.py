@@ -45,6 +45,7 @@ def search_msg(m_list):
     """search full msg and return msg text list"""
     offset = 0
     msg_list = []
+    # print("kay, m_list:", m_list)
     while offset < len(m_list):
         if m_list[offset] == '68':
             msg_len = int(m_list[offset + 2] + m_list[offset + 1], 16)

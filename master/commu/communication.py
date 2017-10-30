@@ -101,7 +101,7 @@ class CommuPanel():
                 break
             re_text = ''
             while data_wait > 0:
-                re_data = self.serial_handle.readline()
+                re_data = self.serial_handle.read(256)
                 for re_char in re_data:
                     re_text += '{0:02X} '.format(re_char)
                 data_wait = self.serial_handle.inWaiting()
@@ -109,7 +109,11 @@ class CommuPanel():
                 re_msg_buf += common.text2list(re_text)
                 if re_msg_buf and re_msg_buf[0] == '68' and re_msg_buf[-1] != '16':  # in case of serial msg break
                     continue
-                msgs = common.search_msg(re_msg_buf)
+                try:
+                    msgs = common.search_msg(re_msg_buf)
+                except IndexError:  # break in half of the msg but 16 is just the end byte
+                    traceback.print_exc()
+                    continue
                 for msg in msgs:
                     self.receive_msg(msg, 0)
                 re_msg_buf = []
@@ -167,7 +171,11 @@ class CommuPanel():
                 re_msg_buf += common.text2list(re_text)
                 if re_msg_buf and re_msg_buf[0] == '68' and re_msg_buf[-1] != '16':  # in case of msg break
                     continue
-                msgs = common.search_msg(re_msg_buf)
+                try:
+                    msgs = common.search_msg(re_msg_buf)
+                except IndexError:  # break in half of the msg but 16 is just the end byte
+                    traceback.print_exc()
+                    continue
                 for msg in msgs:
                     self.receive_msg(msg, 1)
                 re_msg_buf = []
@@ -239,7 +247,11 @@ class CommuPanel():
                 re_msg_buf += common.text2list(re_text)
                 if re_msg_buf and re_msg_buf[0] == '68' and re_msg_buf[-1] != '16':  # in case of msg break
                     continue
-                msgs = common.search_msg(re_msg_buf)
+                try:
+                    msgs = common.search_msg(re_msg_buf)
+                except IndexError:  # break in half of the msg but 16 is just the end byte
+                    traceback.print_exc()
+                    continue
                 for msg in msgs:
                     self.receive_msg(msg, 2)
                 re_msg_buf = []
