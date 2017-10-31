@@ -43,8 +43,12 @@ MSG_LOG_DIR = os.path.join(os.path.expanduser('~'), '.698master/logs/')
 
 IS_USE_PYSIDE = False
 
+IS_FILETER_CA = True
+
+RUN_EXE_PATH = ''
+LOG_PATH = ''
+
 if getattr(sys, 'frozen', False):
     SORTWARE_PATH = sys._MEIPASS
 else:
     SORTWARE_PATH = os.path.join(os.path.split(os.path.realpath(__file__))[0], '..')
-

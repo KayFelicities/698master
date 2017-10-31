@@ -2,5 +2,10 @@
 from master.app_master import main
 
 
-if __name__ == '__main__':
+def run_master():
+    """run master"""
     main()
+
+
+if __name__ == '__main__':
+    run_master()

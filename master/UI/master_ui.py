@@ -47,7 +47,6 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
 
         self.tmn_table_scan_b.clicked.connect(self.tmn_scan)
         self.clr_b.clicked.connect(lambda: self.clr_table(self.msg_table))
-        self.open_log_b.clicked.connect(self.open_log_dir)
         self.msg_table.cellClicked.connect(self.trans_row)
         self.msg_table.cellDoubleClicked.connect(self.trans_msg)
         self.se_clr_b.clicked.connect(lambda: self.se_msg_box.clear() or self.se_msg_box.setFocus())
@@ -70,6 +69,9 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
         self.apdu_diy_action.triggered.connect(lambda: self.apdu_diy_dialog.show() or self.apdu_diy_dialog.showNormal() or self.apdu_diy_dialog.activateWindow())
         self.msg_diy_action.triggered.connect(lambda: self.msg_diy_dialog.show() or self.msg_diy_dialog.showNormal() or self.msg_diy_dialog.activateWindow())
         self.remote_update_action.triggered.connect(lambda: self.remote_update_dialog.show() or self.remote_update_dialog.showNormal() or self.remote_update_dialog.activateWindow())
+        self.trans_log_action.triggered.connect(lambda: os.system('start {exe} 1 {log}'.format(exe=config.RUN_EXE_PATH, log=config.LOG_PATH)))
+        self.open_log_action.triggered.connect(lambda: os.system('start {dir}'.format(dir=config.MSG_LOG_DIR)))
+        self.open_trans_action.triggered.connect(lambda: os.system('start {exe} 1'.format(exe=config.RUN_EXE_PATH)))
 
         self.tmn_table_add_b.clicked.connect(lambda:\
                             self.add_tmn_table_row('000000000001', 0, 1, is_checked=True))
@@ -161,7 +163,7 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
         brief = trans.get_brief()
         # direction = trans.get_direction()
         client_addr = trans.get_CA()
-        if client_addr != '00' and client_addr != config.COMMU.master_addr:
+        if config.IS_FILETER_CA and client_addr != '00' and client_addr != config.COMMU.master_addr:
             print('过滤报文：CA不匹配')
             return
         server_addr = trans.get_SA()
@@ -298,11 +300,6 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
         # table.setRowCount(0)
 
 
-    def open_log_dir(self):
-        """open_log_dir"""
-        os.system('start {dir}'.format(dir=config.MSG_LOG_DIR))
-
-
     def set_always_top(self):
         """set_always_top"""
         window_pos = self.pos()
@@ -382,6 +379,11 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
             self.oad_explain_l.setText(explain)
         else:
             self.oad_explain_l.setText('')
+
+
+    def trans_log(self):
+        """log analysis"""
+        os.system('{exe} 1 {log}'.format(exe=config.RUN_EXE_PATH, log=config.LOG_PATH))
 
 
     def closeEvent(self, event):

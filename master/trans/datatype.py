@@ -400,6 +400,8 @@ class TypeDo():
         value = int(m_list[offset], 16)
         offset += 1
         add_brief = data_info[0] if data_info else ''
+        if add_brief.find('超时时间及重发次数') >= 0:
+            value = '%d秒,%d次'%(value >> 2, value & 0x03)
         unit = data_info[2].get('unit', '') if data_info else ''
         scaler = int(data_info[2].get('scaler', '0')) if data_info else 0
         self.trans_res.add_row(m_list[:offset], brief + add_brief, 'unsigned',\

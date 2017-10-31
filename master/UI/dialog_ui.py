@@ -66,6 +66,7 @@ class CommuDialog(QtGui.QDialog, ui_setup.CommuDialogUi):
         self.serial_baud.setCurrentIndex(apply_config.get_serial_baud_index())
         self.frontend_box.setText(apply_config.get_frontend_ip())
         self.server_box.setText(apply_config.get_server_port())
+        self.master_addr_filter_cb.setChecked(True)
 
         self.master_addr_change_b.clicked.connect(lambda: self.master_addr_box.setText('%02X'%random.randint(0, 255)))
         self.master_addr_box.textChanged.connect(self.set_master_addr)
@@ -83,6 +84,7 @@ class CommuDialog(QtGui.QDialog, ui_setup.CommuDialogUi):
     def set_master_addr(self):
         """set_master_addr"""
         config.COMMU.master_addr = self.master_addr_box.text()
+        config.IS_FILETER_CA = self.master_addr_filter_cb.isChecked()
 
     def connect_serial(self):
         """open serial"""

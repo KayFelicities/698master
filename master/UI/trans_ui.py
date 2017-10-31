@@ -29,6 +29,8 @@ class TransWindow(QtGui.QMainWindow, TransWindowUi):
         self.input_box.textChanged.connect(self.take_input_text)
         self.find_last_b.clicked.connect(lambda: self.find_last(True))
         self.find_next_b.clicked.connect(lambda: self.find_next(True))
+        self.msg_next_b.clicked.connect(lambda: self.jump_to_msg('next'))
+        self.msg_priv_b.clicked.connect(lambda: self.jump_to_msg('priv'))
         self.input_zoom_in_b.clicked.connect(self.input_box.zoomIn)
         self.input_zoom_out_b.clicked.connect(self.input_box.zoomOut)
         self.output_zoom_in_b.clicked.connect(self.output_box.zoomIn)
@@ -40,14 +42,17 @@ class TransWindow(QtGui.QMainWindow, TransWindowUi):
         self.close_action.triggered.connect(self.clear_box)
         self.about_action.triggered.connect(config.ABOUT_WINDOW.show)
         self.find_action.triggered.connect(lambda: self.find_box.setFocus() or self.find_box.selectAll())
+        self.next_msg_action.triggered.connect(lambda: self.jump_to_msg('next'))
+        self.priv_msg_action.triggered.connect(lambda: self.jump_to_msg('priv'))
         self.load_file.connect(self.load_text, QtCore.Qt.QueuedConnection)
         self.set_progress.connect(self.set_progressbar, QtCore.Qt.QueuedConnection)
-        self.connect(self.find_box, QtCore.SIGNAL("returnPressed()"), lambda: self.find_next(False))
+        self.find_box.returnPressed.connect(lambda: self.find_next(False))
 
         self.msg_find_dict = []
         self.last_selection = (0, 0)
         self.text_find_list = []
         self.last_find_text = ''
+
 
     def dragEnterEvent(self, event):
         """drag"""
@@ -56,6 +61,7 @@ class TransWindow(QtGui.QMainWindow, TransWindowUi):
             event.accept()
         else:
             event.ignore()
+
 
     def dropEvent(self, event):
         """drop file"""
@@ -70,6 +76,7 @@ class TransWindow(QtGui.QMainWindow, TransWindowUi):
         else:
             event.ignore()
 
+
     def load_text(self, file_text):
         """load text"""
         self.proc_bar.setVisible(False)
@@ -77,9 +84,11 @@ class TransWindow(QtGui.QMainWindow, TransWindowUi):
         self.setAcceptDrops(True)
         self.input_box.setPlainText(file_text)
 
+
     def set_progressbar(self, percent):
         """set progress bar in main process"""
         self.proc_bar.setValue(percent)
+
 
     def openfile(self, filepath=''):
         """open file"""
@@ -101,6 +110,7 @@ class TransWindow(QtGui.QMainWindow, TransWindowUi):
                         format(ver=config.MASTER_WINDOW_TITLE_ADD, file=filepath))
             threading.Thread(target=self.read_file,\
                                 args=(filepath,)).start()
+
 
     def read_file(self, filepath):
         """read file thread"""
@@ -126,6 +136,7 @@ class TransWindow(QtGui.QMainWindow, TransWindowUi):
         self.load_file.emit(file_text)
         print('read_file thread quit')
 
+
     def cursor_changed(self):
         """cursor changed to trans"""
         if self.last_selection[0] <= int(self.input_box.textCursor().position())\
@@ -133,6 +144,7 @@ class TransWindow(QtGui.QMainWindow, TransWindowUi):
             return
         else:
             self.trans_pos(int(self.input_box.textCursor().position()))
+
 
     def trans_pos(self, message_pos):
         """trans message in position"""
@@ -150,6 +162,7 @@ class TransWindow(QtGui.QMainWindow, TransWindowUi):
             self.output_box.setText('请点选一条报文')
             self.last_selection = (0, 0)
 
+
     def take_input_text(self):
         """handle with input text"""
         input_text = self.input_box.toPlainText()
@@ -166,6 +179,7 @@ class TransWindow(QtGui.QMainWindow, TransWindowUi):
 
         self.find_l.setText('')
 
+
     def start_trans(self, input_text):
         """start_trans"""
         trans = Translate(input_text)
@@ -173,12 +187,14 @@ class TransWindow(QtGui.QMainWindow, TransWindowUi):
         full = trans.get_full(self.show_level_cb.isChecked(), self.show_dtype_cb.isChecked())
         self.output_box.setText(r'<b>【概览】</b><p>%s</p><hr><b>【完整】</b>%s'%(brief, full))
 
+
     def clear_box(self):
         """clear_box"""
         self.input_box.setText('')
         self.output_box.setText('')
         self.setWindowTitle('698日志解析工具_{ver}'.format(ver=config.MASTER_WINDOW_TITLE_ADD))
         self.input_box.setFocus()
+
 
     def search_text(self, text):
         """search_text"""
@@ -190,6 +206,7 @@ class TransWindow(QtGui.QMainWindow, TransWindowUi):
             self.find_l.setText('0/%d'%len(self.text_find_list))
         else:
             self.find_l.setText('未找到！')
+
 
     def find_next(self, is_setfocus=True):
         """find_next"""
@@ -244,6 +261,28 @@ class TransWindow(QtGui.QMainWindow, TransWindowUi):
             self.input_box.setTextCursor(cursor)
         if is_setfocus:
             self.input_box.setFocus()
+
+
+    def jump_to_msg(self, mode='next'):
+        """go to next or privious msg"""
+        cursor = self.input_box.textCursor()
+        pos_now = int(cursor.position())
+        last_msg_pos = 0
+        for row in self.msg_find_dict:
+            if mode == 'priv':
+                if row['span'][1] < pos_now:
+                    last_msg_pos = row['span'][0]
+                else:
+                    cursor.setPosition(last_msg_pos)
+                    self.input_box.setTextCursor(cursor)
+                    break
+            if mode == 'next':
+                if row['span'][0] > pos_now:
+                    cursor.setPosition(row['span'][0])
+                    self.input_box.setTextCursor(cursor)
+                    break
+        self.input_box.setFocus()
+
 
     def set_always_top(self):
         """set_always_top"""
