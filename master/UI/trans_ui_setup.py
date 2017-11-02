@@ -1,6 +1,7 @@
 """trans window's ui setup"""
 import os
 from master import config
+from master.UI import linebox
 if config.IS_USE_PYSIDE:
     from PySide import QtGui, QtCore
 else:
@@ -46,7 +47,8 @@ class TransWindowUi():
         self.dummy_l.setText('   ')
 
         self.input_w = QtGui.QWidget()
-        self.input_box = QtGui.QTextEdit()
+        self.input_box = linebox.CodeEditor()
+        # self.input_box = QtGui.QTextEdit()
         self.find_box = QtGui.QLineEdit()
         self.find_box.setPlaceholderText('搜索...')
         self.find_last_b = QtGui.QPushButton()
@@ -86,7 +88,7 @@ class TransWindowUi():
         self.input_vbox.addLayout(self.input_foot_hbox)
 
         self.output_w = QtGui.QWidget()
-        self.msg_box = QtGui.QTextEdit()
+        self.msg_box = QtGui.QPlainTextEdit()
         self.msg_box.setMinimumHeight(30)
         self.output_box = QtGui.QTextEdit()
         self.output_copy_b = QtGui.QPushButton()
@@ -129,6 +131,8 @@ class TransWindowUi():
         
         self.proc_l = QtGui.QLabel()
         self.proc_l.setText('就绪')
+        self.auto_wrap_cb = QtGui.QCheckBox()
+        self.auto_wrap_cb.setText('自动换行')
         self.show_level_cb = QtGui.QCheckBox()
         self.show_level_cb.setText('报文结构')
         self.show_dtype_cb = QtGui.QCheckBox()
@@ -140,6 +144,7 @@ class TransWindowUi():
         self.foot_hbox.addWidget(self.proc_bar)
         self.foot_hbox.addWidget(self.proc_l)
         self.foot_hbox.addStretch(1)
+        self.foot_hbox.addWidget(self.auto_wrap_cb)
         self.foot_hbox.addWidget(self.show_level_cb)
         self.foot_hbox.addWidget(self.show_dtype_cb)
         self.foot_hbox.addWidget(self.always_top_cb)

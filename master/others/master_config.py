@@ -120,6 +120,18 @@ class MasterConfig:
         return eval(self.config.get('trans', 'file_list'))
 
 
+    def set_font_size(self, size):
+        """set_font_size"""
+        self.config.set('trans', 'font_size', str(size))
+
+
+    def get_font_size(self):
+        """get_font_size"""
+        if not self.config.has_option('trans', 'font_size'):
+            self.config.set('trans', 'font_size', '9')
+        return int(self.config.get('trans', 'font_size'))
+
+
     def commit(self):
         """commit config"""
         with open(self.config_path, 'w') as file:

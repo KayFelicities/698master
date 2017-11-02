@@ -24,6 +24,7 @@ class TransWindow(QtGui.QMainWindow, TransWindowUi):
         self.setup_ui()
         self.proc_bar.setVisible(False)
         self.show_level_cb.setChecked(True)
+        self.auto_wrap_cb.setChecked(True)
 
         apply_config = master_config.MasterConfig()
         file_list = apply_config.get_last_file()[::-1]
@@ -31,6 +32,9 @@ class TransWindow(QtGui.QMainWindow, TransWindowUi):
             self.file_action = QtGui.QAction('%s'%file_name, self)
             self.file_menu.addAction(self.file_action)
             self.file_action.triggered.connect(self.openfile)
+        font_size = apply_config.get_font_size()
+        self.input_box.set_font_size(font_size)
+        self.update_wrap_mode()
 
         self.setAcceptDrops(True)
         self.input_box.cursorPositionChanged.connect(self.cursor_changed)
@@ -45,6 +49,7 @@ class TransWindow(QtGui.QMainWindow, TransWindowUi):
         self.output_zoom_in_b.clicked.connect(self.output_box.zoomIn)
         self.output_zoom_out_b.clicked.connect(self.output_box.zoomOut)
         self.output_copy_b.clicked.connect(self.copy_to_clipboard)
+        self.auto_wrap_cb.clicked.connect(self.update_wrap_mode)
         self.show_level_cb.clicked.connect(self.start_trans)
         self.show_dtype_cb.clicked.connect(self.start_trans)
         self.always_top_cb.clicked.connect(self.set_always_top)
@@ -165,10 +170,10 @@ class TransWindow(QtGui.QMainWindow, TransWindowUi):
             self.msg_box.clear()
             for row in self.msg_find_dict:
                 if row['span'][0] <= int(self.input_box.textCursor().position()) <= row['span'][1]:
-                    self.msg_box.setText(row['message'])
+                    self.msg_box.setPlainText(row['message'])
                     cursor = self.input_box.textCursor()
-                    cursor.setPosition(row['span'][0])
-                    cursor.setPosition(row['span'][1], QtGui.QTextCursor.KeepAnchor)
+                    cursor.setPosition(row['span'][1])
+                    cursor.setPosition(row['span'][0], QtGui.QTextCursor.KeepAnchor)
                     self.input_box.setTextCursor(cursor)
                     self.last_selection = row['span']
                     break
@@ -189,7 +194,7 @@ class TransWindow(QtGui.QMainWindow, TransWindowUi):
             find_num += 1
         self.proc_l.setText('找到报文%d条'%find_num)
         if len(self.msg_find_dict) == 1 and self.msg_find_dict[0]['message'].strip() == input_text.strip():
-            self.msg_box.setText(self.msg_find_dict[0]['message'])
+            self.msg_box.setPlainText(self.msg_find_dict[0]['message'])
 
         self.find_l.setText('')
 
@@ -320,6 +325,24 @@ class TransWindow(QtGui.QMainWindow, TransWindowUi):
             self.setWindowFlags(QtCore.Qt.Widget)
             self.show()
         self.move(window_pos)
+
+
+    def update_wrap_mode(self):
+        """update_wrap_mode"""
+        self.input_box.setLineWrapMode(QtGui.QPlainTextEdit.WidgetWidth\
+                if self.auto_wrap_cb.isChecked() else QtGui.QPlainTextEdit.NoWrap)
+
+
+    def closeEvent(self, event):
+        """close event"""
+        # save config
+        save_config = master_config.MasterConfig()
+        save_config.set_font_size(self.input_box.get_font_size())
+        save_config.commit()
+
+        # quit
+        event.accept()
+        os._exit(0)
 
 
 if __name__ == '__main__':

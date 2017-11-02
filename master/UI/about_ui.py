@@ -36,7 +36,7 @@ class AboutWindow(QtGui.QDialog):
 
         self.about_box = QtGui.QTextBrowser()
         with open(os.path.join(config.SORTWARE_PATH, 'docs/dev_log.html'), encoding='utf-8') as dev_log:
-            text = dev_log.read() + '<h3>如果您喜欢我的作品，希望您能支持我:</h3>' +\
+            text = dev_log.read() + '<h3>如果您喜欢这个软件，希望您能支持我:</h3>' +\
                     '<center><img src="{alipay}" height="350"></center>'.format(alipay=os.path.join(config.SORTWARE_PATH, config.ALIPAY_IMG))
             self.about_box.setText(text)
 
