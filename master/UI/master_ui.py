@@ -39,6 +39,8 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
 
         self.apply_config()
 
+        self.setAcceptDrops(True)
+
         self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint\
                 if self.always_top_cb.isChecked() else QtCore.Qt.Widget)
         self.receive_signal.connect(self.re_msg_do)
@@ -70,9 +72,9 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
         self.apdu_diy_action.triggered.connect(lambda: self.apdu_diy_dialog.show() or self.apdu_diy_dialog.showNormal() or self.apdu_diy_dialog.activateWindow())
         self.msg_diy_action.triggered.connect(lambda: self.msg_diy_dialog.show() or self.msg_diy_dialog.showNormal() or self.msg_diy_dialog.activateWindow())
         self.remote_update_action.triggered.connect(lambda: self.remote_update_dialog.show() or self.remote_update_dialog.showNormal() or self.remote_update_dialog.activateWindow())
-        self.trans_log_action.triggered.connect(lambda: os.system('start {exe} 1 {log}'.format(exe=config.RUN_EXE_PATH, log=config.LOG_PATH)))
-        self.open_log_action.triggered.connect(lambda: os.system('start {dir}'.format(dir=config.MSG_LOG_DIR)))
-        self.open_trans_action.triggered.connect(lambda: os.system('start {exe} 1'.format(exe=config.RUN_EXE_PATH)))
+        self.trans_log_action.triggered.connect(lambda: self.trans_file(config.LOG_PATH))
+        self.open_log_action.triggered.connect(lambda: os.system('start "" "{dir}"'.format(dir=config.MSG_LOG_DIR)))
+        self.open_trans_action.triggered.connect(self.trans_file)
 
         self.tmn_table_add_b.clicked.connect(lambda:\
                             self.add_tmn_table_row('000000000001', 0, 1, is_checked=True))
@@ -93,6 +95,28 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
         self.msg_now = ''
 
 
+    def dragEnterEvent(self, event):
+        """drag"""
+        if event.mimeData().hasUrls:
+            event.accept()
+        else:
+            event.ignore()
+
+
+    def dropEvent(self, event):
+        """drop file"""
+        if event.mimeData().hasUrls:
+            event.setDropAction(QtCore.Qt.CopyAction)
+            event.accept()
+            links = []
+            for url in event.mimeData().urls():
+                links.append(str(url.toLocalFile()))
+            print('url:', links[0])
+            self.trans_file(links[0])
+        else:
+            event.ignore()
+
+
     def apply_config(self):
         """apply config"""
         apply_config = master_config.MasterConfig()
@@ -110,6 +134,17 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
             self.msg_now = self.se_msg_box.toPlainText()
             self.trans_se_msg()
         return QtGui.QMainWindow.eventFilter(self, widget, event)
+
+
+    def update_info_l(self, is_serial_connect, is_frontend_connect, is_server_connect):
+        """update info"""
+        info_text = '<p><b>请按F2建立连接</b></p>'
+        if is_serial_connect or is_frontend_connect or is_server_connect:
+            info_text = ''
+            info_text += '串口√' if is_serial_connect else ''
+            info_text += ' 前置机√' if is_frontend_connect else ''
+            info_text += ' 服务器√' if is_server_connect else ''
+        self.info_l.setText(info_text)
 
 
     # @QtCore.Slot(str, int)
@@ -389,9 +424,11 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
             self.oad_explain_l.setText('')
 
 
-    def trans_log(self):
-        """log analysis"""
-        os.system('{exe} 1 {log}'.format(exe=config.RUN_EXE_PATH, log=config.LOG_PATH))
+    def trans_file(self, file_path='1'):
+        """file analysis"""
+        cmd = 'start "" "{exe}" "{log}"'.format(exe=config.RUN_EXE_PATH, log=file_path)
+        print(cmd)
+        os.system(cmd)
 
 
     def copy_to_clipboard(self):
@@ -418,24 +455,29 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
         save_config.set_oad_r(self.oad_box.text().replace(' ', ''))
         save_config.commit()
 
+        # quit
+        config.COMMU.quit()
+        event.accept()
+        os._exit(0)
+
         # ask to quit
-        window_pos = self.pos()
-        self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
-        self.show()
-        self.move(window_pos)
-        quit_box = QtGui.QMessageBox()
-        reply = quit_box.question(self, '698后台', '确定退出吗？'
-                                  , QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
-        if reply == QtGui.QMessageBox.Yes:
-            config.COMMU.quit()
-            event.accept()
-            os._exit(0)
-        else:
-            self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint\
-                    if self.always_top_cb.isChecked() else QtCore.Qt.Widget)
-            self.show()
-            self.move(window_pos)
-            event.ignore()
+        # window_pos = self.pos()
+        # self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
+        # self.show()
+        # self.move(window_pos)
+        # quit_box = QtGui.QMessageBox()
+        # reply = quit_box.question(self, '698后台', '确定退出吗？'
+        #                           , QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
+        # if reply == QtGui.QMessageBox.Yes:
+        #     config.COMMU.quit()
+        #     event.accept()
+        #     os._exit(0)
+        # else:
+        #     self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint\
+        #             if self.always_top_cb.isChecked() else QtCore.Qt.Widget)
+        #     self.show()
+        #     self.move(window_pos)
+        #     event.ignore()
 
 
 if __name__ == '__main__':
