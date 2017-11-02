@@ -6,6 +6,7 @@ import threading
 import chardet
 from master.UI.trans_ui_setup import TransWindowUi
 from master.trans.translate import Translate
+from master.others import master_config
 from master import config
 if config.IS_USE_PYSIDE:
     from PySide import QtGui, QtCore
@@ -24,9 +25,17 @@ class TransWindow(QtGui.QMainWindow, TransWindowUi):
         self.proc_bar.setVisible(False)
         self.show_level_cb.setChecked(True)
 
+        apply_config = master_config.MasterConfig()
+        file_list = apply_config.get_last_file()[::-1]
+        for file_name in file_list:
+            self.file_action = QtGui.QAction('%s'%file_name, self)
+            self.file_menu.addAction(self.file_action)
+            self.file_action.triggered.connect(self.openfile)
+
         self.setAcceptDrops(True)
         self.input_box.cursorPositionChanged.connect(self.cursor_changed)
         self.input_box.textChanged.connect(self.take_input_text)
+        self.msg_box.textChanged.connect(self.start_trans)
         self.find_last_b.clicked.connect(lambda: self.find_last(True))
         self.find_next_b.clicked.connect(lambda: self.find_next(True))
         self.msg_next_b.clicked.connect(lambda: self.jump_to_msg('next'))
@@ -35,10 +44,12 @@ class TransWindow(QtGui.QMainWindow, TransWindowUi):
         self.input_zoom_out_b.clicked.connect(self.input_box.zoomOut)
         self.output_zoom_in_b.clicked.connect(self.output_box.zoomIn)
         self.output_zoom_out_b.clicked.connect(self.output_box.zoomOut)
-        self.show_level_cb.clicked.connect(lambda: self.trans_pos(int(self.input_box.textCursor().position())))
-        self.show_dtype_cb.clicked.connect(lambda: self.trans_pos(int(self.input_box.textCursor().position())))
+        self.output_copy_b.clicked.connect(self.copy_to_clipboard)
+        self.show_level_cb.clicked.connect(self.start_trans)
+        self.show_dtype_cb.clicked.connect(self.start_trans)
         self.always_top_cb.clicked.connect(self.set_always_top)
         self.open_action.triggered.connect(self.openfile)
+        self.reload_action.triggered.connect(lambda: self.openfile(filepath=self.file_now))
         self.close_action.triggered.connect(self.clear_box)
         self.about_action.triggered.connect(config.ABOUT_WINDOW.show)
         self.find_action.triggered.connect(lambda: self.find_box.setFocus() or self.find_box.selectAll())
@@ -48,6 +59,7 @@ class TransWindow(QtGui.QMainWindow, TransWindowUi):
         self.set_progress.connect(self.set_progressbar, QtCore.Qt.QueuedConnection)
         self.find_box.returnPressed.connect(lambda: self.find_next(False))
 
+        self.file_now = ''
         self.msg_find_dict = []
         self.last_selection = (0, 0)
         self.text_find_list = []
@@ -92,10 +104,16 @@ class TransWindow(QtGui.QMainWindow, TransWindowUi):
 
     def openfile(self, filepath=''):
         """open file"""
-        if not filepath:
+        action = self.sender()
+        if isinstance(action, QtGui.QAction) and os.path.isfile(action.text()):
+            filepath = action.text()
+        if not os.path.isfile(filepath):
             filepath = QtGui.QFileDialog.getOpenFileName(self, caption='请选择698日志文件', filter='*')
         if filepath:
             print('filepath: ', filepath)
+            save_config = master_config.MasterConfig()
+            save_config.add_last_file(filepath)
+            save_config.commit()
             file_size = os.path.getsize(filepath)
             if file_size > 3000000:
                 reply = QtGui.QMessageBox.question(self, '警告', '打开大型文件会使用较长时间，确定打开吗？',\
@@ -108,6 +126,7 @@ class TransWindow(QtGui.QMainWindow, TransWindowUi):
             self.proc_l.setText('处理中')
             self.setWindowTitle('698日志解析工具_{ver} - {file}'.\
                         format(ver=config.MASTER_WINDOW_TITLE_ADD, file=filepath))
+            self.file_now = filepath
             threading.Thread(target=self.read_file,\
                                 args=(filepath,)).start()
 
@@ -143,24 +162,19 @@ class TransWindow(QtGui.QMainWindow, TransWindowUi):
                                     <= self.last_selection[1]:
             return
         else:
-            self.trans_pos(int(self.input_box.textCursor().position()))
-
-
-    def trans_pos(self, message_pos):
-        """trans message in position"""
-        for row in self.msg_find_dict:
-            # print(row)
-            if row['span'][0] <= message_pos <= row['span'][1]:
-                self.start_trans(row['message'])
-                cursor = self.input_box.textCursor()
-                cursor.setPosition(row['span'][0])
-                cursor.setPosition(row['span'][1], QtGui.QTextCursor.KeepAnchor)
-                self.input_box.setTextCursor(cursor)
-                self.last_selection = row['span']
-                break
-        else:
-            self.output_box.setText('请点选一条报文')
-            self.last_selection = (0, 0)
+            self.msg_box.clear()
+            for row in self.msg_find_dict:
+                if row['span'][0] <= int(self.input_box.textCursor().position()) <= row['span'][1]:
+                    self.msg_box.setText(row['message'])
+                    cursor = self.input_box.textCursor()
+                    cursor.setPosition(row['span'][0])
+                    cursor.setPosition(row['span'][1], QtGui.QTextCursor.KeepAnchor)
+                    self.input_box.setTextCursor(cursor)
+                    self.last_selection = row['span']
+                    break
+            else:
+                # self.output_box.setText('请点选一条报文')
+                self.last_selection = (0, 0)
 
 
     def take_input_text(self):
@@ -175,14 +189,17 @@ class TransWindow(QtGui.QMainWindow, TransWindowUi):
             find_num += 1
         self.proc_l.setText('找到报文%d条'%find_num)
         if len(self.msg_find_dict) == 1 and self.msg_find_dict[0]['message'].strip() == input_text.strip():
-            self.start_trans(self.msg_find_dict[0]['message'])
+            self.msg_box.setText(self.msg_find_dict[0]['message'])
 
         self.find_l.setText('')
 
 
-    def start_trans(self, input_text):
+    def start_trans(self):
         """start_trans"""
-        trans = Translate(input_text)
+        if len(self.msg_box.toPlainText()) < 5:
+            self.output_box.setText('请点选一条报文。\n若软件无法识别请手动复制到上方框中。')
+            return
+        trans = Translate(self.msg_box.toPlainText())
         brief = trans.get_brief()
         full = trans.get_full(self.show_level_cb.isChecked(), self.show_dtype_cb.isChecked())
         self.output_box.setText(r'<b>【概览】</b><p>%s</p><hr><b>【完整】</b>%s'%(brief, full))
@@ -282,6 +299,15 @@ class TransWindow(QtGui.QMainWindow, TransWindowUi):
                     self.input_box.setTextCursor(cursor)
                     break
         self.input_box.setFocus()
+
+
+    def copy_to_clipboard(self):
+        """copy_to_clipboard"""
+        trans = Translate(self.msg_box.toPlainText())
+        text = trans.get_clipboard_text(self.show_level_cb.isChecked(), self.show_dtype_cb.isChecked())
+        clipboard = QtGui.QApplication.clipboard()
+        clipboard.clear()
+        clipboard.setText(text)
 
 
     def set_always_top(self):

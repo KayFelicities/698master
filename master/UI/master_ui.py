@@ -51,10 +51,11 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
         self.msg_table.cellDoubleClicked.connect(self.trans_msg)
         self.se_clr_b.clicked.connect(lambda: self.se_msg_box.clear() or self.se_msg_box.setFocus())
         self.se_send_b.clicked.connect(lambda: self.se_apdu_signal.emit(self.apdu_text))
-        self.se_msg_box.textChanged.connect(lambda: self.trans_se_msg(self.se_msg_box.toPlainText()))
+        self.se_msg_box.textChanged.connect(self.trans_msg_box)
         self.se_msg_box.installEventFilter(self)
-        self.show_level_cb.stateChanged.connect(lambda: self.trans_se_msg(''))
-        self.show_dtype_cb.stateChanged.connect(lambda: self.trans_se_msg(''))
+        self.show_level_cb.stateChanged.connect(self.trans_se_msg)
+        self.show_dtype_cb.stateChanged.connect(self.trans_se_msg)
+        self.copy_b.clicked.connect(self.copy_to_clipboard)
         self.always_top_cb.clicked.connect(self.set_always_top)
         self.reply_link_cb.clicked.connect(self.set_reply_link)
         self.reply_rpt_cb.clicked.connect(self.set_reply_rpt)
@@ -89,6 +90,7 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
 
         self.apdu_text = ''
         self.is_auto_r = False
+        self.msg_now = ''
 
 
     def apply_config(self):
@@ -99,11 +101,13 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
             self.add_tmn_table_row(is_checked=tmn[0], tmn_addr=tmn[1],\
                                     logic_addr=tmn[2], chan_index=tmn[3])
         self.always_top_cb.setChecked(apply_config.get_windows_top())
+        self.oad_box.setText(apply_config.get_oad_r())
 
 
     def eventFilter(self, widget, event):
         """test"""
         if event.type() == QtCore.QEvent.FocusIn:
+            self.msg_now = self.se_msg_box.toPlainText()
             self.trans_se_msg()
         return QtGui.QMainWindow.eventFilter(self, widget, event)
 
@@ -231,14 +235,17 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
                             logic_addr=logic_addr, chan_index=chan_index, C_text='03')
 
 
-    def trans_se_msg(self, msg_text=''):
+    def trans_msg_box(self):
+        """trans_msg_box"""
+        self.msg_now = self.se_msg_box.toPlainText()
+        self.trans_se_msg()
+
+
+    def trans_se_msg(self):
         """translate"""
-        if not msg_text:
-            msg_text = self.se_msg_box.toPlainText()
-            print('msg_text: ', msg_text)
-        if len(msg_text) < 5:
+        if len(self.msg_now) < 5:
             return
-        trans = Translate(msg_text)
+        trans = Translate(self.msg_now)
         full = trans.get_full(self.show_level_cb.isChecked(), self.show_dtype_cb.isChecked())
         self.explain_box.setText(r'%s'%full)
         self.se_send_b.setEnabled(True if trans.is_success else False)
@@ -291,7 +298,8 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
 
     def trans_row(self, row):
          """translate row massage"""
-         self.trans_se_msg(self.msg_table.item(row, 4).text())
+         self.msg_now = self.msg_table.item(row, 4).text()
+         self.trans_se_msg()
 
     def clr_table(self, table):
         """clear table widget"""
@@ -386,6 +394,15 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
         os.system('{exe} 1 {log}'.format(exe=config.RUN_EXE_PATH, log=config.LOG_PATH))
 
 
+    def copy_to_clipboard(self):
+        """copy_to_clipboard"""
+        trans = Translate(self.msg_now)
+        text = trans.get_clipboard_text(self.show_level_cb.isChecked(), self.show_dtype_cb.isChecked())
+        clipboard = QtGui.QApplication.clipboard()
+        clipboard.clear()
+        clipboard.setText(text)
+
+
     def closeEvent(self, event):
         """close event"""
         # save config
@@ -398,6 +415,7 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
                                 self.tmn_table.cellWidget(row_num, 3).currentIndex()])
         save_config.set_tmn_list(tmn_list)
         save_config.set_windows_top(self.always_top_cb.isChecked())
+        save_config.set_oad_r(self.oad_box.text().replace(' ', ''))
         save_config.commit()
 
         # ask to quit

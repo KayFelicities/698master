@@ -11,12 +11,13 @@ class Translate():
         """init"""
         self.is_full_msg = True
         self.trans_res = commonfun.TransRes()
+        self.source_msg = commonfun.format_text(m_text)
         m_list = commonfun.text2list(m_text)
-        self.res_list, self.is_success = self.trans_all(m_list)
+        self.res_list, self.is_success = self.__trans_all(m_list)
         self.is_access_successed = self.get_access_res()
 
 
-    def trans_all(self, m_list):
+    def __trans_all(self, m_list):
         """translate all messages"""
         offset = 0
         try:
@@ -65,12 +66,15 @@ class Translate():
         return access_res
 
 
-    def get_full(self, is_show_level=True, is_show_type=True):
+    def get_full(self, is_show_level=True, is_show_type=True, is_output_html=True):
         """get full translate"""
         if self.is_success:
-            res_text = '<table style="table-layout:fixed; word-wrap:break-word; border-style:solid;">'
+            res_text = '<table style="table-layout:fixed; word-wrap:break-word; border-style:solid;">' if is_output_html else ''
         else:
-            res_text = '<p style="color: red">报文解析过程出现问题，请检查报文。若报文无问题请反馈665593，谢谢！</p>'
+            if is_output_html:
+                res_text = '<p style="color: red">报文解析过程出现问题，请检查报文。若报文无问题请反馈665593，谢谢！</p><p> </p>'
+            else:
+                res_text = '报文解析过程出现问题，请检查报文。若报文无问题请反馈665593，谢谢！\n\n'
         temp_row = None
         for row in self.res_list:
             if row['dtype'] in ['Data', 'CSD']:
@@ -89,17 +93,27 @@ class Translate():
                 dtype = '('+temp_row['dtype']+'_'+row['dtype']+')' if temp_row\
                     else ('('+row['dtype']+')' if row['dtype'] else '')
 
-            res_text += '<tr style="{color};">\
-                            <td style="{padding} padding-right: 5px;">{messagerow}</td>\
-                            <td style="{padding} padding-right: 5px;">{brief}{value}{unit}{dtype}</td></tr>'\
-                .format(color='color: %s;'%config.M_PRIORITY_COLOR[row['priority']],\
-                padding='padding-left: %d px;'%(row['depth'] * 10) if is_show_level else '',\
-                messagerow=commonfun.list2text(temp_row['m_list']+row['m_list']\
-                                                if temp_row else row['m_list']),\
-                brief=row['brief'].replace('<', '(').replace('>', ')') +':'\
-                            if row['brief'] else '', dtype=dtype, value=value, unit=row['unit'])
+            if is_output_html:
+                res_text += '<tr style="{color};">\
+                                <td style="{padding} padding-right: 5px;">{messagerow}</td>\
+                                <td style="{padding} padding-right: 5px;">{brief}{value}{unit}{dtype}</td></tr>'\
+                    .format(color='color: %s;'%config.M_PRIORITY_COLOR[row['priority']],\
+                    padding='padding-left: %d px;'%(row['depth'] * 10) if is_show_level else '',\
+                    messagerow=commonfun.list2text(temp_row['m_list']+row['m_list']\
+                                                    if temp_row else row['m_list']),\
+                    brief=row['brief'].replace('<', '(').replace('>', ')') +':'\
+                                if row['brief'] else '', dtype=dtype, value=value, unit=row['unit'])
+            else:
+                res_text += '{padding}{messagerow} —— {brief}{value}{unit}{dtype}\n'\
+                    .format(padding='  '*row['depth'] if is_show_level else '',\
+                    messagerow=commonfun.list2text(temp_row['m_list']+row['m_list']\
+                                                    if temp_row else row['m_list']),\
+                    brief=row['brief'].replace('<', '(').replace('>', ')') +':'\
+                                if row['brief'] else '', dtype=dtype, value=value, unit=row['unit'])
+
             temp_row = None
-        res_text += '</table>'
+        if is_output_html:
+            res_text += '</table>'
         # print(res_text)
         return res_text
 
@@ -255,3 +269,20 @@ class Translate():
 
         return '%s%s%s %s'%(brief.get('access_res', ''), brief.get('dir', ''),\
                             brief.get('service', ''), brief.get('content', ''))
+
+
+    def get_clipboard_text(self, is_show_level=True, is_show_type=True):
+        """get_clipboard_text"""
+        msg = self.source_msg
+        full = self.get_full(is_show_level, is_show_type, is_output_html=False)
+        brief = self.get_brief()
+
+        line_list = full.split('\n')
+        explain = ''
+        for cnt, line in enumerate(line_list, start=0):
+            if cnt % 2 == 1:
+                explain += line + '  ——  '
+            else:
+                explain += line + '\n'
+        text = '【报文】\n{msg}\n\n【概览】\n{brief}\n\n【完整解析】\n{full}'.format(msg=msg, brief=brief, full=full)
+        return text

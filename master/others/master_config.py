@@ -14,6 +14,8 @@ class MasterConfig:
             self.config.add_section('master')
         if not self.config.has_section('commu'):
             self.config.add_section('commu')
+        if not self.config.has_section('trans'):
+            self.config.add_section('trans')
 
 
     def set_tmn_list(self, tmn_list):
@@ -38,6 +40,18 @@ class MasterConfig:
         if not self.config.has_option('master', 'is_windows_top'):
             self.config.set('master', 'is_windows_top', 'false')
         return self.config.getboolean('master', 'is_windows_top')
+
+
+    def set_oad_r(self, oad):
+        """set_oad_r"""
+        self.config.set('master', 'oad_r', oad)
+
+
+    def get_oad_r(self):
+        """get_oad_r"""
+        if not self.config.has_option('master', 'oad_r'):
+            self.config.set('master', 'oad_r', '40000200')
+        return self.config.get('master', 'oad_r')
 
 
     def set_master_addr(self, addr):
@@ -86,6 +100,24 @@ class MasterConfig:
         if not self.config.has_option('commu', 'server_port'):
             self.config.set('commu', 'server_port', '0')
         return self.config.get('commu', 'server_port')
+
+
+    def add_last_file(self, file_path):
+        """add_last_file"""
+        file_list = self.get_last_file()
+        if file_path in file_list:
+            file_list.remove(file_path)
+        file_list.append(file_path)
+        if len(file_list) > 10:
+            file_list.pop(0)
+        self.config.set('trans', 'file_list', str(file_list))
+
+
+    def get_last_file(self):
+        """get_last_file"""
+        if not self.config.has_option('trans', 'file_list'):
+            self.config.set('trans', 'file_list', '[]')
+        return eval(self.config.get('trans', 'file_list'))
 
 
     def commit(self):
