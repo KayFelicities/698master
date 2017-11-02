@@ -21,11 +21,12 @@ class AboutWindow(QtGui.QDialog):
         self.setWindowIcon(QtGui.QIcon(os.path.join(config.SORTWARE_PATH, config.MASTER_ICO_PATH)))
 
         self.head_img = QtGui.QLabel()
-        self.head_img.setText('<img src="{logopath}" height="70" width="70"></img>'\
-                            .format(logopath=os.path.join(config.SORTWARE_PATH, config.MASTER_ICO_PATH)))
+        self.head_img.setText('<img src="{master_logo}" height="72"></img><span> </span><img src="{trans_logo}" height="72"></img>'\
+                            .format(master_logo=os.path.join(config.SORTWARE_PATH, config.MASTER_ICO_PATH),\
+                                    trans_logo=os.path.join(config.SORTWARE_PATH, config.TRANS_ICO_PATH)))
         self.head_ver = QtGui.QLabel()
         self.head_ver.setText('<p style="font-family: 微软雅黑; font-size: 16px;" align="center">\
-                                <b>698后台_{version}<br>{dt}</b></p>'\
+                                <b>698后台/698日志解析<br>{version}({dt})</b></p>'\
                                 .format(version=config.MASTER_SOFTWARE_VERSION, dt=config.MASTER_SOFTWARE_DT))
         self.head_hbox = QtGui.QHBoxLayout()
         self.head_hbox.addStretch(1)
@@ -35,7 +36,9 @@ class AboutWindow(QtGui.QDialog):
 
         self.about_box = QtGui.QTextBrowser()
         with open(os.path.join(config.SORTWARE_PATH, 'docs/dev_log.html'), encoding='utf-8') as dev_log:
-            self.about_box.setText(dev_log.read())
+            text = dev_log.read() + '<h3>如果您喜欢我的作品，希望您能支持我:</h3>' +\
+                    '<center><img src="{alipay}" height="350"></center>'.format(alipay=os.path.join(config.SORTWARE_PATH, config.ALIPAY_IMG))
+            self.about_box.setText(text)
 
         self.foot_text = QtGui.QLabel()
         self.foot_text.setText('<p align="center">Designed by Kay. Powered by Qt Company.')

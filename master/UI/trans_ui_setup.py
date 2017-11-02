@@ -15,7 +15,7 @@ class TransWindowUi():
     def setup_ui(self):
         """set layout"""
         self.setWindowTitle('698日志解析工具_{ver}'.format(ver=config.TRANS_WINDOW_TITLE_ADD))
-        self.setWindowIcon(QtGui.QIcon(os.path.join(config.SORTWARE_PATH, 'imgs/698_o.png')))
+        self.setWindowIcon(QtGui.QIcon(os.path.join(config.SORTWARE_PATH, config.TRANS_ICO_PATH)))
         self.menubar = self.menuBar()
         self.file_menu = self.menubar.addMenu('&文件')
         self.open_action = QtGui.QAction('&打开...', self)
