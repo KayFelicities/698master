@@ -163,6 +163,12 @@ class TransWindow(QtGui.QMainWindow, TransWindowUi):
 
     def cursor_changed(self):
         """cursor changed to trans"""
+        document = self.input_box.document()
+        cursor = self.input_box.textCursor()
+        scroll = self.input_box.verticalScrollBar()
+        print('cursor: %d, scroll: %d, document: %d'\
+            %(cursor.blockNumber(), scroll.value(), document.findBlock(cursor.position()).blockNumber()))
+
         if self.last_selection[0] <= int(self.input_box.textCursor().position())\
                                     <= self.last_selection[1]:
             return
@@ -300,7 +306,7 @@ class TransWindow(QtGui.QMainWindow, TransWindowUi):
                     break
             if mode == 'next':
                 if row['span'][0] > pos_now:
-                    cursor.setPosition(row['span'][0])
+                    cursor.setPosition(row['span'][1] if self.auto_wrap_cb.isChecked() else row['span'][0])
                     self.input_box.setTextCursor(cursor)
                     break
         self.input_box.setFocus()
