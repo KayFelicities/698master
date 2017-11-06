@@ -230,6 +230,7 @@ class ParamWindow(QtGui.QMainWindow, QtGui.QWidget, Ui_ParamWindow):
         if gprs_ip_text and eth_ip_text:
             apdu_text = '060200 02 45000300 0101 0202 0904' + gprs_ip_text + '12' + gprs_port_text\
                             + '45100300 0101 0202 0904' + eth_ip_text + '12' + eth_port_text
+        apdu_text += '00'
         config.MASTER_WINDOW.se_apdu_signal.emit(apdu_text)
         config.MASTER_WINDOW.receive_signal.connect(self.read_res)
 
