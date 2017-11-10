@@ -46,10 +46,10 @@ def search_msg(m_list):
     offset = 0
     msg_list = []
     # print("kay, m_list:", m_list)
-    while offset < len(m_list):
+    while offset < len(m_list) - 5:  # at least 5 byte
         if m_list[offset] == '68':
             msg_len = int(m_list[offset + 2] + m_list[offset + 1], 16)
-            if m_list[offset + msg_len + 1] == '16':
+            if offset + msg_len + 1 < len(m_list) and m_list[offset + msg_len + 1] == '16':
                 msg_list.append(list2text(m_list[offset: offset + msg_len + 2]))
                 offset += msg_len + 2
             else:

@@ -60,12 +60,13 @@ class CommuPanel():
         config.MASTER_WINDOW.receive_signal.emit(m_text, chan_index)
 
 
-    def serial_connect(self, com, baudrate=9600, bytesize=8, parity='E', stopbits=1, timeout=0):
+    def serial_connect(self, com, baudrate=9600, bytesize=8, parity='E', stopbits=1, timeout=0.01):
         """connect serial"""
         if self.is_serial_running:
             return 'err'
         try:
-            self.serial_handle = serial.Serial(com, baudrate, bytesize, parity, stopbits, timeout)
+            self.serial_handle = serial.Serial(port=com, baudrate=baudrate, bytesize=bytesize,\
+                                                parity=parity, stopbits=stopbits, timeout=timeout)
             self.serial_handle.close()
             self.serial_handle.open()
             self.is_serial_running = True
@@ -94,26 +95,17 @@ class CommuPanel():
         re_msg_buf = []
         while True:
             try:
-                data_wait = self.serial_handle.inWaiting()
+                re_data = self.serial_handle.read(1)
             except Exception:
                 traceback.print_exc()
                 print('serial_run err quit')
                 break
-            re_text = ''
-            while data_wait > 0:
-                re_data = self.serial_handle.read(256)
-                for re_char in re_data:
-                    re_text += '{0:02X} '.format(re_char)
-                data_wait = self.serial_handle.inWaiting()
-            if re_text != '':
-                re_msg_buf += common.text2list(re_text)
-                if re_msg_buf and re_msg_buf[0] == '68' and re_msg_buf[-1] != '16':  # in case of serial msg break
-                    continue
-                try:
-                    msgs = common.search_msg(re_msg_buf)
-                except IndexError:  # break in half of the msg but 16 is just the end byte
-                    traceback.print_exc()
-                    continue
+            if re_data == b'\x68':
+                while self.serial_handle.inWaiting() > 0:
+                    re_data += self.serial_handle.read(self.serial_handle.inWaiting())
+                    time.sleep(0.02)
+                re_msg_buf += common.text2list(' '.join(['{0:02X}'.format(x) for x in re_data]))
+                msgs = common.search_msg(re_msg_buf)
                 for msg in msgs:
                     self.receive_msg(msg, 0)
                 re_msg_buf = []
@@ -132,8 +124,10 @@ class CommuPanel():
             self.frontend_handle = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             print(frontend_addr)
             self.frontend_handle.connect(frontend_addr)
+            # self.frontend_handle.settimeout(0.001)
             self.is_frontend_running = True
             threading.Thread(target=self.frontend_read_loop).start()
+            threading.Thread(target=self.frontend_keep_alive).start()
             return 'ok'
         except Exception:
             traceback.print_exc()
@@ -153,32 +147,39 @@ class CommuPanel():
             return 'err'
 
 
+    def frontend_keep_alive(self):
+        """keep frontend server connect"""
+        timer = time.time()
+        while self.is_frontend_running:
+            time.sleep(1)
+            if time.time() - timer > 300:
+                timer = time.time()
+                m_list = common.text2list('6817004305FFFFFFFFFFFF377A460501004000020000561F16')
+                send_b = b''.join(map(lambda x: struct.pack('B', int(x, 16)), m_list))
+                self.frontend_handle.sendall(send_b)
+
+
     def frontend_read_loop(self):
         """frontend loop"""
-        self.frontend_handle.setblocking(False)
         re_msg_buf = []
         while True:
             try:
-                re_byte = self.frontend_handle.recv(4096)
-                re_text = ''.join(['%02X ' % x for x in re_byte])
+                re_byte = self.frontend_handle.recv(1)
             except Exception:
-                # keep connect
                 if self.is_frontend_running is False:
-                    print('frontend quit')
+                    print('frontend err quit')
                     break
                 continue
-            if re_text != '':
-                re_msg_buf += common.text2list(re_text)
-                if re_msg_buf and re_msg_buf[0] == '68' and re_msg_buf[-1] != '16':  # in case of msg break
-                    continue
-                try:
-                    msgs = common.search_msg(re_msg_buf)
-                except IndexError:  # break in half of the msg but 16 is just the end byte
-                    traceback.print_exc()
-                    continue
+            if re_byte == b'\x68':
+                re_byte += self.frontend_handle.recv(2048)
+                re_msg_buf += common.text2list(''.join(['%02X ' % x for x in re_byte]))
+                msgs = common.search_msg(re_msg_buf)
                 for msg in msgs:
                     self.receive_msg(msg, 1)
                 re_msg_buf = []
+            if self.is_frontend_running is False:
+                print('frontend_run quit')
+                break
 
 
     def server_start(self, server_port):
@@ -229,32 +230,29 @@ class CommuPanel():
 
     def server_read_loop(self, client_handle, client_addr):
         """server loop"""
-        client_handle.setblocking(False)
         re_msg_buf = []
+        client_handle.settimeout(0.001)
         while True:
             try:
-                re_byte = client_handle.recv(4096)
-                re_text = ''.join(['%02X ' % x for x in re_byte])
+                re_byte = client_handle.recv(1)
             except Exception:
                 if self.is_server_running is False:
                     client_handle.shutdown(socket.SHUT_RDWR)
                     client_handle.close()
                     self.client_list.remove((client_handle, client_addr))
-                    print(client_addr, 'client quit')
+                    print(client_addr, 'client err quit')
                     break
                 continue
-            if re_text != '':
-                re_msg_buf += common.text2list(re_text)
-                if re_msg_buf and re_msg_buf[0] == '68' and re_msg_buf[-1] != '16':  # in case of msg break
-                    continue
-                try:
-                    msgs = common.search_msg(re_msg_buf)
-                except IndexError:  # break in half of the msg but 16 is just the end byte
-                    traceback.print_exc()
-                    continue
+            if re_byte == b'\x68':
+                re_byte += client_handle.recv(2048)
+                re_msg_buf += common.text2list(''.join(['%02X ' % x for x in re_byte]))
+                msgs = common.search_msg(re_msg_buf)
                 for msg in msgs:
                     self.receive_msg(msg, 2)
                 re_msg_buf = []
+            if self.is_server_running is False:
+                print('server_run quit')
+                break
 
 
     def quit(self):
