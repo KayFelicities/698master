@@ -54,6 +54,30 @@ class MasterConfig:
         return self.config.get('master', 'oad_r')
 
 
+    def set_serial_com(self, com):
+        """set_serial_com"""
+        self.config.set('commu', 'serial_com', com)
+
+
+    def get_serial_com(self):
+        """get_serial_com"""
+        if not self.config.has_option('commu', 'serial_com'):
+            self.config.set('commu', 'serial_com', 'COM1')
+        return self.config.get('commu', 'serial_com')
+
+
+    def set_serial_band_index(self, baud_index):
+        """set_serial_band_index"""
+        self.config.set('commu', 'serial_baud', str(baud_index))
+
+
+    def get_serial_band_index(self):
+        """get_serial_band_index"""
+        if not self.config.has_option('commu', 'serial_baud'):
+            self.config.set('commu', 'serial_baud', '0')
+        return int(self.config.get('commu', 'serial_baud'))
+
+
     def set_master_addr(self, addr):
         """set_master_addr"""
         self.config.set('commu', 'master_addr', addr)

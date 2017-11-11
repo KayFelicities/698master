@@ -60,14 +60,6 @@ class CommuDialog(QtGui.QDialog, ui_setup.CommuDialogUi):
         self.setup_ui()
         self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
 
-        # apply config
-        apply_config = master_config.MasterConfig()
-        self.master_addr_box.setText(apply_config.get_master_addr())
-        self.serial_baud.setCurrentIndex(apply_config.get_serial_baud_index())
-        self.frontend_box.setText(apply_config.get_frontend_ip())
-        self.server_box.setText(apply_config.get_server_port())
-        self.master_addr_filter_cb.setChecked(True)
-
         self.master_addr_change_b.clicked.connect(lambda: self.master_addr_box.setText('%02X'%random.randint(0, 255)))
         self.master_addr_box.textChanged.connect(self.set_master_addr)
         self.serial_combo.addItems(communication.serial_com_scan())
@@ -78,6 +70,19 @@ class CommuDialog(QtGui.QDialog, ui_setup.CommuDialogUi):
         self.server_link_b.clicked.connect(self.connect_server)
         self.server_cut_b.clicked.connect(self.cut_server)
         self.close_b.clicked.connect(self.close)
+
+        # apply config
+        apply_config = master_config.MasterConfig()
+        try:
+            index = communication.serial_com_scan().index(apply_config.get_serial_com())
+            self.serial_combo.setCurrentIndex(index)
+        except ValueError:
+            pass
+        self.serial_baud.setCurrentIndex(apply_config.get_serial_baud_index())
+        self.master_addr_box.setText(apply_config.get_master_addr())
+        self.frontend_box.setText(apply_config.get_frontend_ip())
+        self.server_box.setText(apply_config.get_server_port())
+        self.master_addr_filter_cb.setChecked(True)
 
         self.close_b.setFocus()
 
@@ -169,6 +174,8 @@ class CommuDialog(QtGui.QDialog, ui_setup.CommuDialogUi):
         self.set_master_addr()
         # save config
         save_config = master_config.MasterConfig()
+        save_config.set_serial_com(self.serial_combo.currentText())
+        save_config.set_serial_band_index(self.serial_baud.currentIndex())
         save_config.set_master_addr(self.master_addr_box.text())
         save_config.set_serial_baud_index(self.serial_baud.currentIndex())
         save_config.set_frontend_ip(self.frontend_box.text())

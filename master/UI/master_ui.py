@@ -35,6 +35,7 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
         self.show_level_cb.setChecked(True)
         self.is_reply_link = True if self.reply_link_cb.isChecked() else False
         self.is_reply_rpt = True if self.reply_rpt_cb.isChecked() else False
+        self.cnt_box_w.setVisible(True if self.oad_auto_r_cb.isChecked() else False)
         # self.tmn_table.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
 
         self.apply_config()
@@ -62,6 +63,8 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
         self.reply_link_cb.clicked.connect(self.set_reply_link)
         self.reply_rpt_cb.clicked.connect(self.set_reply_rpt)
         self.read_oad_b.clicked.connect(self.send_read_oad)
+        self.oad_auto_r_cb.clicked.connect(lambda: self.cnt_box_w.setVisible(True if self.oad_auto_r_cb.isChecked() else False))
+        self.cnt_clr_b.clicked.connect(self.cnt_reset)
         self.oad_box.returnPressed.connect(self.send_read_oad)
         self.oad_box.textChanged.connect(self.explain_oad)
 
@@ -93,6 +96,9 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
         self.apdu_text = ''
         self.is_auto_r = False
         self.msg_now = ''
+
+        self.send_cnt = 0
+        self.receive_cnt = 0
 
 
     def dragEnterEvent(self, event):
@@ -151,6 +157,9 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
     def re_msg_do(self, re_text, chan_index):
         """recieve text"""
         self.add_msg_table_row(re_text, chan_index, '←')
+        if self.oad_auto_r_cb.isChecked():
+            self.receive_cnt += 1
+            self.receive_cnt_l.setText('收%d'%self.receive_cnt)
 
 
     # @QtCore.Slot(str, int)
@@ -406,12 +415,22 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
     
     def auto_r_oad(self, apdu_text):
         """auto read oad thread"""
-        delay_s = max(self.oad_auto_r_spin.value(), 0.1)
+        delay_s = max(self.oad_auto_r_spin.value(), 0.05)
         if delay_s == 0:
             delay_s = 0.2
         while self.is_auto_r:
+            self.send_cnt += 1
+            self.send_cnt_l.setText('发%d'%self.send_cnt)
             self.se_apdu_signal.emit(apdu_text)
             time.sleep(delay_s)
+
+
+    def cnt_reset(self):
+        """reset cnt"""
+        self.send_cnt = 0
+        self.receive_cnt = 0
+        self.send_cnt_l.setText('发0')
+        self.receive_cnt_l.setText('收0')
 
 
     def explain_oad(self):
