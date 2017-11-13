@@ -181,7 +181,8 @@ class CommuDialog(QtGui.QDialog, ui_setup.CommuDialogUi):
         save_config.set_frontend_ip(self.frontend_box.text())
         save_config.set_server_port(self.server_box.text())
         save_config.commit()
-        config.MASTER_WINDOW.update_info_l(self.is_serial_connect, self.is_frontend_connect, self.is_server_connect)
+        config.MASTER_WINDOW.update_info_l('√' if self.is_serial_connect else '',\
+                        '√' if self.is_frontend_connect else '', '√' if self.is_server_connect else '')
         event.accept()
 
 

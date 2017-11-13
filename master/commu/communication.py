@@ -34,24 +34,34 @@ class CommuPanel():
         m_list = common.text2list(m_text)
         send_b = b''.join(map(lambda x: struct.pack('B', int(x, 16)), m_list))
         if self.is_serial_running and chan_index in [-1, 0]:
-            self.serial_handle.write(send_b)
-            config.MASTER_WINDOW.send_signal.emit(common.format_text(m_text), 0)
+            try:
+                self.serial_handle.write(send_b)
+                config.MASTER_WINDOW.send_signal.emit(common.format_text(m_text), 0)
+            except Exception:
+                print('serial send err')
+                config.MASTER_WINDOW.update_info_l(serial_status='故障')
+                self.serial_disconnect()
         if self.is_frontend_running and chan_index in [-1, 1]:
-            self.frontend_handle.sendall(send_b)
-            config.MASTER_WINDOW.send_signal.emit(common.format_text(m_text), 1)
+            try:
+                self.frontend_handle.sendall(send_b)
+                config.MASTER_WINDOW.send_signal.emit(common.format_text(m_text), 1)
+            except Exception:
+                print('frontend send err')
+                config.MASTER_WINDOW.update_info_l(frontend_status='故障')
+                self.frontend_disconnect()
 
         def send_to_client(client_handle, client_addr):
             """send"""
-            try:
-                client_handle.sendall(send_b)
-                print('send to client', client_addr)
-            except Exception:
-                self.client_list.remove((client_handle, client_addr))
-                print('del client', client_addr)
+            client_handle.sendall(send_b)
+            print('send to client', client_addr)
 
         if self.is_server_running and chan_index in [-1, 2]:
             for client_handle, client_addr in self.client_list:
-                send_to_client(client_handle, client_addr)
+                try:
+                    send_to_client(client_handle, client_addr)
+                except Exception:
+                    self.client_list.remove((client_handle, client_addr))
+                    print('del client', client_addr)
             config.MASTER_WINDOW.send_signal.emit(common.format_text(m_text), 2)
 
 
@@ -167,6 +177,7 @@ class CommuPanel():
                 re_byte = self.frontend_handle.recv(1)
             except Exception:
                 if self.is_frontend_running is False:
+                    config.MASTER_WINDOW.update_info_l(frontend_status='故障')
                     print('frontend err quit')
                     break
                 continue

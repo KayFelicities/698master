@@ -142,14 +142,20 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
         return QtGui.QMainWindow.eventFilter(self, widget, event)
 
 
-    def update_info_l(self, is_serial_connect, is_frontend_connect, is_server_connect):
+    def update_info_l(self, serial_status='', frontend_status='', server_status=''):
         """update info"""
         info_text = '<p><b>请按F2建立连接</b></p>'
-        if is_serial_connect or is_frontend_connect or is_server_connect:
+        if serial_status or frontend_status or server_status:
             info_text = ''
-            info_text += '串口√' if is_serial_connect else ''
-            info_text += ' 前置机√' if is_frontend_connect else ''
-            info_text += ' 服务器√' if is_server_connect else ''
+            if serial_status:
+                info_text += '<span style="color: {color}">串口{status}</span>'\
+                                .format(color='red' if serial_status in ['故障'] else 'black', status=serial_status)
+            if frontend_status:
+                info_text += '<span style="color: {color}"> 前置机{status}</span>'\
+                                .format(color='red' if frontend_status in ['故障'] else 'black', status=frontend_status)
+            if server_status:
+                info_text += '<span style="color: {color}"> 服务器{status}</span>'\
+                                .format(color='red' if server_status in ['故障'] else 'black', status=server_status)
         self.info_l.setText(info_text)
 
 
@@ -166,6 +172,9 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
     def se_msg_do(self, re_text, chan_index):
         """recieve text"""
         self.add_msg_table_row(re_text, chan_index, '→')
+        if self.oad_auto_r_cb.isChecked():
+            self.send_cnt += 1
+            self.send_cnt_l.setText('发%d'%self.send_cnt)
 
 
     def add_tmn_table_row(self, tmn_addr='000000000001', logic_addr=0, chan_index=1, is_checked=False):
@@ -419,8 +428,6 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
         if delay_s == 0:
             delay_s = 0.2
         while self.is_auto_r:
-            self.send_cnt += 1
-            self.send_cnt_l.setText('发%d'%self.send_cnt)
             self.se_apdu_signal.emit(apdu_text)
             time.sleep(delay_s)
 
