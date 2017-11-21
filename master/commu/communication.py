@@ -111,6 +111,7 @@ class CommuPanel():
                 print('serial_run err quit')
                 break
             if re_data == b'\x68':
+                time.sleep(0.02)
                 while self.serial_handle.inWaiting() > 0:
                     re_data += self.serial_handle.read(self.serial_handle.inWaiting())
                     time.sleep(0.02)
