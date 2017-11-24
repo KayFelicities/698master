@@ -70,7 +70,7 @@ class CommuPanel():
         config.MASTER_WINDOW.receive_signal.emit(m_text, chan_index)
 
 
-    def serial_connect(self, com, baudrate=9600, bytesize=8, parity='E', stopbits=1, timeout=0.01):
+    def serial_connect(self, com, baudrate=9600, bytesize=8, parity='E', stopbits=1, timeout=0.05):
         """connect serial"""
         if self.is_serial_running:
             return 'err'
@@ -111,10 +111,7 @@ class CommuPanel():
                 print('serial_run err quit')
                 break
             if re_data == b'\x68':
-                time.sleep(0.02)
-                while self.serial_handle.inWaiting() > 0:
-                    re_data += self.serial_handle.read(self.serial_handle.inWaiting())
-                    time.sleep(0.02)
+                re_data += self.serial_handle.read(4096)
                 re_msg_buf += common.text2list(' '.join(['{0:02X}'.format(x) for x in re_data]))
                 msgs = common.search_msg(re_msg_buf)
                 for msg in msgs:
@@ -183,7 +180,7 @@ class CommuPanel():
                     break
                 continue
             if re_byte == b'\x68':
-                re_byte += self.frontend_handle.recv(2048)
+                re_byte += self.frontend_handle.recv(20480)
                 re_msg_buf += common.text2list(''.join(['%02X ' % x for x in re_byte]))
                 msgs = common.search_msg(re_msg_buf)
                 for msg in msgs:
@@ -256,7 +253,7 @@ class CommuPanel():
                     break
                 continue
             if re_byte == b'\x68':
-                re_byte += client_handle.recv(2048)
+                re_byte += client_handle.recv(20480)
                 re_msg_buf += common.text2list(''.join(['%02X ' % x for x in re_byte]))
                 msgs = common.search_msg(re_msg_buf)
                 for msg in msgs:

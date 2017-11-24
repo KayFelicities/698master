@@ -66,7 +66,7 @@ class Translate():
         return access_res
 
 
-    def get_full(self, is_show_level=True, is_show_type=True, is_output_html=True):
+    def get_full(self, is_show_level=True, is_show_type=True, is_output_html=True, has_linklayer=True):
         """get full translate"""
         if self.is_success:
             res_text = '<table style="table-layout:fixed; word-wrap:break-word; border-style:solid;">' if is_output_html else ''
@@ -77,6 +77,8 @@ class Translate():
                 res_text = '报文解析过程出现问题，请检查报文。若报文无问题请反馈665593，谢谢！\n\n'
         temp_row = None
         for row in self.res_list:
+            if not has_linklayer and row['priority'] == 0:
+                continue
             if row['dtype'] in ['Data', 'CSD']:
                 temp_row = row
                 continue

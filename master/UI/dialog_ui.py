@@ -349,7 +349,7 @@ class RemoteUpdateDialog(QtGui.QDialog, ui_setup.RemoteUpdateDialogUI):
         # self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
 
         self.file_open_b.clicked.connect(self.open_file)
-        self.block_size_combo.currentIndexChanged.connect(self.show_block_num)
+        self.block_size_box.textChanged.connect(self.show_block_num)
         self.start_update_b.clicked.connect(self.start_update)
         self.stop_update_b.clicked.connect(self.stop_update)
 
@@ -416,7 +416,11 @@ class RemoteUpdateDialog(QtGui.QDialog, ui_setup.RemoteUpdateDialogUI):
     def show_block_num(self):
         """calc file info"""
         file_size = int(self.file_size_num_label.text().replace('字节', ''))
-        block_size = int(self.block_size_combo.currentText().replace('字节', ''))
+        try:
+            block_size = int(self.block_size_box.text().replace('字节', ''))
+        except ValueError:
+            self.block_num_label.setText('格式错误')
+            return
         block_num = file_size // block_size + (0 if file_size % block_size == 0 else 1)
         self.block_num_label.setText('{num}包'.format(num=block_num))
 
@@ -424,7 +428,10 @@ class RemoteUpdateDialog(QtGui.QDialog, ui_setup.RemoteUpdateDialogUI):
     def start_update(self):
         """start update"""
         filepath = self.file_path_box.text()
-        block_size = int(self.block_size_combo.currentText().replace('字节', ''))
+        try:
+            block_size = int(self.block_size_box.text().replace('字节', ''))
+        except ValueError:
+            block_size = 1024
         if filepath:
             threading.Thread(target=self.send_file,\
                         args=(filepath, block_size)).start()
@@ -445,6 +452,8 @@ class RemoteUpdateDialog(QtGui.QDialog, ui_setup.RemoteUpdateDialogUI):
             if not self.is_updating:
                 print('remote update timeout')
                 return
+        self.file_open_b.setEnabled(False)
+        self.block_size_box.setEnabled(False)
         self.start_update_b.setEnabled(False)
         self.stop_update_b.setEnabled(True)
 
@@ -456,6 +465,7 @@ class RemoteUpdateDialog(QtGui.QDialog, ui_setup.RemoteUpdateDialogUI):
             text_list = [file_text[x: x + block_size*2] for x in range(0, len(file_text), block_size*2)]
             for block_no, block_text in enumerate(text_list):
                 while not self.is_tmn_ready:
+                    time.sleep(0.05)
                     if not self.is_updating:
                         self.stop_update_b.setEnabled(False)
                         self.start_update_b.setEnabled(True)

@@ -50,12 +50,13 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
 
         self.tmn_table_scan_b.clicked.connect(self.tmn_scan)
         self.clr_b.clicked.connect(lambda: self.clr_table(self.msg_table))
-        self.msg_table.cellClicked.connect(self.trans_row)
+        self.msg_table.currentCellChanged.connect(self.trans_row)
         self.msg_table.cellDoubleClicked.connect(self.trans_msg)
         self.se_clr_b.clicked.connect(lambda: self.se_msg_box.clear() or self.se_msg_box.setFocus())
-        self.se_send_b.clicked.connect(lambda: self.se_apdu_signal.emit(self.apdu_text))
+        self.se_send_b.clicked.connect(self.send_se_msg)
         self.se_msg_box.textChanged.connect(self.trans_msg_box)
         self.se_msg_box.installEventFilter(self)
+        self.show_linklayer_cb.stateChanged.connect(self.trans_se_msg)
         self.show_level_cb.stateChanged.connect(self.trans_se_msg)
         self.show_dtype_cb.stateChanged.connect(self.trans_se_msg)
         self.copy_b.clicked.connect(self.copy_to_clipboard)
@@ -299,11 +300,21 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
         if len(self.msg_now) < 5:
             return
         trans = Translate(self.msg_now)
-        full = trans.get_full(self.show_level_cb.isChecked(), self.show_dtype_cb.isChecked())
+        full = trans.get_full(self.show_level_cb.isChecked(), self.show_dtype_cb.isChecked(), has_linklayer=self.show_linklayer_cb.isChecked())
         self.explain_box.setText(r'%s'%full)
         self.se_send_b.setEnabled(True if trans.is_success else False)
         if self.se_send_b.isEnabled():
             self.apdu_text = trans.get_apdu_text()
+
+
+    def send_se_msg(self):
+        """send sendbox msg"""
+        msg = self.se_msg_box.toPlainText()
+        if len(msg) < 5:
+            return
+        trans = Translate(msg)
+        apdu_text = trans.get_apdu_text()
+        self.se_apdu_signal.emit(apdu_text)
 
 
     # @QtCore.Slot(str)

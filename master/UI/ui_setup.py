@@ -177,6 +177,8 @@ class MasterWindowUi():
         self.se_vbox.addLayout(self.se_btn_hbox)
 
         self.explain_box = QtGui.QTextEdit()
+        self.show_linklayer_cb = QtGui.QCheckBox()
+        self.show_linklayer_cb.setText('链路层')
         self.show_dtype_cb = QtGui.QCheckBox()
         self.show_dtype_cb.setText('数据类型')
         self.show_level_cb = QtGui.QCheckBox()
@@ -186,6 +188,7 @@ class MasterWindowUi():
         self.copy_b.setMaximumWidth(60)
         self.explain_btn_hbox = QtGui.QHBoxLayout()
         self.explain_btn_hbox.addStretch(1)
+        self.explain_btn_hbox.addWidget(self.show_linklayer_cb)
         self.explain_btn_hbox.addWidget(self.show_dtype_cb)
         self.explain_btn_hbox.addWidget(self.show_level_cb)
         self.explain_btn_hbox.addWidget(self.copy_b)
@@ -576,12 +579,15 @@ class RemoteUpdateDialogUI():
         self.file_path_box.setPlaceholderText('请选择或拖入文件')
 
         self.block_size_label = QtGui.QLabel()
-        self.block_size_label.setText('传输块大小:')
-        self.block_size_combo = QtGui.QComboBox()
-        self.block_size_combo.addItem('128字节')
-        self.block_size_combo.addItem('256字节')
-        self.block_size_combo.addItem('512字节')
-        self.block_size_combo.addItem('1024字节')
+        self.block_size_label.setText('传输块大小(字节):')
+        self.block_size_box = QtGui.QLineEdit()
+        self.block_size_box.setText('1024')
+        self.block_size_box.setMaximumWidth(50)
+        # self.block_size_box = QtGui.QComboBox()
+        # self.block_size_box.addItem('128字节')
+        # self.block_size_box.addItem('256字节')
+        # self.block_size_box.addItem('512字节')
+        # self.block_size_box.addItem('1024字节')
 
         self.file_size_label = QtGui.QLabel()
         self.file_size_label.setText('文件大小')
@@ -609,7 +615,7 @@ class RemoteUpdateDialogUI():
         self.remote_update_gbox.addWidget(self.dummy_l, 3, 0)
 
         self.remote_update_gbox.addWidget(self.block_size_label, 4, 0)
-        self.remote_update_gbox.addWidget(self.block_size_combo, 4, 1)
+        self.remote_update_gbox.addWidget(self.block_size_box, 4, 1)
 
         self.remote_update_gbox.addWidget(self.dummy_l, 5, 0)
 
