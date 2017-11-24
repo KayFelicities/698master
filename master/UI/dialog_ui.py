@@ -467,6 +467,8 @@ class RemoteUpdateDialog(QtGui.QDialog, ui_setup.RemoteUpdateDialogUI):
                 while not self.is_tmn_ready:
                     time.sleep(0.05)
                     if not self.is_updating:
+                        self.file_open_b.setEnabled(True)
+                        self.block_size_box.setEnabled(True)
                         self.stop_update_b.setEnabled(False)
                         self.start_update_b.setEnabled(True)
                         self.start_update_b.setText('开始升级')
@@ -481,6 +483,8 @@ class RemoteUpdateDialog(QtGui.QDialog, ui_setup.RemoteUpdateDialogUI):
                                         else '82%04X'%send_len) + block_text + '00'
                 config.MASTER_WINDOW.se_apdu_signal.emit(send_apdu_text)
                 self.update_signal.emit(block_no + 1, block_num)
+        self.file_open_b.setEnabled(True)
+        self.block_size_box.setEnabled(True)
         self.stop_update_b.setEnabled(False)
         self.start_update_b.setEnabled(True)
         self.start_update_b.setText('开始升级')
