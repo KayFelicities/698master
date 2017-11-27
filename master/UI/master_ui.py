@@ -51,6 +51,7 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
         self.tmn_table_scan_b.clicked.connect(self.tmn_scan)
         self.clr_b.clicked.connect(lambda: self.clr_table(self.msg_table))
         self.msg_table.currentCellChanged.connect(self.trans_row)
+        self.msg_table.cellClicked.connect(self.trans_row)
         self.msg_table.cellDoubleClicked.connect(self.trans_msg)
         self.se_clr_b.clicked.connect(lambda: self.se_msg_box.clear() or self.se_msg_box.setFocus())
         self.se_send_b.clicked.connect(self.send_se_msg)
