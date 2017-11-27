@@ -105,13 +105,16 @@ class CommuPanel():
         re_msg_buf = []
         while True:
             try:
-                re_data = self.serial_handle.read(1)
+                new_data = self.serial_handle.read(1)
             except Exception:
                 traceback.print_exc()
                 print('serial_run err quit')
                 break
-            if re_data == b'\x68':
-                re_data += self.serial_handle.read(4096)
+            if new_data == b'\x68':
+                re_data = b''
+                while new_data:
+                    re_data += new_data
+                    new_data = self.serial_handle.read(4096)
                 re_msg_buf += common.text2list(' '.join(['{0:02X}'.format(x) for x in re_data]))
                 msgs = common.search_msg(re_msg_buf)
                 for msg in msgs:
