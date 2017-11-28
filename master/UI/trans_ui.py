@@ -55,7 +55,7 @@ class TransWindow(QtGui.QMainWindow, TransWindowUi):
         self.always_top_cb.clicked.connect(self.set_always_top)
         self.open_action.triggered.connect(self.openfile)
         self.reload_action.triggered.connect(lambda: self.openfile(filepath=self.file_now))
-        self.close_action.triggered.connect(self.clear_box)
+        self.clear_action.triggered.connect(self.clear_box)
         self.about_action.triggered.connect(config.ABOUT_WINDOW.show)
         self.find_action.triggered.connect(lambda: self.find_box.setFocus() or self.find_box.selectAll())
         self.next_msg_action.triggered.connect(lambda: self.jump_to_msg('next'))
@@ -218,7 +218,7 @@ class TransWindow(QtGui.QMainWindow, TransWindowUi):
 
     def clear_box(self):
         """clear_box"""
-        self.input_box.setText('')
+        self.input_box.setPlainText('')
         self.output_box.setText('')
         self.setWindowTitle('698日志解析工具_{ver}'.format(ver=config.MASTER_WINDOW_TITLE_ADD))
         self.input_box.setFocus()
