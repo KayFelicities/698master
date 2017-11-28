@@ -276,8 +276,8 @@ class ParamWindow(QtGui.QMainWindow, QtGui.QWidget, Ui_ParamWindow):
         ip_text = param.format_ip(self.local_ip_box.text())
         ip_mask = param.format_ip(self.local_mask_box.text())
         gate = param.format_ip(self.local_gate_addr_box.text())
-        ppp_usr = param.format_octet(self.ppp_usr_box.text())
-        ppp_pw = param.format_octet(self.ppp_pw_box.text())
+        ppp_usr = param.format_visible_string(self.ppp_usr_box.text())
+        ppp_pw = param.format_visible_string(self.ppp_pw_box.text())
         apdu_text = '06010D45100400 0206 16' + ip_mode + '0904' + ip_text + '0904' + ip_mask + '0904'\
                     + gate + ppp_usr + ppp_pw + '00'
         config.MASTER_WINDOW.se_apdu_signal.emit(apdu_text)
@@ -300,11 +300,11 @@ class ParamWindow(QtGui.QMainWindow, QtGui.QWidget, Ui_ParamWindow):
             offset += 6
             self.local_gate_addr_box.setText(param.get_ip(data[offset:]))
             offset += 4
-            ret = param.get_octet(data[offset:])
-            self.ppp_usr_box.setText(ret['octet'])
+            ret = param.get_visible(data[offset:])
+            self.ppp_usr_box.setText(ret['visible'])
             offset += ret['offset']
-            ret = param.get_octet(data[offset:])
-            self.ppp_pw_box.setText(ret['octet'])
+            ret = param.get_visible(data[offset:])
+            self.ppp_pw_box.setText(ret['visible'])
             offset += ret['offset']
         else:
             self.res_b.setStyleSheet('color: red')
