@@ -233,6 +233,8 @@ class MasterWindowUi():
         self.main_hsplitter.setStretchFactor(0, 1)
         self.main_hsplitter.setStretchFactor(1, 3)
 
+        self.plaintext_rn = QtGui.QCheckBox()
+        self.plaintext_rn.setText('明文+随机')
         self.reply_rpt_cb = QtGui.QCheckBox()
         self.reply_rpt_cb.setText('回复上报')
         self.reply_link_cb = QtGui.QCheckBox()
@@ -243,6 +245,7 @@ class MasterWindowUi():
         self.foot_hbox.addStretch(1)
         # self.foot_hbox.addWidget(self.show_dtype_cb)
         # self.foot_hbox.addWidget(self.show_level_cb)
+        self.foot_hbox.addWidget(self.plaintext_rn)
         self.foot_hbox.addWidget(self.reply_rpt_cb)
         self.foot_hbox.addWidget(self.reply_link_cb)
         self.foot_hbox.addWidget(self.always_top_cb)
