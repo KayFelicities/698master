@@ -30,11 +30,13 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
     def __init__(self):
         super(MasterWindow, self).__init__()
         self.setup_ui()
+        self.plaintext_rn.setChecked(False)
         self.reply_rpt_cb.setChecked(True)
         self.reply_link_cb.setChecked(True)
         self.show_level_cb.setChecked(True)
         self.is_reply_link = True if self.reply_link_cb.isChecked() else False
         self.is_reply_rpt = True if self.reply_rpt_cb.isChecked() else False
+        self.is_plaintext_rn = True if self.plaintext_rn.isChecked() else False
         self.cnt_box_w.setVisible(True if self.oad_auto_r_cb.isChecked() else False)
         # self.tmn_table.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
 
@@ -64,6 +66,7 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
         self.always_top_cb.clicked.connect(self.set_always_top)
         self.reply_link_cb.clicked.connect(self.set_reply_link)
         self.reply_rpt_cb.clicked.connect(self.set_reply_rpt)
+        self.plaintext_rn.clicked.connect(self.set_plaintext_rn)
         self.read_oad_b.clicked.connect(self.send_read_oad)
         self.oad_auto_r_cb.clicked.connect(lambda: self.cnt_box_w.setVisible(True if self.oad_auto_r_cb.isChecked() else False))
         self.cnt_clr_b.clicked.connect(self.cnt_reset)
@@ -321,6 +324,22 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
     # @QtCore.Slot(str)
     def send_apdu(self, apdu_text, tmn_addr='', logic_addr=-1, chan_index=-1, C_text='43'):
         """apdu to compelete msg to send"""
+        if self.is_plaintext_rn:
+            if apdu_text.startswith('0501') or apdu_text.startswith('0502'):
+                # 10 + 00 + len + apdu + 0110 5FE30D32D6A20288F9112B5C6052CFDB(fixme: 先固定一个随机数)
+                apdu_len = len(common.text2list(apdu_text))
+                apdu_head = '1000' #安全请求+明文应用数据单元
+
+                if apdu_len < 128:
+                    apdu_head += "%02X"%apdu_len
+                elif apdu_len < 256:
+                    apdu_head += "81%02X"%apdu_len
+                else:
+                    apdu_head += "82%04X"%apdu_len
+
+                apdu_text = apdu_head + apdu_text + '0110 5FE30D32D6A20288F9112B5C6052CFDB'
+                # print('读取明文+随机{}:{}'.format(len(common.text2list(apdu_text)), apdu_text))
+
         for row in [x for x in range(self.tmn_table.rowCount())\
                         if self.tmn_table.cellWidget(x, 0).isChecked()]:
             if tmn_addr and tmn_addr != self.tmn_table.item(row, 1).text():
@@ -393,6 +412,11 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
     def set_reply_rpt(self):
         """set_reply_rpt"""
         self.is_reply_rpt = self.reply_rpt_cb.isChecked()
+
+
+    def set_plaintext_rn(self):
+        """set_plaintext_rn"""
+        self.is_plaintext_rn = self.plaintext_rn.isChecked()
 
 
     def show_get_service_window(self):
