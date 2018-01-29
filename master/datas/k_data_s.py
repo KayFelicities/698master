@@ -1230,7 +1230,7 @@ class Data698():
             except IndexError:
                 traceback.print_exc()
                 structure_list = []
-        # print('structure_list:', structure_list)
+        print('structure_list:', structure_list)
         return structure_list
 
 
@@ -1241,7 +1241,7 @@ class Data698():
         if len(oad) != 8:
             return {}
         oi_text = oad[:4]
-        am_no = int(oad[4:6], 16) & 0x0f
+        am_no = int(oad[4:6], 16) & 0x0f if am_type == '属性' else int(oad[4:6], 16)
         index = int(oad[6:8], 16)
         # print('oi_text', oi_text, 'am_no', am_no, 'index', index, 'am_type', am_type)
 
@@ -1371,5 +1371,7 @@ class Data698():
 if __name__ == '__main__':
     test = Data698('123456')
     # print(test.get_oad_explain('f3000400'))
+    # print(test.get_omd_explain('601c7f00'))
+    print(test.get_structure('oad', '601c7f00'))
     # print(test.get_oi_explain('4401'))
-    print(test.get_class_oi('控制类'))
+    # print(test.get_class_oi('控制类'))
