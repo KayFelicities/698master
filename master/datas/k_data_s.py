@@ -1241,7 +1241,7 @@ class Data698():
         if len(oad) != 8:
             return {}
         oi_text = oad[:4]
-        am_no = int(oad[4:6], 16) & 0x0f if am_type == '属性' else int(oad[4:6], 16)
+        am_no = int(oad[4:6], 16) & 0x1f if am_type == '属性' else int(oad[4:6], 16)
         index = int(oad[6:8], 16)
         # print('oi_text', oi_text, 'am_no', am_no, 'index', index, 'am_type', am_type)
 

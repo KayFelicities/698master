@@ -564,8 +564,6 @@ class TypeDo():
     def take_OAD(self, m_list, brief='', depth=0, data_info=None):
         """take_OAD"""
         offset = 0
-        attr = int(m_list[offset + 2], 16)
-        index = int(m_list[offset + 3], 16)
         explain = config.K_DATA.get_oad_explain(''.join(m_list[offset : offset + 4]))
         offset += 4
         add_brief = data_info[0] if data_info else ''
