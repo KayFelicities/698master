@@ -38,6 +38,7 @@ class Service():
             '81': self.link_response,
             '82': self.connect_response,
             '83': self.release_response,
+            '84': self.release_connect_notification,
             '0501': self.GetRequestNormal,
             '0502': self.GetRequestNormalList,
             '0503': self.GetRequestRecord,
@@ -247,6 +248,14 @@ class Service():
         offset = 0
         offset += self.typedo.take_PIID_ACD(m_list[offset:])
         offset += self.typedo.take_enum(m_list[offset:], '结果', enum_dict={'00': '成功'})
+        return offset
+
+    def release_connect_notification(self, m_list):
+        """release_connect_notification"""
+        offset = 0
+        offset += self.typedo.take_PIID_ACD(m_list[offset:])
+        offset += self.typedo.take_date_time_s(m_list[offset:], '应用连接建立时间')
+        offset += self.typedo.take_date_time_s(m_list[offset:], '服务器当前时间')
         return offset
 
     def GetRequestNormal(self, m_list):
