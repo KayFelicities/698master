@@ -936,16 +936,16 @@ class Data698():
             ('6019', '透明方案', '8', '采集监控类', '属性', '2', '透明方案', '透明方案:structure{方案编号:unsigned,方案内容集:array:structure{序号:long-unsigned,通信地址:TSA,开始前脚本id:long-unsigned,完成后脚本id:long-unsigned,方案控制标志:structure{上报透明方案结果并等待后续报文:bool,等待后续报文超时时间<秒>:long-unsigned,结果比对标识:enum[不比对<0>,比<1>,比对上报<2>],结果比对参数:structure{特征字节:unsigned,截取开始:long-unsigned,截取长度:long-unsigned}},方案报文集:array:structure{报文序号:unsigned,报文内容:octet-string}},存储深度:long-unsigned},'),
             ('601A', '透明方案结果集', '11', '采集监控类', '属性', '2', '', '透明方案结果集:array:structure{方案编号:unsigned,方案执行时间:date_time_s,通信地址:TSA,结果集:array:structure{报文序号:unsigned,报文响应时间:date_time_s,命令结果:octet-string}},'),
             ('601B', '一个透明方案结果', '8', '采集监控类', '属性', '2', '', '一个透明方案结果:structure{方案编号:unsigned,方案执行时间:date_time_s,通信地址:TSA,结果集:array:structure{报文序号:unsigned,报文响应时间:date_time_s,命令结果:octet-string}},'),
-            ('601C', '上报方案集', '11', '采集监控类', '属性', '2', '', '上报方案集:array:structure{方案编号:unsigned,上报通道:array:OAD,上报响应超时时间:TI,最大上报次数:unsigned,上报内容strcuture{类型:unsigned,数据:Data}},'),
-            ('601C', '上报方案集', '11', '采集监控类', '方法', '127', 'Add(array 上报方案)', 'array:structure{方案编号:unsigned,上报通道:array:OAD,上报响应超时时间:TI,最大上报次数:unsigned,上报内容strcuture{类型:unsigned,数据:Data}},'),
+            ('601C', '上报方案集', '11', '采集监控类', '属性', '2', '', '上报方案集:array:structure{方案编号:unsigned,上报通道:array:OAD,上报响应超时时间:TI,最大上报次数:unsigned,上报内容:structure{类型:unsigned,数据:Data}},'),
+            ('601C', '上报方案集', '11', '采集监控类', '方法', '127', 'Add(array 上报方案)', '上报方案集:array:structure{方案编号:unsigned,上报通道:array:OAD,上报响应超时时间:TI,最大上报次数:unsigned,上报内容:structure{类型:unsigned,数据:Data}},'),
             ('601C', '上报方案集', '11', '采集监控类', '方法', '128', 'Delete(array 方案编号)', 'array:方案编号:unsigned,'),
             ('601C', '上报方案集', '11', '采集监控类', '方法', '129', 'Clear()', ''),
-            ('601D', '上报方案', '8', '采集监控类', '属性', '2', '上报方案 report plan', '上报方案:structure{方案编号:unsigned,上报通道:array:OAD,上报响应超时时间:TI,最大上报次数:unsigned,上报内容strcuture{类型:unsigned,数据:Data}},'),
-            ('601E', '采集规则库', '11', '采集监控类', '属性', '2', '采集规则库', '采集规则库:array:structure{数据列选择描述符:CSD,规则描述structure{AcqCmd_2007:structure{主用DI:array:octet-string(SIZE(4)),备用DI:array:octet-string(SIZE(4))},AcqCmd_1997:structure{主用DI:array:octet-string(SIZE(2)),备用DI:array:octet-string(SIZE(2))},AcqCmd_Trans:structure{Frame:octet-string}}},'),
-            ('601E', '采集规则库', '11', '采集监控类', '方法', '127', 'Add(array 采集规则)', 'array:采集规则:structure{数据列选择描述符:CSD,规则描述structure{AcqCmd_2007:structure{主用DI:array:octet-string(SIZE(4)),备用DI:array:octet-string(SIZE(4))},AcqCmd_1997:structure{主用DI:array:octet-string(SIZE(2)),备用DI:array:octet-string(SIZE(2))},AcqCmd_Trans:structure{Frame:octet-string}}},'),
+            ('601D', '上报方案', '8', '采集监控类', '属性', '2', '上报方案 report plan', '上报方案:structure{方案编号:unsigned,上报通道:array:OAD,上报响应超时时间:TI,最大上报次数:unsigned,上报内容:structure{类型:unsigned,数据:Data}},'),
+            ('601E', '采集规则库', '11', '采集监控类', '属性', '2', '采集规则库', '采集规则库:array:structure{数据列选择描述符:CSD,规则描述:structure{AcqCmd_2007:structure{主用DI:array:octet-string(SIZE(4)),备用DI:array:octet-string(SIZE(4))},AcqCmd_1997:structure{主用DI:array:octet-string(SIZE(2)),备用DI:array:octet-string(SIZE(2))},AcqCmd_Trans:structure{Frame:octet-string}}},'),
+            ('601E', '采集规则库', '11', '采集监控类', '方法', '127', 'Add(array 采集规则)', 'array:采集规则:structure{数据列选择描述符:CSD,规则描述:structure{AcqCmd_2007:structure{主用DI:array:octet-string(SIZE(4)),备用DI:array:octet-string(SIZE(4))},AcqCmd_1997:structure{主用DI:array:octet-string(SIZE(2)),备用DI:array:octet-string(SIZE(2))},AcqCmd_Trans:structure{Frame:octet-string}}},'),
             ('601E', '采集规则库', '11', '采集监控类', '方法', '128', 'Delete(array:CSD)', 'array:CSD,'),
             ('601E', '采集规则库', '11', '采集监控类', '方法', '129', 'Clear()', ''),
-            ('601F', '采集规则', '8', '采集监控类', '属性', '2', '', '采集规则:structure{数据列选择描述符:CSD,规则描述structure{AcqCmd_2007:structure{主用DI:array:octet-string(SIZE(4)),备用DI:array:octet-string(SIZE(4))},AcqCmd_1997:structure{主用DI:array:octet-string(SIZE(2)),备用DI:array:octet-string(SIZE(2))},AcqCmd_Trans:structure{Frame:octet-string}}},'),
+            ('601F', '采集规则', '8', '采集监控类', '属性', '2', '', '采集规则:structure{数据列选择描述符:CSD,规则描述:structure{AcqCmd_2007:structure{主用DI:array:octet-string(SIZE(4)),备用DI:array:octet-string(SIZE(4))},AcqCmd_1997:structure{主用DI:array:octet-string(SIZE(2)),备用DI:array:octet-string(SIZE(2))},AcqCmd_Trans:structure{Frame:octet-string}}},'),
             ('6032', '采集状态集', '11', '采集监控类', '属性', '2', '', '采集状态集:array:structure{通信地址:TSA,中继级别:unsigned,中继地址:TSA,端口:OAD,最后一次采集成功时间:date_time_s,采集失败次数:unsigned,相位:enum[未知<0>,A相<1>,B相<2>,C相<3>],相序异常:enum[正常<0>,LN互易<1>,逆相序<2>]},'),
             ('6033', '一个采集状态', '8', '采集监控类', '属性', '2', '', '一个采集状态:structure{通信地址:TSA,中继级别:unsigned,中继地址:TSA,端口:OAD,最后一次采集成功时间:date_time_s,采集失败次数:unsigned,相位:enum[未知<0>,A相<1>,B相<2>,C相<3>],相序异常:enum[正常<0>,LN互易<1>,逆相序<2>]},'),
             ('6034', '采集任务监控集', '11', '采集监控类', '属性', '2', '', '采集任务监控集:array:structure{任务ID:unsigned任务执行状态:enum[未执行<0>,执行中<1>,已执行<2>],任务执行开始时间:date_time_s,任务执行结束时间:date_time_s,采集总数量:long-unsigned,采集成功数量:long-unsigned,已发送报文条数:long-unsigned,已接收报文条数:long-unsigned},'),
@@ -957,12 +957,12 @@ class Data698():
             ('7000', '文件集合', '11', '集合类', '方法', '128', 'Execute(文件名)', '文件名:visible-string,'),
             ('7000', '文件集合', '11', '集合类', '方法', '129', 'DeleteFile(文件名)', '文件名:visible-string,'),
             ('7001', '文件', '8', '集合类', '属性', '2', '文件 文件', '文件 文件:structure{文件名:visible-string,扩展名:visible-string,文件长度:long-unsigned,创建时间:date_time_s,修改时间:date_time_s,数据来源:enum[主站<0>,终端自身<1>,采集器<2>,电能表<3>,其它<255>],文件内容:octet-string},'),
-            ('7010', '脚本集合', '11', '集合类', '属性', '2', '', '脚本集合:array:脚本structure{脚本ID:long-unsigned,操作集:array一个操作},'),
+            ('7010', '脚本集合', '11', '集合类', '属性', '2', '', '脚本集合:array:脚本:structure{脚本ID:long-unsigned,操作集:array一个操作},'),
             ('7010', '脚本集合', '11', '集合类', '方法', '127', 'Add(脚本)', '脚本ID:long-unsigned,'),
             ('7010', '脚本集合', '11', '集合类', '方法', '128', 'Delete(脚本 id)', '脚本ID:long-unsigned,'),
             ('7010', '脚本集合', '11', '集合类', '方法', '129', 'Execute(脚本 id)', '脚本ID:long-unsigned,'),
             ('7010', '脚本集合', '11', '集合类', '方法', '130', 'Clear()', '脚本ID:long-unsigned,'),
-            ('7011', '脚本', '8', '集合类', '属性', '2', '', '脚本:脚本structure{脚本ID:long-unsigned,操作集:array一个操作},'),
+            ('7011', '脚本', '8', '集合类', '属性', '2', '', '脚本:脚本:structure{脚本ID:long-unsigned,操作集:array一个操作},'),
             ('7012', '脚本执行结果集', '11', '集合类', '属性', '2', '', '脚本执行结果集:array:structure{脚本ID:long-unsigned,脚本执行时间:date_time_s,脚本执行结果集:array一个执行结果},'),
             ('7013', '一个脚本执行结果', '8', '集合类', '属性', '2', '', '一个脚本执行结果:structure{脚本ID:long-unsigned,脚本执行时间:date_time_s,脚本执行结果集:array一个执行结果},'),
             ('7100', '扩展变量对象集合', '11', '集合类', '属性', '2', '', 'array:变量类对象:Data,'),
@@ -1372,6 +1372,6 @@ if __name__ == '__main__':
     test = Data698('123456')
     # print(test.get_oad_explain('f3000400'))
     # print(test.get_omd_explain('601c7f00'))
-    print(test.get_structure('oad', '601c7f00'))
+    print(test.get_structure('omd', '601c7f00'))
     # print(test.get_oi_explain('4401'))
     # print(test.get_class_oi('控制类'))
