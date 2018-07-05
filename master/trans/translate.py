@@ -79,7 +79,7 @@ class Translate():
         for row in self.res_list:
             if not has_linklayer and row['priority'] == 0:
                 continue
-            if row['dtype'] in ['Data', 'CSD']:
+            if row['dtype'] in ['Data']:
                 temp_row = row
                 continue
             value = row['value']
