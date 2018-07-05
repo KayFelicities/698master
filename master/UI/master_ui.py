@@ -12,16 +12,16 @@ from master.trans.translate import Translate
 from master.UI import dialog_ui
 from master.UI import param_ui
 from master.reply import reply
-from master.datas import k_data
+from master.datas import k_data_s
 from master.others import msg_log
 from master.others import master_config
 if config.IS_USE_PYSIDE:
     from PySide import QtGui, QtCore
 else:
-    from PyQt4 import QtGui, QtCore
+    from PyQt5 import QtGui, QtCore, QtWidgets
 
 
-class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
+class MasterWindow(QtWidgets.QMainWindow, MasterWindowUi):
     """serial window"""
     receive_signal = QtCore.Signal(str, int) if config.IS_USE_PYSIDE else QtCore.pyqtSignal(str, int)
     send_signal = QtCore.Signal(str, int) if config.IS_USE_PYSIDE else QtCore.pyqtSignal(str, int)
@@ -29,7 +29,7 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
 
     def __init__(self):
         super(MasterWindow, self).__init__()
-        self.setup_ui()
+        # self.setup_ui()
         self.plaintext_rn.setChecked(False)
         self.reply_rpt_cb.setChecked(True)
         self.reply_link_cb.setChecked(True)
@@ -144,7 +144,7 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
         if event.type() == QtCore.QEvent.FocusIn:
             self.msg_now = self.se_msg_box.toPlainText()
             self.trans_se_msg()
-        return QtGui.QMainWindow.eventFilter(self, widget, event)
+        return QtWidgets.QMainWindow.eventFilter(self, widget, event)
 
 
     def update_info_l(self, serial_status='', frontend_status='', server_status=''):
@@ -187,30 +187,30 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
         row_pos = self.tmn_table.rowCount()
         self.tmn_table.insertRow(row_pos)
 
-        tmn_enable_cb = QtGui.QCheckBox()
+        tmn_enable_cb = QtWidgets.QCheckBox()
         tmn_enable_cb.setChecked(is_checked)
         self.tmn_table.setCellWidget(row_pos, 0, tmn_enable_cb)
 
-        item = QtGui.QTableWidgetItem(tmn_addr)
+        item = QtWidgets.QTableWidgetItem(tmn_addr)
         self.tmn_table.setItem(row_pos, 1, item)
 
-        logic_addr_box = QtGui.QSpinBox()
+        logic_addr_box = QtWidgets.QSpinBox()
         logic_addr_box.setRange(0, 3)
         logic_addr_box.setValue(logic_addr)
         self.tmn_table.setCellWidget(row_pos, 2, logic_addr_box)
 
-        channel_cb = QtGui.QComboBox()
+        channel_cb = QtWidgets.QComboBox()
         channel_cb.addItems(('串口', '前置机', '服务器'))
         channel_cb.setCurrentIndex(chan_index)
         self.tmn_table.setCellWidget(row_pos, 3, channel_cb)
 
-        self.tmn_remove_cb = QtGui.QPushButton()
+        self.tmn_remove_cb = QtWidgets.QPushButton()
         self.tmn_remove_cb.setText('删')
+        self.tmn_remove_cb.setMaximumWidth(25)
         self.tmn_table.setCellWidget(row_pos, 4, self.tmn_remove_cb)
         self.tmn_remove_cb.clicked.connect(self.tmn_table_remove)
 
         self.tmn_table.scrollToBottom()
-
 
     def tmn_table_remove(self):
         """remove row in tmn table"""
@@ -249,28 +249,28 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
         row_pos = self.msg_table.rowCount()
         self.msg_table.insertRow(row_pos)
 
-        item = QtGui.QTableWidgetItem(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
+        item = QtWidgets.QTableWidgetItem(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
         # item.setBackground(text_color)
         self.msg_table.setItem(row_pos, 0, item)
 
         addr_text = '{SA}:{logic}'.format(SA=server_addr, logic=logic_addr)
-        item = QtGui.QTableWidgetItem(addr_text)
+        item = QtWidgets.QTableWidgetItem(addr_text)
         # item.setBackground(text_color)
         self.msg_table.setItem(row_pos, 1, item)
 
-        item = QtGui.QTableWidgetItem(chan_text + direction)
+        item = QtWidgets.QTableWidgetItem(chan_text + direction)
         item.setBackground(text_color)
         self.msg_table.setItem(row_pos, 2, item)
 
-        item = QtGui.QTableWidgetItem(brief)
+        item = QtWidgets.QTableWidgetItem(brief)
         if brief == '无效报文':
-            item.setTextColor(QtCore.Qt.red)
+            item.setForeground(QtCore.Qt.red) # Qt4使用setTextColor
         if brief.find('(访问失败)') == 0:
-            item.setTextColor(QtGui.QColor(255, 140, 0))
+            item.setForeground(QtGui.QColor(255, 140, 0))# Qt4使用setTextColor
         self.msg_table.setItem(row_pos, 3, item)
 
         msg_text = common.format_text(m_text)
-        item = QtGui.QTableWidgetItem(msg_text)
+        item = QtWidgets.QTableWidgetItem(msg_text)
         # item.setBackground(text_color)
         self.msg_table.setItem(row_pos, 4, item)
 
@@ -382,7 +382,10 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
 
     def trans_row(self, row):
          """translate row massage"""
-         self.msg_now = self.msg_table.item(row, 4).text()
+         if self.msg_table.item(row, 4) is None: # fixme: 这里会出现None
+             self.msg_now = ''
+         else:
+            self.msg_now = self.msg_table.item(row, 4).text()
          self.trans_se_msg()
 
     def clr_table(self, table):

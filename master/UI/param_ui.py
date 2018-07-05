@@ -8,10 +8,10 @@ from master.datas import base_data
 if config.IS_USE_PYSIDE:
     from PySide import QtGui, QtCore
 else:
-    from PyQt4 import QtGui, QtCore
+    from PyQt5 import QtGui, QtCore, QtWidgets
 
 
-class ParamWindow(QtGui.QMainWindow, QtGui.QWidget, Ui_ParamWindow):
+class ParamWindow(QtWidgets.QMainWindow, Ui_ParamWindow):
     def __init__(self):
         super(ParamWindow, self).__init__()
         self.setupUi(self)
@@ -400,6 +400,7 @@ class ParamWindow(QtGui.QMainWindow, QtGui.QWidget, Ui_ParamWindow):
 
 
     def re_esam_info(self, re_text):
+        res_sum = True
         m_data = common.text2list(re_text)
         data = common.get_apdu_list(m_data)
         offset = common.list2text(data).replace(' ', '').find('F1000200') // 2 + 4

@@ -11,17 +11,17 @@ from master import config
 if config.IS_USE_PYSIDE:
     from PySide import QtGui, QtCore
 else:
-    from PyQt4 import QtGui, QtCore
+    from PyQt5 import QtGui, QtCore, QtWidgets
 
 
-class TransWindow(QtGui.QMainWindow, TransWindowUi):
+class TransWindow(QtWidgets.QMainWindow, TransWindowUi):
     """translate window"""
     load_file = QtCore.Signal(str) if config.IS_USE_PYSIDE else QtCore.pyqtSignal(str)
     set_progress = QtCore.Signal(int) if config.IS_USE_PYSIDE else QtCore.pyqtSignal(int)
 
     def __init__(self):
         super(TransWindow, self).__init__()
-        self.setup_ui()
+        # self.setup_ui()
         self.proc_bar.setVisible(False)
         self.show_level_cb.setChecked(True)
         self.auto_wrap_cb.setChecked(True)
@@ -29,7 +29,7 @@ class TransWindow(QtGui.QMainWindow, TransWindowUi):
         apply_config = master_config.MasterConfig()
         file_list = apply_config.get_last_file()[::-1]
         for file_name in file_list:
-            self.file_action = QtGui.QAction('%s'%file_name, self)
+            self.file_action = QtWidgets.QAction('%s'%file_name[0], self)
             self.file_menu.addAction(self.file_action)
             self.file_action.triggered.connect(self.openfile)
         font_size = apply_config.get_font_size()
@@ -110,20 +110,20 @@ class TransWindow(QtGui.QMainWindow, TransWindowUi):
     def openfile(self, filepath=''):
         """open file"""
         action = self.sender()
-        if isinstance(action, QtGui.QAction) and os.path.isfile(action.text()):
+        if isinstance(action, QtWidgets.QAction) and os.path.isfile(action.text()):
             filepath = action.text()
         if not os.path.isfile(filepath):
-            filepath = QtGui.QFileDialog.getOpenFileName(self, caption='请选择698日志文件', filter='*')
+            filepath,filetype = QtWidgets.QFileDialog.getOpenFileName(self, caption='请选择698日志文件', filter='*')
+
         if filepath:
-            print('filepath: ', filepath)
             save_config = master_config.MasterConfig()
             save_config.add_last_file(filepath)
             save_config.commit()
             file_size = os.path.getsize(filepath)
             if file_size > 3000000:
-                reply = QtGui.QMessageBox.question(self, '警告', '打开大型文件会使用较长时间，确定打开吗？',\
-                                QtGui.QMessageBox.Yes | QtGui.QMessageBox.No, QtGui.QMessageBox.No)
-                if reply != QtGui.QMessageBox.Yes:
+                reply = QtWidgets.QMessageBox.question(self, '警告', '打开大型文件会使用较长时间，确定打开吗？',\
+                                QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No, QtWidgets.QMessageBox.No)
+                if reply != QtWidgets.QMessageBox.Yes:
                     return
             self.proc_bar.setVisible(True)
             self.open_action.setEnabled(False)
@@ -316,7 +316,7 @@ class TransWindow(QtGui.QMainWindow, TransWindowUi):
         """copy_to_clipboard"""
         trans = Translate(self.msg_box.toPlainText())
         text = trans.get_clipboard_text(self.show_level_cb.isChecked(), self.show_dtype_cb.isChecked())
-        clipboard = QtGui.QApplication.clipboard()
+        clipboard = QtWidgets.QApplication.clipboard()
         clipboard.clear()
         clipboard.setText(text)
 
@@ -335,8 +335,8 @@ class TransWindow(QtGui.QMainWindow, TransWindowUi):
 
     def update_wrap_mode(self):
         """update_wrap_mode"""
-        self.input_box.setLineWrapMode(QtGui.QPlainTextEdit.WidgetWidth\
-                if self.auto_wrap_cb.isChecked() else QtGui.QPlainTextEdit.NoWrap)
+        self.input_box.setLineWrapMode(QtWidgets.QPlainTextEdit.WidgetWidth\
+                if self.auto_wrap_cb.isChecked() else QtWidgets.QPlainTextEdit.NoWrap)
 
 
     def closeEvent(self, event):

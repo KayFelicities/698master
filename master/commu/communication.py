@@ -163,9 +163,9 @@ class CommuPanel():
         timer = time.time()
         while self.is_frontend_running:
             time.sleep(1)
-            if time.time() - timer > 300:
+            if time.time() - timer > 120:
                 timer = time.time()
-                m_list = common.text2list('6817004305FFFFFFFFFFFF377A460501004000020000561F16')
+                m_list = common.text2list('FFFFFFFFFF')
                 send_b = b''.join(map(lambda x: struct.pack('B', int(x, 16)), m_list))
                 self.frontend_handle.sendall(send_b)
 

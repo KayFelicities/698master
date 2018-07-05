@@ -16,14 +16,14 @@ from master.others import master_config
 if config.IS_USE_PYSIDE:
     from PySide import QtGui, QtCore
 else:
-    from PyQt4 import QtGui, QtCore
+    from PyQt5 import QtCore, QtWidgets
 
 
-class TransPopDialog(QtGui.QDialog, ui_setup.TransPopDialogUi):
+class TransPopDialog(QtWidgets.QDialog, ui_setup.TransPopDialogUi):
     """translate window"""
     def __init__(self):
         super(TransPopDialog, self).__init__()
-        self.setup_ui()
+        # self.setup_ui()
         self.show_level_cb.setChecked(True)
 
         self.msg_box.textChanged.connect(self.trans_msg)
@@ -53,11 +53,11 @@ class TransPopDialog(QtGui.QDialog, ui_setup.TransPopDialogUi):
         self.move(window_pos)
 
 
-class CommuDialog(QtGui.QDialog, ui_setup.CommuDialogUi):
+class CommuDialog(QtWidgets.QDialog, ui_setup.CommuDialogUi):
     """communication config window"""
     def __init__(self):
         super(CommuDialog, self).__init__()
-        self.setup_ui()
+        # self.setup_ui() # fixme: CommuDialogUi中已经默认setup_ui了这里可以不用设置
         self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
 
         self.master_addr_change_b.clicked.connect(lambda: self.master_addr_box.setText('%02X'%random.randint(0, 255)))
@@ -186,11 +186,11 @@ class CommuDialog(QtGui.QDialog, ui_setup.CommuDialogUi):
         event.accept()
 
 
-class ApduDiyDialog(QtGui.QDialog, ui_setup.ApduDiyDialogUi):
+class ApduDiyDialog(QtWidgets.QDialog, ui_setup.ApduDiyDialogUi):
     """apdu DIY dialog class"""
     def __init__(self):
         super(ApduDiyDialog, self).__init__()
-        self.setup_ui()
+        # self.setup_ui()
 
         self.send_b.setEnabled(False)
         self.chk_valid_cb.setChecked(True)
@@ -268,11 +268,11 @@ class ApduDiyDialog(QtGui.QDialog, ui_setup.ApduDiyDialogUi):
         self.move(window_pos)
 
 
-class MsgDiyDialog(QtGui.QDialog, ui_setup.MsgDiyDialogUi):
+class MsgDiyDialog(QtWidgets.QDialog, ui_setup.MsgDiyDialogUi):
     """apdu DIY dialog class"""
     def __init__(self):
         super(MsgDiyDialog, self).__init__()
-        self.setup_ui()
+        # self.setup_ui()
 
         self.send_b.setEnabled(False)
         self.chk_valid_cb.setChecked(True)
@@ -338,12 +338,12 @@ class MsgDiyDialog(QtGui.QDialog, ui_setup.MsgDiyDialogUi):
         self.move(window_pos)
 
 
-class RemoteUpdateDialog(QtGui.QDialog, ui_setup.RemoteUpdateDialogUI):
+class RemoteUpdateDialog(QtWidgets.QDialog, ui_setup.RemoteUpdateDialogUI):
     """remote update window"""
     update_signal = QtCore.Signal(int, int) if config.IS_USE_PYSIDE else QtCore.pyqtSignal(int, int)
     def __init__(self):
         super(RemoteUpdateDialog, self).__init__()
-        self.setup_ui()
+        # self.setup_ui()
         self.setAcceptDrops(True)
         self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
         # self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
@@ -397,14 +397,14 @@ class RemoteUpdateDialog(QtGui.QDialog, ui_setup.RemoteUpdateDialogUI):
     def open_file(self, filepath=''):
         """open file"""
         if not filepath:
-            filepath = QtGui.QFileDialog.getOpenFileName(self, 'Open file', '', '*.*')
+            filepath,filetype = QtWidgets.QFileDialog.getOpenFileName(self, 'Open file', '', '*.*')
         if filepath:
             print('filepath: ', filepath)
             file_type = filepath.split('.')[-1]
             if file_type not in ['sp4']:
-                reply = QtGui.QMessageBox.question(self, '警告', '确定升级非sp4文件吗？',\
-                                QtGui.QMessageBox.Yes | QtGui.QMessageBox.No, QtGui.QMessageBox.No)
-                if reply != QtGui.QMessageBox.Yes:
+                reply = QtWidgets.QMessageBox.question(self, '警告', '确定升级非sp4文件吗？',\
+                                QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No, QtWidgets.QMessageBox.No)
+                if reply != QtWidgets.QMessageBox.Yes:
                     return
             self.file_path_box.setText(filepath)
             file_size = os.path.getsize(filepath)
@@ -475,7 +475,7 @@ class RemoteUpdateDialog(QtGui.QDialog, ui_setup.RemoteUpdateDialogUI):
                         return
                 self.is_tmn_ready = False
                 self.send_tm = time.time()
-                send_len = len(block_text)/2
+                send_len = int(len(block_text)/2) # 或者使用//
                 self.service_no = config.SERVICE.get_service_no()
                 send_apdu_text = '0701{piid:02X} f0010800 0202 12{blockno:04X} 09'\
                                     .format(piid=self.service_no, blockno=block_no)\
@@ -520,11 +520,11 @@ class RemoteUpdateDialog(QtGui.QDialog, ui_setup.RemoteUpdateDialogUI):
         self.is_updating = False
 
 
-class GetSetServiceDialog(QtGui.QDialog, ui_setup.GetSetServiceDialogUI):
+class GetSetServiceDialog(QtWidgets.QDialog, ui_setup.GetSetServiceDialogUI):
     """get service dialog class"""
     def __init__(self):
         super(GetSetServiceDialog, self).__init__()
-        self.setup_ui()
+        # self.setup_ui()
 
         self.class_cb.addItems(tuple(['收藏'] + service_data.get_base_class()))
         self.class_cb.setCurrentIndex(-1)
@@ -569,15 +569,15 @@ class GetSetServiceDialog(QtGui.QDialog, ui_setup.GetSetServiceDialogUI):
         row_pos = self.object_table.rowCount()
         self.object_table.insertRow(row_pos)
 
-        class_cb = QtGui.QComboBox()
+        class_cb = QtWidgets.QComboBox()
         class_cb.addItems(('常用',))
         class_cb.setCurrentIndex(0)
         self.object_table.setCellWidget(row_pos, 0, class_cb)
-        oad_cb = QtGui.QComboBox()
+        oad_cb = QtWidgets.QComboBox()
         # oad_cb.addItems(get_set_oads.ACTIVE_OADS)
         oad_cb.setCurrentIndex(0)
         self.object_table.setCellWidget(row_pos, 1, oad_cb)
-        self.object_remove_cb = QtGui.QPushButton()
+        self.object_remove_cb = QtWidgets.QPushButton()
         self.object_remove_cb.setText('删')
         self.object_table.setCellWidget(row_pos, 2, self.object_remove_cb)
         self.object_remove_cb.clicked.connect(self.object_table_remove)

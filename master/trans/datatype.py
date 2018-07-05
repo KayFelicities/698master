@@ -1,5 +1,5 @@
 """handle with 698 datatypes"""
-from master.datas import k_data, base_data
+from master.datas import k_data_s, base_data
 from master import config
 import copy
 
@@ -741,10 +741,10 @@ class TypeDo():
         # print('csd: ', csd_choice)
         if csd_choice == '00':
             self.trans_res.add_row(m_list[:offset], brief, 'CSD', 'OAD', depth=depth)
-            offset += self.take_OAD(m_list[offset:], '', depth=depth)
+            offset += self.take_OAD(m_list[offset:], '', depth=depth + 1)
         elif csd_choice == '01':
             self.trans_res.add_row(m_list[:offset], brief, 'CSD', 'ROAD', depth=depth)
-            offset += self.take_ROAD(m_list[offset:], '', depth=depth)
+            offset += self.take_ROAD(m_list[offset:], '', depth=depth + 1)
         else:
             self.trans_res.add_row(m_list[:offset], brief, 'CSD', '未知CSD CHOICE', depth=depth)
         return offset

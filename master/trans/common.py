@@ -1,7 +1,7 @@
 # coding: utf-8
 """common functions"""
 import time
-from master.datas import k_data
+from master.datas import k_data_s
 
 
 def text2list(m_text):

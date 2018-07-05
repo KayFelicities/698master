@@ -2,7 +2,7 @@
 import copy
 import master.trans.datatype as typedo
 from master.datas import base_data
-from master.datas import k_data
+from master.datas import k_data_s
 from master import config
 
 def take_applayer(m_list, trans_res):
