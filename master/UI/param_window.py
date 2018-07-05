@@ -53,6 +53,7 @@ class Ui_ParamWindow(object):
         sizePolicy.setVerticalStretch(5)
         sizePolicy.setHeightForWidth(self.DT_box.sizePolicy().hasHeightForWidth())
         self.DT_box.setSizePolicy(sizePolicy)
+        self.DT_box.setMinimumSize(QtCore.QSize(405, 0))
         self.DT_box.setMaximumSize(QtCore.QSize(16777215, 100))
         self.DT_box.setSizeIncrement(QtCore.QSize(0, 100))
         self.DT_box.setBaseSize(QtCore.QSize(0, 0))
@@ -6040,7 +6041,7 @@ class Ui_ParamWindow(object):
         ParamWindow.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(ParamWindow)
-        self.tabWidget.setCurrentIndex(1)
+        self.tabWidget.setCurrentIndex(0)
         self.DT_mode_l.setCurrentIndex(-1)
         self.local_ip_mode_l.setCurrentIndex(-1)
         self.C_work_mode_l.setCurrentIndex(-1)
@@ -6096,6 +6097,7 @@ class Ui_ParamWindow(object):
         _translate = QtCore.QCoreApplication.translate
         ParamWindow.setWindowTitle(_translate("ParamWindow", "参数配置"))
         self.groupBox.setTitle(_translate("ParamWindow", "对时"))
+        self.DT_box.setDisplayFormat(_translate("ParamWindow", "yyyy-MM-dd hh:mm:ss"))
         self.DT_read_b.setText(_translate("ParamWindow", "读取终端时间"))
         self.DT_set_b.setText(_translate("ParamWindow", "设置上方时间"))
         self.DT_set_now_b.setText(_translate("ParamWindow", "设置本地时间"))
