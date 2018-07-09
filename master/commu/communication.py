@@ -243,7 +243,7 @@ class CommuPanel():
     def server_read_loop(self, client_handle, client_addr):
         """server loop"""
         re_msg_buf = []
-        client_handle.settimeout(0.001)
+        # client_handle.settimeout(0.001)
         while True:
             try:
                 re_byte = client_handle.recv(1)
@@ -255,6 +255,8 @@ class CommuPanel():
                     print(client_addr, 'client err quit')
                     break
                 continue
+            if not re_byte:
+                print('clint err quit')
             if re_byte == b'\x68':
                 re_byte += client_handle.recv(20480)
                 re_msg_buf += common.text2list(''.join(['%02X ' % x for x in re_byte]))
