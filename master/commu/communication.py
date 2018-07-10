@@ -175,14 +175,12 @@ class CommuPanel():
             try:
                 re_byte = self.frontend_handle.recv(1)
             except Exception:
-                if self.is_frontend_running is False:
-                    config.MASTER_WINDOW.update_info_l(frontend_status='故障')
-                    print('frontend err quit')
-                    break
-                continue
-            if len(re_byte) == 0: # 掉线了
                 config.MASTER_WINDOW.update_info_l(frontend_status='故障')
-                self.frontend_disconnect()
+                print('frontend err quit')
+                break
+            if not re_byte:
+                config.MASTER_WINDOW.update_info_l(frontend_status='故障')
+                print('frontend disconnected')
                 break
             if re_byte == b'\x68':
                 re_byte += self.frontend_handle.recv(20480)
@@ -194,6 +192,7 @@ class CommuPanel():
             if self.is_frontend_running is False:
                 print('frontend_run quit')
                 break
+        self.frontend_disconnect()
 
 
     def server_start(self, server_port):
