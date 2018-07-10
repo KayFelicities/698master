@@ -50,16 +50,14 @@ class CommuPanel():
                 config.MASTER_WINDOW.update_info_l(frontend_status='故障')
                 self.frontend_disconnect()
 
-        def send_to_client(client_handle, client_addr):
-            """send"""
-            client_handle.sendall(send_b)
-            print('send to client', client_addr)
-
         if self.is_server_running and chan_index in [-1, 2]:
             for client_handle, client_addr in self.client_list:
                 try:
-                    send_to_client(client_handle, client_addr)
+                    client_handle.sendall(send_b)
+                    print('send to client', client_addr)
                 except Exception:
+                    traceback.print_exc()
+                    client_handle.close()
                     self.client_list.remove((client_handle, client_addr))
                     print('del client', client_addr)
             config.MASTER_WINDOW.send_signal.emit(common.format_text(m_text), 2)
@@ -201,7 +199,7 @@ class CommuPanel():
         try:
             self.server_handle = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.server_handle.bind(('0.0.0.0', server_port))
-            self.server_handle.listen(1)
+            self.server_handle.listen(5)
             self.is_server_running = True
             threading.Thread(target=self.server_accept).start()
             return 'ok'
@@ -224,6 +222,7 @@ class CommuPanel():
             if self.is_server_running is False:
                 print('server_run quit')
                 break
+        self.client_list = []
 
 
     def server_stop(self):
@@ -232,7 +231,9 @@ class CommuPanel():
             return 'ok'
         try:
             self.is_server_running = False
-            # self.server_handle.shutdown(socket.SHUT_RDWR)
+            for client in self.client_list:
+                client[0].shutdown(socket.SHUT_RDWR)
+                client[0].close()
             self.server_handle.close()
             return 'ok'
         except Exception:
@@ -248,15 +249,11 @@ class CommuPanel():
             try:
                 re_byte = client_handle.recv(1)
             except Exception:
-                if self.is_server_running is False:
-                    client_handle.shutdown(socket.SHUT_RDWR)
-                    client_handle.close()
-                    self.client_list.remove((client_handle, client_addr))
-                    print(client_addr, 'client err quit')
-                    break
-                continue
+                print(client_addr, 'client err quit')
+                break
             if not re_byte:
                 print('clint err quit')
+                break
             if re_byte == b'\x68':
                 re_byte += client_handle.recv(20480)
                 re_msg_buf += common.text2list(''.join(['%02X ' % x for x in re_byte]))
@@ -267,6 +264,9 @@ class CommuPanel():
             if self.is_server_running is False:
                 print('server_run quit')
                 break
+        client_handle.shutdown(socket.SHUT_RDWR)
+        client_handle.close()
+        self.client_list.remove((client_handle, client_addr))
 
 
     def quit(self):
