@@ -182,6 +182,10 @@ class CommuPanel():
                     print('frontend err quit')
                     break
                 continue
+            if len(re_byte) == 0: # 掉线了
+                config.MASTER_WINDOW.update_info_l(frontend_status='故障')
+                self.frontend_disconnect()
+                break
             if re_byte == b'\x68':
                 re_byte += self.frontend_handle.recv(20480)
                 re_msg_buf += common.text2list(''.join(['%02X ' % x for x in re_byte]))
@@ -243,7 +247,7 @@ class CommuPanel():
     def server_read_loop(self, client_handle, client_addr):
         """server loop"""
         re_msg_buf = []
-        client_handle.settimeout(0.001)
+        # client_handle.settimeout(0.001)
         while True:
             try:
                 re_byte = client_handle.recv(1)
@@ -255,6 +259,13 @@ class CommuPanel():
                     print(client_addr, 'client err quit')
                     break
                 continue
+            
+            if len(re_byte) == 0: # 掉线了
+                client_handle.shutdown(socket.SHUT_RDWR)
+                client_handle.close()
+                self.client_list.remove((client_handle, client_addr))
+                print(client_addr, 'client err quit')
+                break
             if re_byte == b'\x68':
                 re_byte += client_handle.recv(20480)
                 re_msg_buf += common.text2list(''.join(['%02X ' % x for x in re_byte]))
