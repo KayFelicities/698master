@@ -31,3 +31,11 @@ def get_rpt_replay_apdu(trans_object):
     if service_choice == '03':
         reply_text = '0803%s 00'%piid
     return reply_text
+
+
+def get_rpt_replay_split(trans_object):
+    """get_rpt_replay_apdu"""
+    piid = trans_object.get_piid()
+    split_no = trans_object.get_raw_msg('分帧序号')
+    reply_text = '0505%s%s 00'%(piid, split_no)
+    return reply_text

@@ -176,6 +176,11 @@ class Translate():
         return commonfun.list2text(list(filter(lambda row: row['dtype'] in ['PIID', 'PIID_ACD']\
                             , self.res_list))[0]['m_list']).replace(' ', '')
 
+    def get_raw_msg(self, brief):
+        """get_raw_msg"""
+        return commonfun.list2text(list(filter(lambda row: row['brief'].strip() == brief.strip()\
+                            , self.res_list))[0]['m_list']).replace(' ', '').strip()
+
 
     def get_brief(self):
         """get brief translate"""

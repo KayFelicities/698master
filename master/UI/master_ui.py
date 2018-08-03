@@ -13,6 +13,7 @@ from master.UI import dialog_ui
 from master.UI import param_ui
 from master.reply import reply
 from master.datas import k_data
+from master.datas import collection
 from master.others import msg_log
 from master.others import master_config
 if config.IS_USE_PYSIDE:
@@ -33,9 +34,11 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
         self.plaintext_rn.setChecked(False)
         self.reply_rpt_cb.setChecked(True)
         self.reply_link_cb.setChecked(True)
+        self.reply_split_cb.setChecked(True)
         self.show_level_cb.setChecked(True)
         self.is_reply_link = True if self.reply_link_cb.isChecked() else False
         self.is_reply_rpt = True if self.reply_rpt_cb.isChecked() else False
+        self.is_reply_split = True if self.reply_split_cb.isChecked() else False
         self.is_plaintext_rn = True if self.plaintext_rn.isChecked() else False
         self.cnt_box_w.setVisible(True if self.oad_auto_r_cb.isChecked() else False)
         # self.tmn_table.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
@@ -66,12 +69,19 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
         self.always_top_cb.clicked.connect(self.set_always_top)
         self.reply_link_cb.clicked.connect(self.set_reply_link)
         self.reply_rpt_cb.clicked.connect(self.set_reply_rpt)
+        self.reply_split_cb.clicked.connect(self.set_reply_split)
         self.plaintext_rn.clicked.connect(self.set_plaintext_rn)
         self.read_oad_b.clicked.connect(self.send_read_oad)
         self.oad_auto_r_cb.clicked.connect(lambda: self.cnt_box_w.setVisible(True if self.oad_auto_r_cb.isChecked() else False))
         self.cnt_clr_b.clicked.connect(self.cnt_reset)
         self.oad_box.returnPressed.connect(self.send_read_oad)
         self.oad_box.textChanged.connect(self.explain_oad)
+
+        # collection list
+        self.collec = collection.Collection()
+        self.se_collection_cbox.addItems(self.collec.get_name_list())
+        self.se_collection_cbox.setCurrentIndex(-1)
+        self.se_collection_cbox.currentIndexChanged.connect(lambda: self.se_msg_box.setPlainText(self.collec.get_msg(self.se_collection_cbox.currentText())))
 
         self.about_action.triggered.connect(lambda: config.ABOUT_WINDOW.show() or config.ABOUT_WINDOW.showNormal() or config.ABOUT_WINDOW.activateWindow())
         self.link_action.triggered.connect(self.show_commu_window)
@@ -291,6 +301,10 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
             reply_apdu_text = reply.get_rpt_replay_apdu(trans)
             self.send_apdu(reply_apdu_text, tmn_addr=server_addr,\
                             logic_addr=logic_addr, chan_index=chan_index, C_text='03')
+        if service == '8505' and self.is_reply_split:
+            reply_apdu_text = reply.get_rpt_replay_split(trans)
+            self.send_apdu(reply_apdu_text, tmn_addr=server_addr,\
+                            logic_addr=logic_addr, chan_index=chan_index, C_text='43')
 
 
     def trans_msg_box(self):
@@ -412,6 +426,11 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
     def set_reply_rpt(self):
         """set_reply_rpt"""
         self.is_reply_rpt = self.reply_rpt_cb.isChecked()
+
+
+    def set_reply_split(self):
+        """set_reply_split"""
+        self.is_reply_split = self.reply_split_cb.isChecked()
 
 
     def set_plaintext_rn(self):
