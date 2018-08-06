@@ -107,8 +107,10 @@ class CommuDialog(QtGui.QDialog, ui_setup.CommuDialogUi):
             self.serial_baud.setEnabled(False)
             self.serial_cut_b.setText('断开')
             self.is_serial_connect = True
+            config.MASTER_WINDOW.set_b_green(config.MASTER_WINDOW.serial_b)
         else:
             self.serial_link_b.setText('失败')
+            config.MASTER_WINDOW.set_b_yellow(config.MASTER_WINDOW.serial_b)
 
 
     def cut_serial(self):
@@ -125,6 +127,7 @@ class CommuDialog(QtGui.QDialog, ui_setup.CommuDialogUi):
             self.serial_combo.addItems(communication.serial_com_scan())
             self.serial_link_b.setText('连接')
         self.is_serial_connect = False
+        config.MASTER_WINDOW.set_b_red(config.MASTER_WINDOW.serial_b)
 
 
     def connect_frontend(self):
@@ -135,8 +138,10 @@ class CommuDialog(QtGui.QDialog, ui_setup.CommuDialogUi):
             self.frontend_link_b.setEnabled(False)
             self.frontend_box.setEnabled(False)
             self.is_frontend_connect = True
+            config.MASTER_WINDOW.set_b_green(config.MASTER_WINDOW.frontend_b)
         else:
             self.frontend_link_b.setText('失败')
+            config.MASTER_WINDOW.set_b_yellow(config.MASTER_WINDOW.frontend_b)
 
 
     def cut_frontend(self):
@@ -146,6 +151,7 @@ class CommuDialog(QtGui.QDialog, ui_setup.CommuDialogUi):
             self.frontend_link_b.setEnabled(True)
             self.frontend_box.setEnabled(True)
         self.is_frontend_connect = False
+        config.MASTER_WINDOW.set_b_red(config.MASTER_WINDOW.frontend_b)
 
 
     def connect_server(self):
@@ -156,8 +162,10 @@ class CommuDialog(QtGui.QDialog, ui_setup.CommuDialogUi):
             self.server_link_b.setEnabled(False)
             self.server_box.setEnabled(False)
             self.is_server_connect = True
+            config.MASTER_WINDOW.set_b_green(config.MASTER_WINDOW.server_b)
         else:
             self.server_link_b.setText('失败')
+            config.MASTER_WINDOW.set_b_yellow(config.MASTER_WINDOW.server_b)
 
 
     def cut_server(self):
@@ -167,6 +175,7 @@ class CommuDialog(QtGui.QDialog, ui_setup.CommuDialogUi):
             self.server_link_b.setEnabled(True)
             self.server_box.setEnabled(True)
         self.is_server_connect = False
+        config.MASTER_WINDOW.set_b_red(config.MASTER_WINDOW.server_b)
 
 
     def closeEvent(self, event):
@@ -181,8 +190,8 @@ class CommuDialog(QtGui.QDialog, ui_setup.CommuDialogUi):
         save_config.set_frontend_ip(self.frontend_box.text())
         save_config.set_server_port(self.server_box.text())
         save_config.commit()
-        config.MASTER_WINDOW.update_info_l('√' if self.is_serial_connect else '',\
-                        '√' if self.is_frontend_connect else '', '√' if self.is_server_connect else '')
+        # config.MASTER_WINDOW.update_info_l('√' if self.is_serial_connect else '',\
+        #                 '√' if self.is_frontend_connect else '', '√' if self.is_server_connect else '')
         event.accept()
 
 

@@ -7,6 +7,23 @@ else:
     from PyQt4 import QtGui, QtCore
 
 
+class SeMsgBox(QtGui.QTextEdit):
+    """SeMsgBox"""
+    def __init__(self):
+        super(SeMsgBox, self).__init__()
+        self.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        self.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
+
+        self.save_msg = ''
+    
+    def set_save_msg(self, msg):
+        self.save_msg = msg
+
+    
+    def get_save_msg(self):
+        return self.save_msg
+
+
 class MasterWindowUi():
     """ApduDiyDialogUi"""
     def __init__(self):
@@ -74,7 +91,7 @@ class MasterWindowUi():
         self.tmn_table.setColumnWidth(0, 15)
         self.tmn_table.setColumnWidth(1, 96)
         self.tmn_table.setColumnWidth(2, 40)
-        self.tmn_table.setColumnWidth(3, 65)
+        self.tmn_table.setColumnWidth(3, 60)
         self.tmn_table.setColumnWidth(4, 25)
         self.tmn_table.setHorizontalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
         self.tmn_table.setVerticalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
@@ -95,8 +112,11 @@ class MasterWindowUi():
 
         self.quick_info_w = QtGui.QWidget()
         self.quick_vbox = QtGui.QVBoxLayout(self.quick_info_w)
+        self.quick_vbox.setContentsMargins(0, 0, 0, 0)
         self.quick_hbox = QtGui.QHBoxLayout()
         self.auto_r_hbox = QtGui.QHBoxLayout()
+        self.commu_panel_hbox = QtGui.QHBoxLayout()
+        self.quick_vbox.setSpacing(1)
         self.oad_l = QtGui.QLabel()
         self.oad_l.setText('OAD')
         self.oad_box = QtGui.QLineEdit()
@@ -107,6 +127,7 @@ class MasterWindowUi():
         self.oad_auto_r_cb = QtGui.QCheckBox()
         self.oad_auto_r_cb.setText('读取周期')
         self.oad_auto_r_spin = QtGui.QDoubleSpinBox()
+        self.oad_auto_r_spin.setValue(1)
         self.oad_auto_unit_l = QtGui.QLabel()
         self.oad_auto_unit_l.setText('秒')
         self.auto_r_hbox.addWidget(self.oad_auto_r_cb)
@@ -127,6 +148,35 @@ class MasterWindowUi():
         self.cnt_box.addStretch(1)
         self.cnt_box.addWidget(self.cnt_clr_b)
         self.oad_explain_l = QtGui.QLabel()
+
+        # connect panel
+        self.serial_l = QtGui.QLabel()
+        self.serial_l.setText('串口')
+        self.frontend_l = QtGui.QLabel()
+        self.frontend_l.setText(' 前置机')
+        self.server_l = QtGui.QLabel()
+        self.server_l.setText(' 服务器')
+        self.serial_b = QtGui.QPushButton()
+        self.serial_b.setMaximumWidth(20)
+        self.frontend_b = QtGui.QPushButton()
+        self.frontend_b.setMaximumWidth(20)
+        self.server_b = QtGui.QPushButton()
+        self.server_b.setMaximumWidth(20)
+        self.space_l = QtGui.QLabel()
+        self.space_l.setText('|')
+        self.commu_set_b = QtGui.QPushButton()
+        self.commu_set_b.setMaximumWidth(40)
+        self.commu_set_b.setText('设置')
+        self.commu_panel_hbox.addWidget(self.serial_l)
+        self.commu_panel_hbox.addWidget(self.serial_b)
+        self.commu_panel_hbox.addWidget(self.frontend_l)
+        self.commu_panel_hbox.addWidget(self.frontend_b)
+        self.commu_panel_hbox.addWidget(self.server_l)
+        self.commu_panel_hbox.addWidget(self.server_b)
+        self.commu_panel_hbox.addWidget(self.space_l)
+        self.commu_panel_hbox.addWidget(self.commu_set_b)
+        self.commu_panel_hbox.addStretch(1)
+
         self.info_l = QtGui.QLabel()
         self.info_l.setText('<p><b>请按F2建立连接</b></p>')
         self.quick_hbox.addWidget(self.oad_l)
@@ -137,7 +187,7 @@ class MasterWindowUi():
         self.quick_vbox.addWidget(self.cnt_box_w)
         self.quick_vbox.addWidget(self.oad_explain_l)
         self.quick_vbox.addStretch(1)
-        self.quick_vbox.addWidget(self.info_l)
+        self.quick_vbox.addLayout(self.commu_panel_hbox)
 
         self.msg_table_w = QtGui.QWidget()
         self.msg_table_vbox = QtGui.QVBoxLayout(self.msg_table_w)
@@ -152,40 +202,64 @@ class MasterWindowUi():
         self.msg_table.setColumnWidth(1, 110)
         self.msg_table.setColumnWidth(2, 60)
         self.msg_table.setColumnWidth(3, 200)
-        self.msg_table.setColumnWidth(4, 300)
+        self.msg_table.setColumnWidth(4, 240)
         self.msg_table.setHorizontalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
         self.msg_table.setVerticalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
         self.msg_table.setEditTriggers(QtGui.QTableWidget.NoEditTriggers) # 表格不可编辑
         self.msg_table.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows) # 只能行选
 
-        self.se_msg_box = QtGui.QPlainTextEdit()
+        # self.se_msg_box = QtGui.QTextEdit()
+        # self.se_msg_box.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        # self.se_msg_box.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
+
+        # self.tabbox1 = SeMsgBox()
+        # self.tabbox2 = SeMsgBox()
+        self.se_msg_tab = QtGui.QTabWidget()
+        self.se_msg_tab.setTabPosition(QtGui.QTabWidget.West)
+        self.se_msg_tab.setMovable(True)
+        # self.connect(self.se_msg_box, QtCore.SIGNAL("tabCloseRequested(int)"),self.closeTab)
+        # self.se_msg_box.setTabsClosable(True)
+        # self.se_msg_box.setDocumentMode(False)
+        # self.se_msg_box.setTabShape(QtGui.QTabWidget.Triangular)
+        # self.se_msg_box.addTab(self.tabbox1, '1')
+        # self.se_msg_box.addTab(self.tabbox2, '2')
         self.se_send_b = QtGui.QPushButton()
         self.se_send_b.setMaximumWidth(70)
         self.se_send_b.setText('发送')
         self.se_send_b.setEnabled(False)
+        self.se_tab_add_b = QtGui.QPushButton()
+        self.se_tab_add_b.setMaximumWidth(20)
+        self.se_tab_add_b.setText('+')
         self.se_collection_cbox = QtGui.QComboBox()
         self.se_clr_b = QtGui.QPushButton()
         self.se_clr_b.setMaximumWidth(40)
         self.se_clr_b.setText('清空')
         self.se_clr_b.setVisible(False)
         self.se_btn_hbox = QtGui.QHBoxLayout()
+        self.se_btn_hbox.setContentsMargins(20, 0, 0, 0)
         self.se_btn_hbox.addWidget(self.se_clr_b)
+        # self.se_btn_hbox.addWidget(self.se_tab_add_b)
         self.se_btn_hbox.addWidget(self.se_collection_cbox)
         # self.se_btn_hbox.addStretch(1)
         self.se_btn_hbox.addWidget(self.se_send_b)
         self.se_w = QtGui.QWidget()
         self.se_vbox = QtGui.QVBoxLayout(self.se_w)
+        # self.se_vbox = QtGui.QTabWidget(self.se_w)
+        self.se_vbox.setSpacing(0)
         self.se_vbox.setContentsMargins(0, 0, 0, 0)
-        self.se_vbox.addWidget(self.se_msg_box)
+        self.se_vbox.addWidget(self.se_msg_tab)
         self.se_vbox.addLayout(self.se_btn_hbox)
 
         self.explain_box = QtGui.QTextEdit()
+        self.explain_box.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
         self.show_linklayer_cb = QtGui.QCheckBox()
         self.show_linklayer_cb.setText('链路层')
         self.show_dtype_cb = QtGui.QCheckBox()
         self.show_dtype_cb.setText('数据类型')
         self.show_level_cb = QtGui.QCheckBox()
         self.show_level_cb.setText('显示结构')
+        self.auto_wrap_cb = QtGui.QCheckBox()
+        self.auto_wrap_cb.setText('自动换行')
         self.copy_b = QtGui.QPushButton()
         self.copy_b.setText('复制')
         self.copy_b.setMaximumWidth(60)
@@ -194,18 +268,21 @@ class MasterWindowUi():
         self.explain_btn_hbox.addWidget(self.show_linklayer_cb)
         self.explain_btn_hbox.addWidget(self.show_dtype_cb)
         self.explain_btn_hbox.addWidget(self.show_level_cb)
+        self.explain_btn_hbox.addWidget(self.auto_wrap_cb)
         self.explain_btn_hbox.addWidget(self.copy_b)
         self.explain_w = QtGui.QWidget()
         self.explain_vbox = QtGui.QVBoxLayout(self.explain_w)
-        self.explain_vbox.setContentsMargins(0, 0, 0, 0)
+        self.explain_vbox.setSpacing(0)
+        self.explain_vbox.setContentsMargins(0, 2, 0, 4)
         self.explain_vbox.addWidget(self.explain_box)
         self.explain_vbox.addLayout(self.explain_btn_hbox)
 
         self.box_hsplitter = QtGui.QSplitter(QtCore.Qt.Horizontal)
         self.box_hsplitter.addWidget(self.se_w)
         self.box_hsplitter.addWidget(self.explain_w)
-        self.box_hsplitter.setStretchFactor(0, 1)
-        self.box_hsplitter.setStretchFactor(1, 2)
+        self.box_hsplitter.setStretchFactor(0, 4)
+        self.box_hsplitter.setStretchFactor(1, 3)
+        self.box_hsplitter.setHandleWidth(1)
 
         self.msg_btn_hbox = QtGui.QHBoxLayout()
         self.clr_b = QtGui.QPushButton()
@@ -220,13 +297,13 @@ class MasterWindowUi():
         self.right_vsplitter.addWidget(self.msg_table_w)
         self.right_vsplitter.addWidget(self.box_hsplitter)
         self.right_vsplitter.setStretchFactor(0, 3)
-        self.right_vsplitter.setStretchFactor(1, 2)
+        self.right_vsplitter.setStretchFactor(1, 3)
 
         self.left_vsplitter = QtGui.QSplitter(QtCore.Qt.Vertical)
         self.left_vsplitter.addWidget(self.tmn_list_w)
         self.left_vsplitter.addWidget(self.quick_info_w)
         self.left_vsplitter.setStretchFactor(0, 2)
-        self.left_vsplitter.setStretchFactor(1, 3)
+        self.left_vsplitter.setStretchFactor(1, 4)
         self.left_vsplitter.setMinimumWidth(240)
 
         self.main_hsplitter = QtGui.QSplitter(QtCore.Qt.Horizontal)
@@ -265,6 +342,26 @@ class MasterWindowUi():
         self.main_widget.setLayout(self.main_vbox)
         self.setCentralWidget(self.main_widget)
         self.resize(1000, 666)
+
+    def add_se_box(self, name):
+        new_se_box = SeMsgBox()
+        self.se_msg_tab.addTab(new_se_box, name)
+        return new_se_box
+
+    def get_current_se_box(self):
+        return self.se_msg_tab.currentWidget()
+
+    def close_current_tab(self):
+        return self.se_msg_tab.removeTab(self.se_msg_tab.currentIndex())
+
+    def set_b_red(self, button):
+        button.setStyleSheet("QPushButton {background-color:#f3c9d3}")
+
+    def set_b_yellow(self, button):
+        button.setStyleSheet("QPushButton {background-color:#fdedba}")
+
+    def set_b_green(self, button):
+        button.setStyleSheet("QPushButton {background-color:#bedac4}")
 
 
 class TransPopDialogUi():

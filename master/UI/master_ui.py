@@ -31,6 +31,8 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
     def __init__(self):
         super(MasterWindow, self).__init__()
         self.setup_ui()
+        # self.show_linklayer_cb.setVisible(False)
+        self.show_level_cb.setVisible(False)
         self.plaintext_rn.setChecked(False)
         self.reply_rpt_cb.setChecked(True)
         self.reply_link_cb.setChecked(True)
@@ -42,6 +44,11 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
         self.is_plaintext_rn = True if self.plaintext_rn.isChecked() else False
         self.cnt_box_w.setVisible(True if self.oad_auto_r_cb.isChecked() else False)
         # self.tmn_table.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
+        self.set_auto_wrap()
+
+        self.set_b_red(self.serial_b)
+        self.set_b_red(self.frontend_b)
+        self.set_b_red(self.server_b)
 
         self.apply_config()
 
@@ -60,8 +67,7 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
         self.msg_table.cellDoubleClicked.connect(self.trans_msg)
         self.se_clr_b.clicked.connect(lambda: self.se_msg_box.clear() or self.se_msg_box.setFocus())
         self.se_send_b.clicked.connect(self.send_se_msg)
-        self.se_msg_box.textChanged.connect(self.trans_msg_box)
-        self.se_msg_box.installEventFilter(self)
+        self.auto_wrap_cb.stateChanged.connect(self.set_auto_wrap)
         self.show_linklayer_cb.stateChanged.connect(self.trans_se_msg)
         self.show_level_cb.stateChanged.connect(self.trans_se_msg)
         self.show_dtype_cb.stateChanged.connect(self.trans_se_msg)
@@ -76,12 +82,29 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
         self.cnt_clr_b.clicked.connect(self.cnt_reset)
         self.oad_box.returnPressed.connect(self.send_read_oad)
         self.oad_box.textChanged.connect(self.explain_oad)
+        self.se_msg_tab.installEventFilter(self)
+        self.se_msg_tab.currentChanged.connect(self.trans_msg_box)
+
+        self.serial_b.clicked.connect(lambda: self.commu_dialog.connect_serial() if not self.commu_dialog.is_serial_connect else self.commu_dialog.cut_serial())
+        self.frontend_b.clicked.connect(lambda: self.commu_dialog.connect_frontend() if not self.commu_dialog.is_frontend_connect else self.commu_dialog.cut_frontend())
+        self.server_b.clicked.connect(lambda: self.commu_dialog.connect_server() if not self.commu_dialog.is_server_connect else self.commu_dialog.cut_server())
+        self.commu_set_b.clicked.connect(self.show_commu_window)
+
+        for cnt in range(1, 7):
+            se_box = self.add_se_box(' %s '%str(cnt))
+            se_box.textChanged.connect(self.trans_msg_box)
+
+            # scroll connect
+            se_box.verticalScrollBar().valueChanged.connect(self.set_explain_box_vscroll_percent)
+            self.explain_box.verticalScrollBar().valueChanged.connect(self.set_se_box_vscroll_percent)
+            se_box.horizontalScrollBar().valueChanged.connect(self.set_explain_box_hscroll_percent)
+            self.explain_box.horizontalScrollBar().valueChanged.connect(self.set_se_box_hscroll_percent)
 
         # collection list
         self.collec = collection.Collection()
         self.se_collection_cbox.addItems(self.collec.get_name_list())
         self.se_collection_cbox.setCurrentIndex(-1)
-        self.se_collection_cbox.currentIndexChanged.connect(lambda: self.se_msg_box.setPlainText(self.collec.get_msg(self.se_collection_cbox.currentText())))
+        self.se_collection_cbox.activated.connect(lambda: self.get_current_se_box().setPlainText(self.collec.get_msg(self.se_collection_cbox.currentText())))
 
         self.about_action.triggered.connect(lambda: config.ABOUT_WINDOW.show() or config.ABOUT_WINDOW.showNormal() or config.ABOUT_WINDOW.activateWindow())
         self.link_action.triggered.connect(self.show_commu_window)
@@ -112,6 +135,7 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
         self.is_auto_r = False
         self.msg_now = ''
 
+        self.auto_r_piid = 63
         self.send_cnt = 0
         self.receive_cnt = 0
 
@@ -151,9 +175,15 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
 
     def eventFilter(self, widget, event):
         """test"""
-        if event.type() == QtCore.QEvent.FocusIn:
-            self.msg_now = self.se_msg_box.toPlainText()
-            self.trans_se_msg()
+        # if event.type() == QtCore.QEvent.FocusIn:
+        if event.type() == QtCore.QEvent.MouseButtonPress:
+            scroll_hpos = self.get_current_se_box().horizontalScrollBar().value()
+            scroll_vpos = self.get_current_se_box().verticalScrollBar().value()
+            self.get_current_se_box().setPlainText(self.get_current_se_box().get_save_msg())
+            self.trans_msg_box()
+            self.get_current_se_box().horizontalScrollBar().setValue(scroll_hpos)
+            self.get_current_se_box().verticalScrollBar().setValue(scroll_vpos)
+            self.se_msg_tab.setEnabled(True)
         return QtGui.QMainWindow.eventFilter(self, widget, event)
 
 
@@ -178,7 +208,7 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
     def re_msg_do(self, re_text, chan_index):
         """recieve text"""
         self.add_msg_table_row(re_text, chan_index, '←')
-        if self.oad_auto_r_cb.isChecked():
+        if self.oad_auto_r_cb.isChecked() and common.get_msg_service_no(re_text) == self.auto_r_piid:
             self.receive_cnt += 1
             self.receive_cnt_l.setText('收%d'%self.receive_cnt)
 
@@ -187,7 +217,7 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
     def se_msg_do(self, re_text, chan_index):
         """recieve text"""
         self.add_msg_table_row(re_text, chan_index, '→')
-        if self.oad_auto_r_cb.isChecked():
+        if self.oad_auto_r_cb.isChecked() and common.get_msg_service_no(re_text) == self.auto_r_piid:
             self.send_cnt += 1
             self.send_cnt_l.setText('发%d'%self.send_cnt)
 
@@ -309,7 +339,8 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
 
     def trans_msg_box(self):
         """trans_msg_box"""
-        self.msg_now = self.se_msg_box.toPlainText()
+        self.msg_now = self.get_current_se_box().toPlainText()
+        self.get_current_se_box().set_save_msg(self.msg_now)
         self.trans_se_msg()
 
 
@@ -318,16 +349,66 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
         if len(self.msg_now) < 5:
             return
         trans = Translate(self.msg_now)
-        full = trans.get_full(self.show_level_cb.isChecked(), self.show_dtype_cb.isChecked(), has_linklayer=self.show_linklayer_cb.isChecked())
-        self.explain_box.setText(r'%s'%full)
+        structed_explain = trans.get_structed_explain(is_show_type=self.show_dtype_cb.isChecked(), has_linklayer=self.show_linklayer_cb.isChecked())
+        self.explain_box.setText(r'%s'%structed_explain)
         self.se_send_b.setEnabled(True if trans.is_success else False)
         if self.se_send_b.isEnabled():
             self.apdu_text = trans.get_apdu_text()
+        if trans.is_success:
+            self.get_current_se_box().textChanged.disconnect(self.trans_msg_box)
+            cursor = self.get_current_se_box().textCursor()
+            cursor_pos = cursor.position()
+            scroll_hpos = self.get_current_se_box().horizontalScrollBar().value()
+            scroll_vpos = self.get_current_se_box().verticalScrollBar().value()
+            self.get_current_se_box().setPlainText(trans.get_structed_msg(has_linklayer=self.show_linklayer_cb.isChecked()))
+            cursor = self.get_current_se_box().textCursor()
+            cursor.setPosition(cursor_pos)
+            self.get_current_se_box().setTextCursor(cursor)
+            self.get_current_se_box().horizontalScrollBar().setValue(scroll_hpos)
+            self.get_current_se_box().verticalScrollBar().setValue(scroll_vpos)
+            self.get_current_se_box().textChanged.connect(self.trans_msg_box)
+
+
+    def set_se_box_vscroll_percent(self):
+        """set_se_box_scroll_percent"""
+        if self.explain_box.verticalScrollBar().maximum() != 0:
+            value = self.explain_box.verticalScrollBar().value() / self.explain_box.verticalScrollBar().maximum() * self.get_current_se_box().verticalScrollBar().maximum()
+            self.get_current_se_box().verticalScrollBar().valueChanged.disconnect(self.set_explain_box_vscroll_percent)
+            self.get_current_se_box().verticalScrollBar().setValue(value)
+            self.get_current_se_box().verticalScrollBar().valueChanged.connect(self.set_explain_box_vscroll_percent)
+
+
+
+    def set_explain_box_vscroll_percent(self):
+        """set_explain_box_scroll_percent"""
+        if self.get_current_se_box().verticalScrollBar().maximum() != 0:
+            value = self.get_current_se_box().verticalScrollBar().value() / self.get_current_se_box().verticalScrollBar().maximum() * self.explain_box.verticalScrollBar().maximum()
+            self.explain_box.verticalScrollBar().valueChanged.disconnect(self.set_se_box_vscroll_percent)
+            self.explain_box.verticalScrollBar().setValue(value)
+            self.explain_box.verticalScrollBar().valueChanged.connect(self.set_se_box_vscroll_percent)
+
+
+    def set_se_box_hscroll_percent(self):
+        """set_se_box_scroll_percent"""
+        if self.explain_box.horizontalScrollBar().maximum() != 0:
+            value = self.explain_box.horizontalScrollBar().value() / self.explain_box.horizontalScrollBar().maximum() * self.get_current_se_box().horizontalScrollBar().maximum()
+            self.get_current_se_box().horizontalScrollBar().valueChanged.disconnect(self.set_explain_box_hscroll_percent)
+            self.get_current_se_box().horizontalScrollBar().setValue(value)
+            self.get_current_se_box().horizontalScrollBar().valueChanged.connect(self.set_explain_box_hscroll_percent)
+
+
+    def set_explain_box_hscroll_percent(self):
+        """set_explain_box_scroll_percent"""
+        if self.get_current_se_box().horizontalScrollBar().maximum() != 0:
+            value = self.get_current_se_box().horizontalScrollBar().value() / self.get_current_se_box().horizontalScrollBar().maximum() * self.explain_box.horizontalScrollBar().maximum()
+            self.explain_box.horizontalScrollBar().valueChanged.disconnect(self.set_se_box_hscroll_percent)
+            self.explain_box.horizontalScrollBar().setValue(value)
+            self.explain_box.horizontalScrollBar().valueChanged.connect(self.set_se_box_hscroll_percent)
 
 
     def send_se_msg(self):
         """send sendbox msg"""
-        msg = self.se_msg_box.toPlainText()
+        msg = self.get_current_se_box().toPlainText()
         if len(msg) < 5:
             return
         trans = Translate(msg)
@@ -398,12 +479,21 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
          """translate row massage"""
          self.msg_now = self.msg_table.item(row, 4).text()
          self.trans_se_msg()
+         self.se_msg_tab.setEnabled(False)
 
     def clr_table(self, table):
         """clear table widget"""
         for _ in range(table.rowCount()):
             table.removeRow(0)
         # table.setRowCount(0)
+
+
+    def set_auto_wrap(self):
+        """set_auto_wrap"""
+        # self.se_msg_box.setLineWrapMode(QtGui.QTextEdit.WidgetWidth\
+        #         if self.auto_wrap_cb.isChecked() else QtGui.QTextEdit.NoWrap)
+        # self.explain_box.setLineWrapMode(QtGui.QTextEdit.WidgetWidth\
+        #         if self.auto_wrap_cb.isChecked() else QtGui.QTextEdit.NoWrap)
 
 
     def set_always_top(self):
@@ -461,7 +551,7 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
             return
         oad_text = self.oad_box.text().replace(' ', '')
         if len(oad_text) == 8:
-            apdu_text = '050100 %s 00'%oad_text
+            apdu_text = '0501%02X %s 00'%(self.auto_r_piid, oad_text)
             if self.oad_auto_r_cb.isChecked():
                 self.is_auto_r = True
                 self.read_oad_b.setText('停止')
