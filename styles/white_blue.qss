@@ -3,7 +3,6 @@ QWidget
     color: #000000;
     background-color: #ffffff;
 }
-
 QWidget:disabled
 {
     color: #777777;
@@ -14,17 +13,14 @@ QMenuBar
 {
     background-color: #ffffff;
 }
-
 QMenuBar::item
 {
     background-color: #ffffff;
 }
-
 QMenuBar::item:selected
 {
     background-color: #dddddd;
 }
-
 
 QPushButton
 {
@@ -37,7 +33,6 @@ QPushButton
     margin-left: 1px;
     margin-right: 1px;
 }
-
 QPushButton:pressed
 {
     background-color: #cccccc;
@@ -50,31 +45,26 @@ QComboBox
     border: 1px solid #777777;
     border-radius: 3;
 }
-
 QComboBox:hover,QPushButton:hover
 {
     border: 1px solid #99ccff;
 }
-
 QComboBox QAbstractItemView
 {
     border: 2px solid darkgray;
     selection-background-color: #99ccff;
 }
-
 QComboBox::drop-down
 {
      subcontrol-origin: padding;
      subcontrol-position: top right;
      width: 15px;
-
      border-left-width: 0px;
      border-left-color: darkgray;
      border-left-style: solid; /* just a single line */
      border-top-right-radius: 3px; /* same radius as the QComboBox */
      border-bottom-right-radius: 3px;
  }
- 
 QComboBox::down-arrow
 {
      background-color: qradialgradient(
@@ -111,7 +101,6 @@ QProgressBar
     border-radius: 5px;
     text-align: center;
 }
-
 QProgressBar::chunk
 {
     background-color: #99ccff;
@@ -119,11 +108,10 @@ QProgressBar::chunk
     margin: 0.5px;
 }
 
-QTabWidget
+QTabWidget, QTabWidget::pane
 {
-    border: 0px solid;
+    border: 0px dash;
 }
-
 QTabBar::tab
 {
     border: 1px solid #aaaaaa;
@@ -146,7 +134,6 @@ QCheckBox
     spacing: 1px;
     margin-left: 5px;
 }
-
 QCheckBox::indicator
 {
     color: #b1b1b1;
@@ -155,7 +142,6 @@ QCheckBox::indicator
     width: 9px;
     height: 9px;
 }
-
 QCheckBox::indicator:checked
 {
     background-color: qradialgradient(
@@ -171,7 +157,6 @@ QTableView
 {
     selection-background-color:#cccccc;
 }
-
 QHeaderView::section
 {
     border: 1px solid white;

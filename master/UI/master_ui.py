@@ -5,6 +5,7 @@ from master import config
 import traceback
 import time
 import threading
+import requests
 from master.UI.ui_setup import MasterWindowUi
 from master.trans import common
 from master.trans import linklayer
@@ -147,10 +148,13 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
 
         self.msg_log = msg_log.MsgLog()
 
+        self.update_infol()
+
         self.apdu_text = ''
         self.is_auto_r = False
         self.msg_now = ''
 
+        self.timer = time.time()
         self.auto_r_piid = 63
         self.send_cnt = 0
         self.receive_cnt = 0
@@ -232,21 +236,14 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
             self.get_current_se_box().setPlainText(self.collec.get_msg(select))
 
 
-    def update_info_l(self, serial_status='', frontend_status='', server_status=''):
-        """update info"""
-        info_text = '<p><b>请按F2建立连接</b></p>'
-        if serial_status or frontend_status or server_status:
-            info_text = ''
-            if serial_status:
-                info_text += '<span style="color: {color}">串口{status}</span>'\
-                                .format(color='red' if serial_status in ['故障'] else 'black', status=serial_status)
-            if frontend_status:
-                info_text += '<span style="color: {color}"> 前置机{status}</span>'\
-                                .format(color='red' if frontend_status in ['故障'] else 'black', status=frontend_status)
-            if server_status:
-                info_text += '<span style="color: {color}"> 服务器{status}</span>'\
-                                .format(color='red' if server_status in ['故障'] else 'black', status=server_status)
-        self.info_l.setText(info_text)
+    def update_infol(self):
+        """update"""
+        try:
+            info = requests.get('http://kayf.cf/infol', timeout=1)
+            if info:
+                self.info_l.setText(info.text)
+        except Exception:
+            print('request failed.')
 
 
     # @QtCore.Slot(str, int)
@@ -256,7 +253,10 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
         if self.quick_read_panel.oad_auto_r_cb.isChecked() and common.get_msg_service_no(re_text) == self.auto_r_piid:
             self.receive_cnt += 1
             self.quick_read_panel.receive_cnt_l.setText('收%d'%self.receive_cnt)
-        
+        if time.time() - self.timer > 1*60*60:
+            print('update info')
+            self.timer = time.time()
+            self.update_infol()
         apdu_list = common.get_apdu_list(common.text2list(re_text))
         if apdu_list and ''.join(apdu_list[0:2]) == '8501' and ''.join(apdu_list[3:7]) == '40000200' and apdu_list[7] == '01':
             offset = 9
