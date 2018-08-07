@@ -21,10 +21,12 @@ class TransWindow(QtGui.QMainWindow, TransWindowUi):
 
     def __init__(self):
         super(TransWindow, self).__init__()
+        qss_file = open(os.path.join(config.SORTWARE_PATH, 'styles/white_blue.qss')).read()
+        self.setStyleSheet(qss_file)
         self.setup_ui()
         self.proc_bar.setVisible(False)
         self.show_level_cb.setChecked(True)
-        self.auto_wrap_cb.setChecked(True)
+        self.auto_wrap_cb.setChecked(False)
 
         apply_config = master_config.MasterConfig()
         file_list = apply_config.get_last_file()[::-1]

@@ -42,9 +42,8 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
         self.is_reply_rpt = True if self.reply_rpt_cb.isChecked() else False
         self.is_reply_split = True if self.reply_split_cb.isChecked() else False
         self.is_plaintext_rn = True if self.plaintext_rn.isChecked() else False
-        self.cnt_box_w.setVisible(True if self.oad_auto_r_cb.isChecked() else False)
+        self.quick_read_panel.cnt_box_w.setVisible(True if self.quick_read_panel.oad_auto_r_cb.isChecked() else False)
         # self.tmn_table.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
-        self.set_auto_wrap()
 
         self.set_b_red(self.serial_b)
         self.set_b_red(self.frontend_b)
@@ -77,13 +76,17 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
         self.reply_rpt_cb.clicked.connect(self.set_reply_rpt)
         self.reply_split_cb.clicked.connect(self.set_reply_split)
         self.plaintext_rn.clicked.connect(self.set_plaintext_rn)
-        self.read_oad_b.clicked.connect(self.send_read_oad)
-        self.oad_auto_r_cb.clicked.connect(lambda: self.cnt_box_w.setVisible(True if self.oad_auto_r_cb.isChecked() else False))
-        self.cnt_clr_b.clicked.connect(self.cnt_reset)
-        self.oad_box.returnPressed.connect(self.send_read_oad)
-        self.oad_box.textChanged.connect(self.explain_oad)
+        self.quick_read_panel.read_oad_b.clicked.connect(self.send_read_oad)
+        self.quick_read_panel.oad_auto_r_cb.clicked.connect(lambda: self.quick_read_panel.cnt_box_w.setVisible(True if self.quick_read_panel.oad_auto_r_cb.isChecked() else False))
+        self.quick_read_panel.cnt_clr_b.clicked.connect(self.cnt_reset)
+        self.quick_read_panel.oad_box.returnPressed.connect(self.send_read_oad)
+        self.quick_read_panel.oad_box.textChanged.connect(self.explain_oad)
         self.se_msg_tab.installEventFilter(self)
+        self.se_msg_tab.currentChanged.connect(self.set_auto_wrap)
         self.se_msg_tab.currentChanged.connect(self.trans_msg_box)
+        self.quick_set_time_panel.read_dt_b.clicked.connect(lambda: self.send_apdu('0501004000020000'))
+        self.quick_set_time_panel.set_dt_b.clicked.connect(lambda: self.set_time(False))
+        self.quick_set_time_panel.set_current_dt_b.clicked.connect(lambda: self.set_time(True))
 
         self.serial_b.clicked.connect(lambda: self.commu_dialog.connect_serial() if not self.commu_dialog.is_serial_connect else self.commu_dialog.cut_serial())
         self.frontend_b.clicked.connect(lambda: self.commu_dialog.connect_frontend() if not self.commu_dialog.is_frontend_connect else self.commu_dialog.cut_frontend())
@@ -99,12 +102,17 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
             self.explain_box.verticalScrollBar().valueChanged.connect(self.set_se_box_vscroll_percent)
             se_box.horizontalScrollBar().valueChanged.connect(self.set_explain_box_hscroll_percent)
             self.explain_box.horizontalScrollBar().valueChanged.connect(self.set_se_box_hscroll_percent)
+        self.set_auto_wrap()
 
         # collection list
         self.collec = collection.Collection()
         self.se_collection_cbox.addItems(self.collec.get_name_list())
+        self.se_collection_cbox.addItems(['刷新', '自定义'])
         self.se_collection_cbox.setCurrentIndex(-1)
-        self.se_collection_cbox.activated.connect(lambda: self.get_current_se_box().setPlainText(self.collec.get_msg(self.se_collection_cbox.currentText())))
+        self.se_collection_cbox.activated.connect(self.collection_active)
+        completer = QtGui.QCompleter(self.collec.get_name_list())
+        completer.setCompletionMode(QtGui.QCompleter.PopupCompletion)
+        self.se_collection_cbox.setCompleter(completer)
 
         self.about_action.triggered.connect(lambda: config.ABOUT_WINDOW.show() or config.ABOUT_WINDOW.showNormal() or config.ABOUT_WINDOW.activateWindow())
         self.link_action.triggered.connect(self.show_commu_window)
@@ -121,13 +129,21 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
                             self.add_tmn_table_row('000000000001', 0, 1, is_checked=True))
         self.tmn_table_clr_b.clicked.connect(lambda: self.clr_table(self.tmn_table))
 
+        qss_file = open(os.path.join(config.SORTWARE_PATH, 'styles/white_blue.qss')).read()
+        self.setStyleSheet(qss_file)
         self.pop_dialog = dialog_ui.TransPopDialog()
+        self.pop_dialog.setStyleSheet(qss_file)
         self.commu_dialog = dialog_ui.CommuDialog()
-        self.get_set_service_dialog = dialog_ui.GetSetServiceDialog()
+        self.commu_dialog.setStyleSheet(qss_file)
+        # self.get_set_service_dialog = dialog_ui.GetSetServiceDialog()
         self.apdu_diy_dialog = dialog_ui.ApduDiyDialog()
+        self.apdu_diy_dialog.setStyleSheet(qss_file)
         self.msg_diy_dialog = dialog_ui.MsgDiyDialog()
+        self.msg_diy_dialog.setStyleSheet(qss_file)
         self.remote_update_dialog = dialog_ui.RemoteUpdateDialog()
+        self.remote_update_dialog.setStyleSheet(qss_file)
         self.general_cmd_dialog = param_ui.ParamWindow()
+        self.general_cmd_dialog.setStyleSheet(qss_file)
 
         self.msg_log = msg_log.MsgLog()
 
@@ -170,7 +186,7 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
             self.add_tmn_table_row(is_checked=tmn[0], tmn_addr=tmn[1],\
                                     logic_addr=tmn[2], chan_index=tmn[3])
         self.always_top_cb.setChecked(apply_config.get_windows_top())
-        self.oad_box.setText(apply_config.get_oad_r())
+        self.quick_read_panel.oad_box.setText(apply_config.get_oad_r())
 
 
     def eventFilter(self, widget, event):
@@ -185,6 +201,35 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
             self.get_current_se_box().verticalScrollBar().setValue(scroll_vpos)
             self.se_msg_tab.setEnabled(True)
         return QtGui.QMainWindow.eventFilter(self, widget, event)
+
+
+    def set_time(self, is_current_tm):
+        DT = QtCore.QDateTime.currentDateTime() if is_current_tm else self.quick_set_time_panel.dt_box.dateTime()
+        DT_list = DT.toString('yyyy.MM.dd.hh.mm.ss').split('.')
+        DT_text = '1C%04X' % int(DT_list[0])
+        for DT in DT_list[1:]:
+            DT_text += '%02X' % int(DT)
+        apdu_text = '06010D40000200' + DT_text + '00'
+        self.send_apdu(apdu_text)
+
+
+    def collection_active(self):
+        """collection_active"""
+        select = self.se_collection_cbox.currentText()
+        if select in ['刷新']:
+            self.collec.refresh_name_list()
+            self.se_collection_cbox.clear()
+            self.se_collection_cbox.addItems(self.collec.get_name_list())
+            self.se_collection_cbox.addItems(['刷新', '自定义'])
+            self.se_collection_cbox.setCurrentIndex(-1)
+            completer = QtGui.QCompleter(self.collec.get_name_list())
+            completer.setCompletionMode(QtGui.QCompleter.PopupCompletion)
+            self.se_collection_cbox.setCompleter(completer)
+        elif select in ['自定义']:
+            self.collec.open_collection_file()
+            self.se_collection_cbox.setCurrentIndex(-1)
+        else:
+            self.get_current_se_box().setPlainText(self.collec.get_msg(select))
 
 
     def update_info_l(self, serial_status='', frontend_status='', server_status=''):
@@ -208,18 +253,31 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
     def re_msg_do(self, re_text, chan_index):
         """recieve text"""
         self.add_msg_table_row(re_text, chan_index, '←')
-        if self.oad_auto_r_cb.isChecked() and common.get_msg_service_no(re_text) == self.auto_r_piid:
+        if self.quick_read_panel.oad_auto_r_cb.isChecked() and common.get_msg_service_no(re_text) == self.auto_r_piid:
             self.receive_cnt += 1
-            self.receive_cnt_l.setText('收%d'%self.receive_cnt)
+            self.quick_read_panel.receive_cnt_l.setText('收%d'%self.receive_cnt)
+        
+        apdu_list = common.get_apdu_list(common.text2list(re_text))
+        if apdu_list and ''.join(apdu_list[0:2]) == '8501' and ''.join(apdu_list[3:7]) == '40000200' and apdu_list[7] == '01':
+            offset = 9
+            DT_read = QtCore.QDateTime(
+                (int(apdu_list[offset], 16) << 8) | int(apdu_list[offset + 1], 16),
+                int(apdu_list[offset + 2], 16),
+                int(apdu_list[offset + 3], 16),
+                int(apdu_list[offset + 4], 16),
+                int(apdu_list[offset + 5], 16),
+                int(apdu_list[offset + 6], 16),
+            )
+            self.quick_set_time_panel.dt_box.setDateTime(DT_read)
 
 
     # @QtCore.Slot(str, int)
     def se_msg_do(self, re_text, chan_index):
         """recieve text"""
         self.add_msg_table_row(re_text, chan_index, '→')
-        if self.oad_auto_r_cb.isChecked() and common.get_msg_service_no(re_text) == self.auto_r_piid:
+        if self.quick_read_panel.oad_auto_r_cb.isChecked() and common.get_msg_service_no(re_text) == self.auto_r_piid:
             self.send_cnt += 1
-            self.send_cnt_l.setText('发%d'%self.send_cnt)
+            self.quick_read_panel.send_cnt_l.setText('发%d'%self.send_cnt)
 
 
     def add_tmn_table_row(self, tmn_addr='000000000001', logic_addr=0, chan_index=1, is_checked=False):
@@ -480,6 +538,7 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
          self.msg_now = self.msg_table.item(row, 4).text()
          self.trans_se_msg()
          self.se_msg_tab.setEnabled(False)
+         self.se_send_b.setEnabled(False)
 
     def clr_table(self, table):
         """clear table widget"""
@@ -490,10 +549,10 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
 
     def set_auto_wrap(self):
         """set_auto_wrap"""
-        # self.se_msg_box.setLineWrapMode(QtGui.QTextEdit.WidgetWidth\
-        #         if self.auto_wrap_cb.isChecked() else QtGui.QTextEdit.NoWrap)
-        # self.explain_box.setLineWrapMode(QtGui.QTextEdit.WidgetWidth\
-        #         if self.auto_wrap_cb.isChecked() else QtGui.QTextEdit.NoWrap)
+        self.get_current_se_box().setLineWrapMode(QtGui.QTextEdit.WidgetWidth\
+                if self.auto_wrap_cb.isChecked() else QtGui.QTextEdit.NoWrap)
+        self.explain_box.setLineWrapMode(QtGui.QTextEdit.WidgetWidth\
+                if self.auto_wrap_cb.isChecked() else QtGui.QTextEdit.NoWrap)
 
 
     def set_always_top(self):
@@ -544,20 +603,20 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
         """send message"""
         if self.is_auto_r:
             self.is_auto_r = False
-            self.read_oad_b.setText('读取')
-            self.oad_auto_r_cb.setEnabled(True)
-            self.oad_auto_r_spin.setEnabled(True)
-            self.oad_auto_unit_l.setEnabled(True)
+            self.quick_read_panel.read_oad_b.setText('读取')
+            self.quick_read_panel.oad_auto_r_cb.setEnabled(True)
+            self.quick_read_panel.oad_auto_r_spin.setEnabled(True)
+            self.quick_read_panel.oad_auto_unit_l.setEnabled(True)
             return
-        oad_text = self.oad_box.text().replace(' ', '')
+        oad_text = self.quick_read_panel.oad_box.text().replace(' ', '')
         if len(oad_text) == 8:
             apdu_text = '0501%02X %s 00'%(self.auto_r_piid, oad_text)
-            if self.oad_auto_r_cb.isChecked():
+            if self.quick_read_panel.oad_auto_r_cb.isChecked():
                 self.is_auto_r = True
-                self.read_oad_b.setText('停止')
-                self.oad_auto_r_cb.setEnabled(False)
-                self.oad_auto_r_spin.setEnabled(False)
-                self.oad_auto_unit_l.setEnabled(False)
+                self.quick_read_panel.read_oad_b.setText('停止')
+                self.quick_read_panel.oad_auto_r_cb.setEnabled(False)
+                self.quick_read_panel.oad_auto_r_spin.setEnabled(False)
+                self.quick_read_panel.oad_auto_unit_l.setEnabled(False)
                 threading.Thread(target=self.auto_r_oad,\
                     args=(apdu_text,)).start()
             else:
@@ -569,7 +628,7 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
     
     def auto_r_oad(self, apdu_text):
         """auto read oad thread"""
-        delay_s = max(self.oad_auto_r_spin.value(), 0.05)
+        delay_s = max(self.quick_read_panel.oad_auto_r_spin.value(), 0.05)
         if delay_s == 0:
             delay_s = 0.2
         while self.is_auto_r:
@@ -581,13 +640,13 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
         """reset cnt"""
         self.send_cnt = 0
         self.receive_cnt = 0
-        self.send_cnt_l.setText('发0')
-        self.receive_cnt_l.setText('收0')
+        self.quick_read_panel.send_cnt_l.setText('发0')
+        self.quick_read_panel.receive_cnt_l.setText('收0')
 
 
     def explain_oad(self):
         """explain_oad"""
-        oad_text = self.oad_box.text().replace(' ', '')
+        oad_text = self.quick_read_panel.oad_box.text().replace(' ', '')
         if len(oad_text) == 8:
             explain = config.K_DATA.get_oad_explain(oad_text)
             self.oad_explain_l.setText(explain)
@@ -623,7 +682,7 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
                                 self.tmn_table.cellWidget(row_num, 3).currentIndex()])
         save_config.set_tmn_list(tmn_list)
         save_config.set_windows_top(self.always_top_cb.isChecked())
-        save_config.set_oad_r(self.oad_box.text().replace(' ', ''))
+        save_config.set_oad_r(self.quick_read_panel.oad_box.text().replace(' ', ''))
         save_config.commit()
 
         # quit
