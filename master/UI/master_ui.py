@@ -5,7 +5,7 @@ from master import config
 import traceback
 import time
 import threading
-import requests
+import urllib.request
 from master.UI.ui_setup import MasterWindowUi
 from master.trans import common
 from master.trans import linklayer
@@ -239,10 +239,11 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
     def update_infol(self):
         """update"""
         try:
-            info = requests.get('http://kayf.cf/infol', timeout=1)
+            info = urllib.request.urlopen('http://kayf.cf/infol', timeout=1)
             if info:
-                self.info_l.setText(info.text)
+                self.info_l.setText(info.read().decode())
         except Exception:
+            traceback.print_exc()
             print('request failed.')
 
 
