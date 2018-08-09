@@ -65,7 +65,7 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
         self.msg_table.currentCellChanged.connect(self.trans_row)
         self.msg_table.cellClicked.connect(self.trans_row)
         self.msg_table.cellDoubleClicked.connect(self.trans_msg)
-        self.se_clr_b.clicked.connect(lambda: self.se_msg_box.clear() or self.se_msg_box.setFocus())
+        self.se_clr_b.clicked.connect(lambda: self.get_current_se_box().clear() or self.get_current_se_box().setFocus())
         self.se_send_b.clicked.connect(self.send_se_msg)
         self.auto_wrap_cb.stateChanged.connect(self.set_auto_wrap)
         self.show_linklayer_cb.stateChanged.connect(self.trans_se_msg)
@@ -149,6 +149,7 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
         self.msg_log = msg_log.MsgLog()
 
         self.update_infol()
+        self.explain_oad()
 
         self.apdu_text = ''
         self.is_auto_r = False
@@ -204,6 +205,7 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
             self.get_current_se_box().horizontalScrollBar().setValue(scroll_hpos)
             self.get_current_se_box().verticalScrollBar().setValue(scroll_vpos)
             self.se_msg_tab.setEnabled(True)
+            self.get_current_se_box().setFocus(True)
         return QtGui.QMainWindow.eventFilter(self, widget, event)
 
 
@@ -225,15 +227,14 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
             self.se_collection_cbox.clear()
             self.se_collection_cbox.addItems(self.collec.get_name_list())
             self.se_collection_cbox.addItems(['刷新', '自定义'])
-            self.se_collection_cbox.setCurrentIndex(-1)
             completer = QtGui.QCompleter(self.collec.get_name_list())
             completer.setCompletionMode(QtGui.QCompleter.PopupCompletion)
             self.se_collection_cbox.setCompleter(completer)
         elif select in ['自定义']:
             self.collec.open_collection_file()
-            self.se_collection_cbox.setCurrentIndex(-1)
         else:
             self.get_current_se_box().setPlainText(self.collec.get_msg(select))
+        self.se_collection_cbox.setCurrentIndex(-1)
 
 
     def update_infol(self):
@@ -623,8 +624,8 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
             else:
                 self.se_apdu_signal.emit(apdu_text)
         else:
-            self.oad_explain_l.setTextFormat(QtCore.Qt.RichText)
-            self.oad_explain_l.setText('<p style="color: red">请输入正确的OAD</p>')
+            self.quick_read_panel.oad_explain_l.setTextFormat(QtCore.Qt.RichText)
+            self.quick_read_panel.oad_explain_l.setText('<p style="color: red">请输入正确的OAD</p>')
 
     
     def auto_r_oad(self, apdu_text):
@@ -650,9 +651,9 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
         oad_text = self.quick_read_panel.oad_box.text().replace(' ', '')
         if len(oad_text) == 8:
             explain = config.K_DATA.get_oad_explain(oad_text)
-            self.oad_explain_l.setText(explain)
+            self.quick_read_panel.oad_explain_l.setText(explain)
         else:
-            self.oad_explain_l.setText('')
+            self.quick_read_panel.oad_explain_l.setText('')
 
 
     def trans_file(self, file_path='1'):
