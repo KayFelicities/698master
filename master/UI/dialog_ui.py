@@ -471,6 +471,7 @@ class RemoteUpdateDialog(QtGui.QDialog, ui_setup.RemoteUpdateDialogUI):
             file_text = ''.join(['%02X'%x for x in file_text])
             text_list = [file_text[x: x + block_size*2] for x in range(0, len(file_text), block_size*2)]
             for block_no, block_text in enumerate(text_list):
+                # print('block:', block_no)
                 while not self.is_tmn_ready:
                     time.sleep(0.05)
                     if not self.is_updating:
