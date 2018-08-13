@@ -88,6 +88,9 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
         self.quick_set_time_panel.read_dt_b.clicked.connect(lambda: self.send_apdu('0501004000020000'))
         self.quick_set_time_panel.set_dt_b.clicked.connect(lambda: self.set_time(False))
         self.quick_set_time_panel.set_current_dt_b.clicked.connect(lambda: self.set_time(True))
+        self.quick_set_time_panel.dt_box.dateTimeChanged.connect(lambda: self.quick_set_time_panel.dt_sec_box.setText(str(self.quick_set_time_panel.dt_box.dateTime().toTime_t())))
+        self.quick_set_time_panel.dt_sec_b.clicked.connect(lambda: self.quick_set_time_panel.dt_box.setDateTime(QtCore.QDateTime.fromTime_t(int(self.quick_set_time_panel.dt_sec_box.text()))))
+        self.quick_set_time_panel.dt_box.setDateTime(QtCore.QDateTime.currentDateTime())
 
         self.serial_b.clicked.connect(lambda: self.commu_dialog.connect_serial() if not self.commu_dialog.is_serial_connect else self.commu_dialog.cut_serial())
         self.frontend_b.clicked.connect(lambda: self.commu_dialog.connect_frontend() if not self.commu_dialog.is_frontend_connect else self.commu_dialog.cut_frontend())
