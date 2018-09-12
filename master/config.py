@@ -3,8 +3,8 @@ import os
 import sys
 
 
-MASTER_SOFTWARE_VERSION = 'V5.6Beta8'
-MASTER_SOFTWARE_DT = '2018.8'
+MASTER_SOFTWARE_VERSION = 'V5.6Beta9'
+MASTER_SOFTWARE_DT = '2018.9'
 MASTER_WINDOW_TITLE_ADD = '_%s(%s)'%(MASTER_SOFTWARE_VERSION, MASTER_SOFTWARE_DT)
 MASTER_ICO_PATH = 'imgs/698_v5_b.png'
 TRANS_SOFTWARE_VERSION = MASTER_SOFTWARE_VERSION
@@ -39,9 +39,10 @@ class Service():
         return self.service_no
 SERVICE = Service()
 
-CONFIG_FILE_PATH = os.path.join(os.path.expanduser('~'), '.698master/698master.conf')
-COLLECTION_FILE_PATH = os.path.join(os.path.expanduser('~'), '.698master/collection.user')
-MSG_LOG_DIR = os.path.join(os.path.expanduser('~'), '.698master/logs/')
+CONFIG_DIR = os.path.join(os.path.expanduser('~'), '.698master/')
+CONFIG_FILE_PATH = os.path.join(CONFIG_DIR, '698master.conf')
+COLLECTION_FILE_PATH = os.path.join(CONFIG_DIR, 'collection.user')
+MSG_LOG_DIR = os.path.join(CONFIG_DIR, 'logs/')
 
 IS_USE_PYSIDE = False
 

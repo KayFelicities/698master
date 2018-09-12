@@ -78,21 +78,31 @@ QComboBox::down-arrow
 
 QScrollBar:vertical
 {
-      width: 6px;
-      margin: 2 0 2 0;
+      width: 7px;
+      margin: 10 0 10 0;
+      border: 0px;
+}
+QScrollBar:horizontal
+{
+      height: 7px;
+      margin: 0 10 1 10;
       border: 0px;
 }
 QScrollBar::handle:vertical, QScrollBar::handle:horizontal
 {
       background: #cccccc;
-      min-height: 10px;
+      min-height: 20px;
+      min-width: 20px;
       border-radius: 2px;
 }
-QScrollBar:horizontal
+QScrollBar::handle:hover
 {
-      height: 6px;
-      margin: 0 2 1 2;
-      border: 0px;
+      background: #666666;
+}
+QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical, QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal
+{
+    border: none;
+    background: none;
 }
 
 QProgressBar

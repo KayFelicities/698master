@@ -243,7 +243,7 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
     def update_infol(self):
         """update"""
         try:
-            info = urllib.request.urlopen('http://kayf.cf/infol', timeout=1)
+            info = urllib.request.urlopen('http://kayf.cf/infol/' + config.MASTER_SOFTWARE_VERSION, timeout=1)
             if info:
                 self.info_l.setText(info.read().decode())
         except Exception:
