@@ -273,7 +273,7 @@ class Data698():
             ('25', '属性', '11', 'dyn', '拨号 IP', 'octet-string,'),
             ('25', '方法', '1', '', '复位', 'NULL,'),
             ('26', '属性', '1', 'static', '逻辑名', 'octet-string,'),
-            ('26', '属性', '2', 'static', '通信配置', 'structure{工作模式:enum[混合模式<0>,客户机模式<1>,服务器模式<2>],连接方式:enum[TCP<0>,UDP<1>],连接应用方式:enum[主备模式<0>,多连接模式<1>]侦听端口列表:array:long-unsigned,代理服务器地址:octet-string,代理端口:long-unsigned,超时时间及重发次数:unsigned,心跳周期(秒):long-unsigned},'),
+            ('26', '属性', '2', 'static', '通信配置', 'structure{工作模式:enum[混合模式<0>,客户机模式<1>,服务器模式<2>],连接方式:enum[TCP<0>,UDP<1>],连接应用方式:enum[主备模式<0>,多连接模式<1>],侦听端口列表:array:long-unsigned,代理服务器地址:octet-string,代理端口:long-unsigned,超时时间及重发次数:unsigned,心跳周期(秒):long-unsigned},'),
             ('26', '属性', '3', 'static', '主站通信参数表', 'array:structure{IP地址:octet-string,端口:long-unsigned},'),
             ('26', '属性', '4', 'static', '终端 IP', 'structure{IP配置方式:enum[DHCP<0>,静态<1>,PPPoE<2>],IP地址:octet-string,子网掩码:octet-string,网关地址:octet-string,PPPoE用户名:visible-string,PPPoE密码:visible-string},'),
             ('26', '属性', '5', 'static', 'MAC 地址', 'octet-string,'),
@@ -1090,7 +1090,7 @@ class Data698():
         if len(oad) != 8:
             raise 'format error'
         oi_text = oad[:4]
-        am_no = (int(oad[4:6], 16) & 0x0f) if am_type == '属性' else int(oad[4:6], 16)
+        am_no = (int(oad[4:6], 16) & 0x1f) if am_type == '属性' else int(oad[4:6], 16)
         index = int(oad[6:8], 16)
         # print('oi_text', oi_text, 'am_no', am_no, 'index', index, 'am_type', am_type)
 
@@ -1370,8 +1370,8 @@ class Data698():
 
 if __name__ == '__main__':
     test = Data698('123456')
-    # print(test.get_oad_explain('f3000400'))
+    print(test.get_structure('oad', '24011300'))
     # print(test.get_omd_explain('601c7f00'))
-    print(test.get_structure('omd', '601c7f00'))
+    # print(test.get_structure('omd', '601c7f00'))
     # print(test.get_oi_explain('4401'))
     # print(test.get_class_oi('控制类'))
