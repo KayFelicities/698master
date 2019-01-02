@@ -371,6 +371,9 @@ class RemoteUpdateDialog(QtGui.QDialog, ui_setup.RemoteUpdateDialogUI):
         self.service_no = 0xff
         self.send_tm = 0
 
+        self.tmout = 15
+        self.retry = 3
+
     def dragEnterEvent(self, event):
         """drag"""
         if event.mimeData().hasUrls:
@@ -437,8 +440,15 @@ class RemoteUpdateDialog(QtGui.QDialog, ui_setup.RemoteUpdateDialogUI):
         filepath = self.file_path_box.text()
         try:
             block_size = int(self.block_size_box.text().replace('字节', ''))
+            self.tmout = int(self.tmout_box.text())
+            self.retry = int(self.retry_box.text())
         except ValueError:
             block_size = 1024
+            self.tmout = 10
+            self.retry = 3
+            self.block_size_box.setText(str(block_size))
+            self.tmout_box.setText(str(self.tmout))
+            self.retry_box.setText(str(self.retry))
         if filepath:
             threading.Thread(target=self.send_file,\
                         args=(filepath, block_size)).start()
@@ -449,18 +459,25 @@ class RemoteUpdateDialog(QtGui.QDialog, ui_setup.RemoteUpdateDialogUI):
         config.MASTER_WINDOW.receive_signal.connect(self.re_msg)
         self.service_no = config.SERVICE.get_service_no()
         self.send_tm = time.time()
+        self.send_cnt = 0
         start_apdu_text = '0701{piid:02X} f0010700 0203 0206 0a00 0a00 06 {filesize:08X}\
                         0403e0 0a00 1600 12 {blocksize:04X} 0202 1600 0900 00'\
                         .format(piid=self.service_no, filesize=os.path.getsize(filepath), blocksize=block_size)
         config.MASTER_WINDOW.se_apdu_signal.emit(start_apdu_text)
+        self.status_label.setText('发送起始帧...')
         self.is_updating = True
         self.is_tmn_ready = False
         while not self.is_tmn_ready:
+            if time.time() - self.send_tm > self.tmout:
+                self.err_quit(err_msg='起始帧超时')
+                return
             if not self.is_updating:
-                print('remote update timeout')
+                self.err_quit(err_msg='意外终止')
                 return
         self.file_open_b.setEnabled(False)
         self.block_size_box.setEnabled(False)
+        self.retry_box.setEnabled(False)
+        self.tmout_box.setEnabled(False)
         self.start_update_b.setEnabled(False)
         self.stop_update_b.setEnabled(True)
 
@@ -472,17 +489,6 @@ class RemoteUpdateDialog(QtGui.QDialog, ui_setup.RemoteUpdateDialogUI):
             text_list = [file_text[x: x + block_size*2] for x in range(0, len(file_text), block_size*2)]
             for block_no, block_text in enumerate(text_list):
                 # print('block:', block_no)
-                while not self.is_tmn_ready:
-                    time.sleep(0.05)
-                    if not self.is_updating:
-                        self.file_open_b.setEnabled(True)
-                        self.block_size_box.setEnabled(True)
-                        self.stop_update_b.setEnabled(False)
-                        self.start_update_b.setEnabled(True)
-                        self.start_update_b.setText('开始升级')
-                        return
-                self.is_tmn_ready = False
-                self.send_tm = time.time()
                 send_len = len(block_text)/2
                 self.service_no = config.SERVICE.get_service_no()
                 send_apdu_text = '0701{piid:02X} f0010800 0202 12{blockno:04X} 09'\
@@ -490,31 +496,60 @@ class RemoteUpdateDialog(QtGui.QDialog, ui_setup.RemoteUpdateDialogUI):
                                     + ('%02X'%send_len if send_len < 128\
                                         else '82%04X'%send_len) + block_text + '00'
                 config.MASTER_WINDOW.se_apdu_signal.emit(send_apdu_text)
+                self.status_label.setText('正在升级...')
                 self.update_signal.emit(block_no + 1, block_num)
+                self.send_tm = time.time()
+                self.send_cnt = 0
+                self.is_tmn_ready = False
+                while not self.is_tmn_ready:
+                    time.sleep(0.05)
+                    if time.time() - self.send_tm > self.tmout:
+                        if self.send_cnt < self.retry:
+                            self.status_label.setText('正在补发(%d/%d)...'%(self.send_cnt + 1, self.retry))
+                            config.MASTER_WINDOW.se_apdu_signal.emit(send_apdu_text)
+                            self.send_tm = time.time()
+                            self.send_cnt += 1
+                        else:
+                            self.err_quit(err_msg='超时')
+                            return
+                    if not self.is_updating:
+                        self.err_quit(err_msg='意外终止')
+                        return
+        self.ok_quit()
+
+    def err_quit(self, err_msg = ''):
+        """err_quit"""
         self.file_open_b.setEnabled(True)
         self.block_size_box.setEnabled(True)
+        self.retry_box.setEnabled(True)
+        self.tmout_box.setEnabled(True)
         self.stop_update_b.setEnabled(False)
         self.start_update_b.setEnabled(True)
         self.start_update_b.setText('开始升级')
-        print('send file thread quit')
+        self.status_label.setText('升级失败 ' + err_msg)
+
+    def ok_quit(self, ok_msg = ''):
+        """ok_quit"""
+        self.file_open_b.setEnabled(True)
+        self.block_size_box.setEnabled(True)
+        self.retry_box.setEnabled(True)
+        self.tmout_box.setEnabled(True)
+        self.stop_update_b.setEnabled(False)
+        self.start_update_b.setEnabled(True)
+        self.start_update_b.setText('开始升级')
+        self.status_label.setText('升级成功 ' + ok_msg)
 
 
     def re_msg(self, msg_text):
         """re msg"""
         if self.service_no != common.get_msg_service_no(msg_text):
             return
-        if abs(time.time() - self.send_tm) > config.RE_MSG_TIMEOUT:
-            config.MASTER_WINDOW.receive_signal.disconnect(self.re_msg)
-            self.service_no = 0xff
-            print('re msg timeout!')
-            self.is_updating = False
-            return
         msg_trans = translate.Translate(msg_text)
         if msg_trans.is_access_successed:
             self.is_tmn_ready = True
         else:
-            print('remote update failed')
-            self.is_updating = False
+            print('收到否认帧，重发...')
+            return
         self.service_no = 0xff
 
 

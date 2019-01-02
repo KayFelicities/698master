@@ -752,6 +752,17 @@ class RemoteUpdateDialogUI():
         # self.block_size_box.addItem('512字节')
         # self.block_size_box.addItem('1024字节')
 
+        self.retry_label = QtGui.QLabel()
+        self.retry_label.setText('重试次数(次):')
+        self.retry_box = QtGui.QLineEdit()
+        self.retry_box.setText('3')
+        self.retry_box.setMaximumWidth(50)
+        self.tmout_label = QtGui.QLabel()
+        self.tmout_label.setText('超时时间(秒):')
+        self.tmout_box = QtGui.QLineEdit()
+        self.tmout_box.setText('10')
+        self.tmout_box.setMaximumWidth(50)
+
         self.file_size_label = QtGui.QLabel()
         self.file_size_label.setText('文件大小')
         self.file_size_num_label = QtGui.QLabel()
@@ -765,6 +776,9 @@ class RemoteUpdateDialogUI():
         self.start_update_b.setText('开始升级')
         self.stop_update_b = QtGui.QPushButton()
         self.stop_update_b.setText('停止')
+
+        self.status_label = QtGui.QLabel()
+        self.status_label.setText('请点击开始升级')
 
         self.dummy_l = QtGui.QLabel()
         self.remote_update_gbox = QtGui.QGridLayout()
@@ -780,17 +794,23 @@ class RemoteUpdateDialogUI():
         self.remote_update_gbox.addWidget(self.block_size_label, 4, 0)
         self.remote_update_gbox.addWidget(self.block_size_box, 4, 1)
 
-        self.remote_update_gbox.addWidget(self.dummy_l, 5, 0)
+        self.remote_update_gbox.addWidget(self.tmout_label, 6, 0)
+        self.remote_update_gbox.addWidget(self.tmout_box, 6, 1)
 
-        self.remote_update_gbox.addWidget(self.file_size_label, 6, 0)
-        self.remote_update_gbox.addWidget(self.file_size_num_label, 6, 1)
-        self.remote_update_gbox.addWidget(self.block_label, 6, 3)
-        self.remote_update_gbox.addWidget(self.block_num_label, 6, 4)
+        self.remote_update_gbox.addWidget(self.retry_label, 8, 0)
+        self.remote_update_gbox.addWidget(self.retry_box, 8, 1)
 
-        self.remote_update_gbox.addWidget(self.dummy_l, 7, 0)
+        self.remote_update_gbox.addWidget(self.file_size_label, 10, 0)
+        self.remote_update_gbox.addWidget(self.file_size_num_label, 10, 1)
+        self.remote_update_gbox.addWidget(self.block_label, 10, 3)
+        self.remote_update_gbox.addWidget(self.block_num_label, 10, 4)
 
-        self.remote_update_gbox.addWidget(self.start_update_b, 8, 0, 1, 4)
-        self.remote_update_gbox.addWidget(self.stop_update_b, 8, 4)
+        self.remote_update_gbox.addWidget(self.dummy_l, 11, 0)
+
+        self.remote_update_gbox.addWidget(self.start_update_b, 12, 0, 1, 4)
+        self.remote_update_gbox.addWidget(self.stop_update_b, 12, 4)
+
+        self.remote_update_gbox.addWidget(self.status_label, 13, 0, 1, 5)
         self.setLayout(self.remote_update_gbox)
 
 

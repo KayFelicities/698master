@@ -10,7 +10,7 @@ class Data698():
     def __init__(self, kay):
         if kay != '123456':
             return
-        if time.localtime()[0] >= 2019:
+        if time.localtime()[0] > 2019:
             return
         ic_table =\
         [

@@ -483,20 +483,19 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
     def send_apdu(self, apdu_text, tmn_addr='', logic_addr=-1, chan_index=-1, C_text='43'):
         """apdu to compelete msg to send"""
         if self.is_plaintext_rn:
-            if apdu_text.startswith('0501') or apdu_text.startswith('0502'):
-                # 10 + 00 + len + apdu + 0110 5FE30D32D6A20288F9112B5C6052CFDB(fixme: 先固定一个随机数)
-                apdu_len = len(common.text2list(apdu_text))
-                apdu_head = '1000' #安全请求+明文应用数据单元
+            # 10 + 00 + len + apdu + 0110 5FE30D32D6A20288F9112B5C6052CFDB(fixme: 先固定一个随机数)
+            apdu_len = len(common.text2list(apdu_text))
+            apdu_head = '1000' #安全请求+明文应用数据单元
 
-                if apdu_len < 128:
-                    apdu_head += "%02X"%apdu_len
-                elif apdu_len < 256:
-                    apdu_head += "81%02X"%apdu_len
-                else:
-                    apdu_head += "82%04X"%apdu_len
+            if apdu_len < 128:
+                apdu_head += "%02X"%apdu_len
+            elif apdu_len < 256:
+                apdu_head += "81%02X"%apdu_len
+            else:
+                apdu_head += "82%04X"%apdu_len
 
-                apdu_text = apdu_head + apdu_text + '0110 5FE30D32D6A20288F9112B5C6052CFDB'
-                # print('读取明文+随机{}:{}'.format(len(common.text2list(apdu_text)), apdu_text))
+            apdu_text = apdu_head + apdu_text + '0110 5FE30D32D6A20288F9112B5C6052CFDB'
+            # print('读取明文+随机{}:{}'.format(len(common.text2list(apdu_text)), apdu_text))
 
         for row in [x for x in range(self.tmn_table.rowCount())\
                         if self.tmn_table.cellWidget(x, 0).isChecked()]:
