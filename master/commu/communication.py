@@ -39,7 +39,6 @@ class CommuPanel():
                 config.MASTER_WINDOW.send_signal.emit(common.format_text(m_text), 0)
             except Exception:
                 print('serial send err')
-                config.MASTER_WINDOW.update_info_l(serial_status='故障')
                 self.serial_disconnect()
         if self.is_frontend_running and chan_index in [-1, 1]:
             try:
@@ -47,7 +46,6 @@ class CommuPanel():
                 config.MASTER_WINDOW.send_signal.emit(common.format_text(m_text), 1)
             except Exception:
                 print('frontend send err')
-                config.MASTER_WINDOW.update_info_l(frontend_status='故障')
                 self.frontend_disconnect()
 
         if self.is_server_running and chan_index in [-1, 2]:
@@ -175,11 +173,9 @@ class CommuPanel():
             try:
                 re_byte = self.frontend_handle.recv(1)
             except Exception:
-                config.MASTER_WINDOW.update_info_l(frontend_status='故障')
                 print('frontend err quit')
                 break
             if not re_byte:
-                config.MASTER_WINDOW.update_info_l(frontend_status='故障')
                 print('frontend disconnected')
                 break
             if re_byte == b'\x68':

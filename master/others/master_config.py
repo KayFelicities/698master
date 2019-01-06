@@ -1,4 +1,5 @@
 """master config file"""
+import os
 import configparser
 import random
 from master import config
@@ -8,8 +9,13 @@ class MasterConfig:
     """master config class"""
     def __init__(self, config_path=config.CONFIG_FILE_PATH):
         self.config_path = config_path
-        self.config = configparser.ConfigParser()
-        self.config.read(self.config_path)
+        try:
+            self.config = configparser.ConfigParser()
+            self.config.read(self.config_path)
+        except Exception:
+            os.remove(self.config_path)
+            self.config = configparser.ConfigParser()
+            self.config.read(self.config_path)
         if not self.config.has_section('master'):
             self.config.add_section('master')
         if not self.config.has_section('commu'):

@@ -17,8 +17,10 @@ def text2list(m_text):
     m_list = []
     for k in range(0, int((len(m_text) + 1) / 2)):
         m_list.append(m_text[k * 2:(k + 1) * 2])
+    # if len(m_list) > 0 and len(m_list[-1]) == 1:
+    #     m_list[-1] = '0' + m_list[-1]
     if len(m_list) > 0 and len(m_list[-1]) == 1:
-        m_list[-1] = '0' + m_list[-1]
+        m_list.pop(-1)
     return m_list
 
 

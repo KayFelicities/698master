@@ -3,8 +3,8 @@ import os
 import sys
 
 
-MASTER_SOFTWARE_VERSION = 'V5.6Beta3'
-MASTER_SOFTWARE_DT = '2018.7.5'
+MASTER_SOFTWARE_VERSION = 'V5.6Beta12'
+MASTER_SOFTWARE_DT = '2019.01'
 MASTER_WINDOW_TITLE_ADD = '_%s(%s)'%(MASTER_SOFTWARE_VERSION, MASTER_SOFTWARE_DT)
 MASTER_ICO_PATH = 'imgs/698_v5_b.png'
 TRANS_SOFTWARE_VERSION = MASTER_SOFTWARE_VERSION
@@ -25,7 +25,6 @@ M_PRIORITY_COLOR = {0: 'grey', 1: 'black', 2: 'blue', 3: 'red'}
 
 MSG_TABLE_ROW_MAX = 256
 
-RE_MSG_TIMEOUT = 15
 class Service():
     """service class"""
     def __init__(self):
@@ -39,8 +38,10 @@ class Service():
         return self.service_no
 SERVICE = Service()
 
-CONFIG_FILE_PATH = os.path.join(os.path.expanduser('~'), '.698master/698master.conf')
-MSG_LOG_DIR = os.path.join(os.path.expanduser('~'), '.698master/logs/')
+CONFIG_DIR = os.path.join(os.path.expanduser('~'), '.698master/')
+CONFIG_FILE_PATH = os.path.join(CONFIG_DIR, '698master.conf')
+COLLECTION_FILE_PATH = os.path.join(CONFIG_DIR, 'collection.user')
+MSG_LOG_DIR = os.path.join(CONFIG_DIR, 'logs/')
 
 IS_USE_PYSIDE = False
 

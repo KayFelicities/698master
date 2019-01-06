@@ -6,6 +6,115 @@ if config.IS_USE_PYSIDE:
 else:
     from PyQt5 import QtGui, QtCore, QtWidgets
 
+
+class SeMsgBox(QtWidgets.QTextEdit):
+    """SeMsgBox"""
+    def __init__(self):
+        super(SeMsgBox, self).__init__()
+        self.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        self.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
+
+        self.save_msg = ''
+    
+    def set_save_msg(self, msg):
+        self.save_msg = msg
+
+    
+    def get_save_msg(self):
+        return self.save_msg
+
+class QuickReadTab(QtWidgets.QWidget):
+    """QuickReadTab"""
+    def __init__(self):
+        super(QuickReadTab, self).__init__()
+        self.quick_vbox = QtWidgets.QVBoxLayout(self)
+        self.quick_vbox.setContentsMargins(0, 0, 0, 0)
+        self.quick_hbox = QtWidgets.QHBoxLayout()
+        self.auto_r_hbox = QtWidgets.QHBoxLayout()
+        self.quick_vbox.setSpacing(1)
+        self.oad_l = QtWidgets.QLabel()
+        self.oad_l.setText('OAD')
+        self.oad_box = QtWidgets.QLineEdit()
+        # self.oad_box.setMaximumWidth(70)
+        self.read_oad_b = QtWidgets.QPushButton()
+        self.read_oad_b.setMaximumWidth(50)
+        self.read_oad_b.setText('读取')
+        self.oad_auto_r_cb = QtWidgets.QCheckBox()
+        self.oad_auto_r_cb.setText('读取周期')
+        self.oad_auto_r_spin = QtWidgets.QDoubleSpinBox()
+        self.oad_auto_r_spin.setValue(1)
+        self.oad_auto_unit_l = QtWidgets.QLabel()
+        self.oad_auto_unit_l.setText('秒')
+        self.auto_r_hbox.addWidget(self.oad_auto_r_cb)
+        self.auto_r_hbox.addWidget(self.oad_auto_r_spin)
+        self.auto_r_hbox.addWidget(self.oad_auto_unit_l)
+        self.cnt_box_w = QtWidgets.QWidget()
+        self.cnt_box = QtWidgets.QHBoxLayout(self.cnt_box_w)
+        self.send_cnt_l = QtWidgets.QLabel()
+        self.send_cnt_l.setText('发0')
+        self.receive_cnt_l = QtWidgets.QLabel()
+        self.receive_cnt_l.setText('收0')
+        self.cnt_clr_b = QtWidgets.QPushButton()
+        self.cnt_clr_b.setMaximumWidth(50)
+        self.cnt_clr_b.setText('清')
+        self.cnt_box.addWidget(self.send_cnt_l)
+        self.cnt_box.addStretch(1)
+        self.cnt_box.addWidget(self.receive_cnt_l)
+        self.cnt_box.addStretch(1)
+        self.cnt_box.addWidget(self.cnt_clr_b)
+        self.oad_explain_l = QtWidgets.QLabel()
+        self.oad_explain_l.setContentsMargins(0, 5, 0, 5)
+        # self.oad_explain_l.setAlignment(QtCore.Qt.AlignCenter)
+        self.quick_hbox.addWidget(self.oad_l)
+        self.quick_hbox.addWidget(self.oad_box)
+        self.quick_hbox.addWidget(self.read_oad_b)
+        self.quick_vbox.addLayout(self.quick_hbox)
+        self.quick_vbox.addWidget(self.oad_explain_l)
+        self.quick_vbox.addLayout(self.auto_r_hbox)
+        self.quick_vbox.addWidget(self.cnt_box_w)
+        self.quick_vbox.addStretch(1)
+
+class QuickSetTime(QtWidgets.QWidget):
+    """QuickSetTime"""
+    def __init__(self):
+        super(QuickSetTime, self).__init__()
+        self.dt_box = QtWidgets.QDateTimeEdit()
+        font = QtGui.QFont()
+        font.setPointSize(15)
+        self.dt_box.setFont(font)
+        self.dt_box.setAlignment(QtCore.Qt.AlignCenter)
+
+        dt_sec_hbox = QtWidgets.QHBoxLayout()
+        self.dt_sec_l = QtWidgets.QLabel()
+        self.dt_sec_l.setText('秒数')
+        self.dt_sec_box = QtWidgets.QLineEdit()
+        self.dt_sec_b = QtWidgets.QPushButton()
+        self.dt_sec_b.setMaximumWidth(50)
+        self.dt_sec_b.setText('转换')
+        dt_sec_hbox.addWidget(self.dt_sec_l)
+        dt_sec_hbox.addWidget(self.dt_sec_box)
+        dt_sec_hbox.addWidget(self.dt_sec_b)
+
+        self.read_dt_b = QtWidgets.QPushButton()
+        self.read_dt_b.setText('读取')
+        self.set_dt_b = QtWidgets.QPushButton()
+        self.set_dt_b.setText('设置')
+        self.set_current_dt_b = QtWidgets.QPushButton()
+        self.set_current_dt_b.setText('设置当前时间')
+        
+        hbox = QtWidgets.QHBoxLayout()
+        hbox.addWidget(self.read_dt_b)
+        hbox.addWidget(self.set_dt_b)
+        vbox = QtWidgets.QVBoxLayout(self)
+        vbox.addWidget(self.dt_box)
+        vbox.addLayout(dt_sec_hbox)
+        vbox.addLayout(hbox)
+        vbox.addWidget(self.set_current_dt_b)
+        vbox.addStretch(1)
+
+
+
+
 class MasterWindowUi():
     """ApduDiyDialogUi"""
     def __init__(self):
@@ -69,11 +178,11 @@ class MasterWindowUi():
         self.tmn_table.verticalHeader().setVisible(False)
         for count in range(5):
             self.tmn_table.insertColumn(count)
-        self.tmn_table.setHorizontalHeaderLabels(['', '终端地址', '逻辑地址', '通道', ''])
-        self.tmn_table.setColumnWidth(0, 15)
-        self.tmn_table.setColumnWidth(1, 91)
-        self.tmn_table.setColumnWidth(2, 40)
-        self.tmn_table.setColumnWidth(3, 65)
+        self.tmn_table.setHorizontalHeaderLabels(['', '终端地址', '逻辑', '通道', ''])
+        self.tmn_table.setColumnWidth(0, 20)
+        self.tmn_table.setColumnWidth(1, 96)
+        self.tmn_table.setColumnWidth(2, 35)
+        self.tmn_table.setColumnWidth(3, 60)
         self.tmn_table.setColumnWidth(4, 25)
         self.tmn_table.setHorizontalScrollMode(QtWidgets.QAbstractItemView.ScrollPerPixel)
         self.tmn_table.setVerticalScrollMode(QtWidgets.QAbstractItemView.ScrollPerPixel)
@@ -92,51 +201,30 @@ class MasterWindowUi():
         self.tmn_table_vbox.addLayout(self.tmn_table_btns_hbox)
         self.tmn_table_vbox.addWidget(self.tmn_table)
 
-        self.quick_info_w = QtWidgets.QWidget()
-        self.quick_vbox = QtWidgets.QVBoxLayout(self.quick_info_w)
-        self.quick_hbox = QtWidgets.QHBoxLayout()
-        self.auto_r_hbox = QtWidgets.QHBoxLayout()
-        self.oad_l = QtWidgets.QLabel()
-        self.oad_l.setText('OAD')
-        self.oad_box = QtWidgets.QLineEdit()
-        # self.oad_box.setMaximumWidth(70)
-        self.read_oad_b = QtWidgets.QPushButton()
-        self.read_oad_b.setMaximumWidth(50)
-        self.read_oad_b.setText('读取')
-        self.oad_auto_r_cb = QtWidgets.QCheckBox()
-        self.oad_auto_r_cb.setText('读取周期')
-        self.oad_auto_r_spin = QtWidgets.QDoubleSpinBox()
-        self.oad_auto_unit_l = QtWidgets.QLabel()
-        self.oad_auto_unit_l.setText('秒')
-        self.auto_r_hbox.addWidget(self.oad_auto_r_cb)
-        self.auto_r_hbox.addWidget(self.oad_auto_r_spin)
-        self.auto_r_hbox.addWidget(self.oad_auto_unit_l)
-        self.cnt_box_w = QtWidgets.QWidget()
-        self.cnt_box = QtWidgets.QHBoxLayout(self.cnt_box_w)
-        self.send_cnt_l = QtWidgets.QLabel()
-        self.send_cnt_l.setText('发0')
-        self.receive_cnt_l = QtWidgets.QLabel()
-        self.receive_cnt_l.setText('收0')
-        self.cnt_clr_b = QtWidgets.QPushButton()
-        self.cnt_clr_b.setMaximumWidth(50)
-        self.cnt_clr_b.setText('清')
-        self.cnt_box.addWidget(self.send_cnt_l)
-        self.cnt_box.addStretch(1)
-        self.cnt_box.addWidget(self.receive_cnt_l)
-        self.cnt_box.addStretch(1)
-        self.cnt_box.addWidget(self.cnt_clr_b)
-        self.oad_explain_l = QtWidgets.QLabel()
+        # quick panel
+        self.quick_panel_w = QtWidgets.QWidget()
+        self.quick_panel_vbox = QtWidgets.QVBoxLayout(self.quick_panel_w)
+        self.quick_panel_vbox.setContentsMargins(0, 0, 0, 0)
+        self.quick_tab = QtWidgets.QTabWidget()
+        self.quick_tab.setTabPosition(QtWidgets.QTabWidget.West)
+        self.quick_tab.setMovable(True)
+
+        self.quick_read_panel = QuickReadTab()
+        self.quick_read_panel.setContentsMargins(3, 3, 3, 3)
+       
+        self.quick_set_time_panel = QuickSetTime()
+        self.quick_set_time_panel.setContentsMargins(3, 3, 3, 3)
+
+        self.quick_tab.addTab(self.quick_read_panel, '读OAD')
+        self.quick_tab.addTab(self.quick_set_time_panel, '设时间')
+        self.quick_panel_vbox.addWidget(self.quick_tab)
+
         self.info_l = QtWidgets.QLabel()
-        self.info_l.setText('<p><b>请按F2建立连接</b></p>')
-        self.quick_hbox.addWidget(self.oad_l)
-        self.quick_hbox.addWidget(self.oad_box)
-        self.quick_hbox.addWidget(self.read_oad_b)
-        self.quick_vbox.addLayout(self.quick_hbox)
-        self.quick_vbox.addLayout(self.auto_r_hbox)
-        self.quick_vbox.addWidget(self.cnt_box_w)
-        self.quick_vbox.addWidget(self.oad_explain_l)
-        self.quick_vbox.addStretch(1)
-        self.quick_vbox.addWidget(self.info_l)
+        self.info_l.setContentsMargins(0, 10, 0, 10)
+        self.info_l.setText('<p><b>欢迎使用</b></p>')
+        self.info_l.setAlignment(QtCore.Qt.AlignCenter)
+        self.info_l.setOpenExternalLinks(True)
+        self.quick_panel_vbox.addWidget(self.info_l)
 
         self.msg_table_w = QtWidgets.QWidget()
         self.msg_table_vbox = QtWidgets.QVBoxLayout(self.msg_table_w)
@@ -151,37 +239,52 @@ class MasterWindowUi():
         self.msg_table.setColumnWidth(1, 110)
         self.msg_table.setColumnWidth(2, 60)
         self.msg_table.setColumnWidth(3, 200)
-        self.msg_table.setColumnWidth(4, 300)
+        self.msg_table.setColumnWidth(4, 240)
         self.msg_table.setHorizontalScrollMode(QtWidgets.QAbstractItemView.ScrollPerPixel)
         self.msg_table.setVerticalScrollMode(QtWidgets.QAbstractItemView.ScrollPerPixel)
         self.msg_table.setEditTriggers(QtWidgets.QTableWidget.NoEditTriggers) # 表格不可编辑
         self.msg_table.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows) # 只能行选
 
-        self.se_msg_box = QtWidgets.QPlainTextEdit()
+        self.se_msg_tab = QtWidgets.QTabWidget()
+        self.se_msg_tab.setTabPosition(QtWidgets.QTabWidget.West)
+        self.se_msg_tab.setMovable(True)
         self.se_send_b = QtWidgets.QPushButton()
         self.se_send_b.setMaximumWidth(70)
         self.se_send_b.setText('发送')
         self.se_send_b.setEnabled(False)
+        self.se_collection_cbox = QtWidgets.QComboBox()
+        self.se_collection_cbox.setEditable(True)
+        # self.se_collection_cbox.setAutoCompletion(True)
+        # self.se_collection_cbox.setAutoFillBackground
+        self.se_collection_cbox.setView(QtWidgets.QListView())
         self.se_clr_b = QtWidgets.QPushButton()
-        self.se_clr_b.setMaximumWidth(40)
-        self.se_clr_b.setText('清空')
+        self.se_clr_b.setMaximumWidth(20)
+        self.se_clr_b.setText('清')
+        # self.se_clr_b.setVisible(False)
         self.se_btn_hbox = QtWidgets.QHBoxLayout()
+        self.se_btn_hbox.setContentsMargins(16, 0, 0, 0)
         self.se_btn_hbox.addWidget(self.se_clr_b)
-        self.se_btn_hbox.addStretch(1)
+        self.se_btn_hbox.addWidget(self.se_collection_cbox)
+        # self.se_btn_hbox.addStretch(1)
         self.se_btn_hbox.addWidget(self.se_send_b)
         self.se_w = QtWidgets.QWidget()
         self.se_vbox = QtWidgets.QVBoxLayout(self.se_w)
+        # self.se_vbox = QtGui.QTabWidget(self.se_w)
+        self.se_vbox.setSpacing(0)
         self.se_vbox.setContentsMargins(0, 0, 0, 0)
-        self.se_vbox.addWidget(self.se_msg_box)
+        self.se_vbox.addWidget(self.se_msg_tab)
         self.se_vbox.addLayout(self.se_btn_hbox)
 
         self.explain_box = QtWidgets.QTextEdit()
+        self.explain_box.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
         self.show_linklayer_cb = QtWidgets.QCheckBox()
         self.show_linklayer_cb.setText('链路层')
         self.show_dtype_cb = QtWidgets.QCheckBox()
         self.show_dtype_cb.setText('数据类型')
         self.show_level_cb = QtWidgets.QCheckBox()
         self.show_level_cb.setText('显示结构')
+        self.auto_wrap_cb = QtWidgets.QCheckBox()
+        self.auto_wrap_cb.setText('自动换行')
         self.copy_b = QtWidgets.QPushButton()
         self.copy_b.setText('复制')
         self.copy_b.setMaximumWidth(60)
@@ -190,9 +293,11 @@ class MasterWindowUi():
         self.explain_btn_hbox.addWidget(self.show_linklayer_cb)
         self.explain_btn_hbox.addWidget(self.show_dtype_cb)
         self.explain_btn_hbox.addWidget(self.show_level_cb)
+        self.explain_btn_hbox.addWidget(self.auto_wrap_cb)
         self.explain_btn_hbox.addWidget(self.copy_b)
         self.explain_w = QtWidgets.QWidget()
         self.explain_vbox = QtWidgets.QVBoxLayout(self.explain_w)
+        self.explain_vbox.setSpacing(0)
         self.explain_vbox.setContentsMargins(0, 0, 0, 0)
         self.explain_vbox.addWidget(self.explain_box)
         self.explain_vbox.addLayout(self.explain_btn_hbox)
@@ -200,8 +305,9 @@ class MasterWindowUi():
         self.box_hsplitter = QtWidgets.QSplitter(QtCore.Qt.Horizontal)
         self.box_hsplitter.addWidget(self.se_w)
         self.box_hsplitter.addWidget(self.explain_w)
-        self.box_hsplitter.setStretchFactor(0, 1)
-        self.box_hsplitter.setStretchFactor(1, 2)
+        self.box_hsplitter.setStretchFactor(0, 2)
+        self.box_hsplitter.setStretchFactor(1, 3)
+        self.box_hsplitter.setHandleWidth(1)
 
         self.msg_btn_hbox = QtWidgets.QHBoxLayout()
         self.clr_b = QtWidgets.QPushButton()
@@ -215,14 +321,14 @@ class MasterWindowUi():
         self.right_vsplitter = QtWidgets.QSplitter(QtCore.Qt.Vertical)
         self.right_vsplitter.addWidget(self.msg_table_w)
         self.right_vsplitter.addWidget(self.box_hsplitter)
-        self.right_vsplitter.setStretchFactor(0, 2)
-        self.right_vsplitter.setStretchFactor(1, 1)
+        self.right_vsplitter.setStretchFactor(0, 3)
+        self.right_vsplitter.setStretchFactor(1, 3)
 
         self.left_vsplitter = QtWidgets.QSplitter(QtCore.Qt.Vertical)
         self.left_vsplitter.addWidget(self.tmn_list_w)
-        self.left_vsplitter.addWidget(self.quick_info_w)
-        self.left_vsplitter.setStretchFactor(0, 1)
-        self.left_vsplitter.setStretchFactor(1, 1)
+        self.left_vsplitter.addWidget(self.quick_panel_w)
+        self.left_vsplitter.setStretchFactor(0, 5)
+        self.left_vsplitter.setStretchFactor(1, 7)
         self.left_vsplitter.setMinimumWidth(240)
 
         self.main_hsplitter = QtWidgets.QSplitter(QtCore.Qt.Horizontal)
@@ -232,8 +338,41 @@ class MasterWindowUi():
         self.main_hsplitter.setStretchFactor(0, 1)
         self.main_hsplitter.setStretchFactor(1, 3)
 
+        # connect panel
+        self.commu_panel_hbox = QtWidgets.QHBoxLayout()
+        self.commu_panel_hbox.setSpacing(0)
+        self.serial_l = QtWidgets.QLabel()
+        self.serial_l.setText('串口')
+        self.frontend_l = QtWidgets.QLabel()
+        self.frontend_l.setText(' 前置机')
+        self.server_l = QtWidgets.QLabel()
+        self.server_l.setText(' 服务器')
+        self.serial_b = QtWidgets.QPushButton()
+        self.serial_b.setMaximumWidth(20)
+        self.frontend_b = QtWidgets.QPushButton()
+        self.frontend_b.setMaximumWidth(20)
+        self.server_b = QtWidgets.QPushButton()
+        self.server_b.setMaximumWidth(20)
+        self.space_l = QtWidgets.QLabel()
+        self.space_l.setText('|')
+        self.commu_set_b = QtWidgets.QPushButton()
+        self.commu_set_b.setMaximumWidth(40)
+        self.commu_set_b.setText('设置')
+        self.commu_panel_hbox.addStretch(1)
+        self.commu_panel_hbox.addWidget(self.serial_l)
+        self.commu_panel_hbox.addWidget(self.serial_b)
+        self.commu_panel_hbox.addWidget(self.frontend_l)
+        self.commu_panel_hbox.addWidget(self.frontend_b)
+        self.commu_panel_hbox.addWidget(self.server_l)
+        self.commu_panel_hbox.addWidget(self.server_b)
+        self.commu_panel_hbox.addWidget(self.space_l)
+        self.commu_panel_hbox.addWidget(self.commu_set_b)
+        self.commu_panel_hbox.addStretch(1)
+
         self.plaintext_rn = QtWidgets.QCheckBox()
         self.plaintext_rn.setText('明文+随机')
+        self.reply_split_cb = QtWidgets.QCheckBox()
+        self.reply_split_cb.setText('回复分帧')
         self.reply_rpt_cb = QtWidgets.QCheckBox()
         self.reply_rpt_cb.setText('回复上报')
         self.reply_link_cb = QtWidgets.QCheckBox()
@@ -241,10 +380,13 @@ class MasterWindowUi():
         self.always_top_cb = QtWidgets.QCheckBox()
         self.always_top_cb.setText('置顶')
         self.foot_hbox = QtWidgets.QHBoxLayout()
+        self.foot_hbox.addLayout(self.commu_panel_hbox)
+        self.foot_hbox.setContentsMargins(5, 3, 5, 3)
         self.foot_hbox.addStretch(1)
         # self.foot_hbox.addWidget(self.show_dtype_cb)
         # self.foot_hbox.addWidget(self.show_level_cb)
         self.foot_hbox.addWidget(self.plaintext_rn)
+        self.foot_hbox.addWidget(self.reply_split_cb)
         self.foot_hbox.addWidget(self.reply_rpt_cb)
         self.foot_hbox.addWidget(self.reply_link_cb)
         self.foot_hbox.addWidget(self.always_top_cb)
@@ -258,6 +400,26 @@ class MasterWindowUi():
         self.main_widget.setLayout(self.main_vbox)
         self.setCentralWidget(self.main_widget)
         self.resize(1000, 666)
+
+    def add_se_box(self, name):
+        new_se_box = SeMsgBox()
+        self.se_msg_tab.addTab(new_se_box, name)
+        return new_se_box
+
+    def get_current_se_box(self):
+        return self.se_msg_tab.currentWidget()
+
+    def close_current_tab(self):
+        return self.se_msg_tab.removeTab(self.se_msg_tab.currentIndex())
+
+    def set_b_red(self, button):
+        button.setStyleSheet("QPushButton {background-color:#f3c9d3}")
+
+    def set_b_yellow(self, button):
+        button.setStyleSheet("QPushButton {background-color:#fdedba}")
+
+    def set_b_green(self, button):
+        button.setStyleSheet("QPushButton {background-color:#bedac4}")
 
 
 class TransPopDialogUi():
@@ -591,6 +753,17 @@ class RemoteUpdateDialogUI():
         # self.block_size_box.addItem('512字节')
         # self.block_size_box.addItem('1024字节')
 
+        self.retry_label = QtWidgets.QLabel()
+        self.retry_label.setText('重试次数(次):')
+        self.retry_box = QtWidgets.QLineEdit()
+        self.retry_box.setText('3')
+        self.retry_box.setMaximumWidth(50)
+        self.tmout_label = QtWidgets.QLabel()
+        self.tmout_label.setText('超时时间(秒):')
+        self.tmout_box = QtWidgets.QLineEdit()
+        self.tmout_box.setText('10')
+        self.tmout_box.setMaximumWidth(50)
+
         self.file_size_label = QtWidgets.QLabel()
         self.file_size_label.setText('文件大小')
         self.file_size_num_label = QtWidgets.QLabel()
@@ -604,6 +777,9 @@ class RemoteUpdateDialogUI():
         self.start_update_b.setText('开始升级')
         self.stop_update_b = QtWidgets.QPushButton()
         self.stop_update_b.setText('停止')
+
+        self.status_label = QtWidgets.QLabel()
+        self.status_label.setText('请点击开始升级')
 
         self.dummy_l = QtWidgets.QLabel()
         self.remote_update_gbox = QtWidgets.QGridLayout()
@@ -619,17 +795,23 @@ class RemoteUpdateDialogUI():
         self.remote_update_gbox.addWidget(self.block_size_label, 4, 0)
         self.remote_update_gbox.addWidget(self.block_size_box, 4, 1)
 
-        self.remote_update_gbox.addWidget(self.dummy_l, 5, 0)
+        self.remote_update_gbox.addWidget(self.tmout_label, 6, 0)
+        self.remote_update_gbox.addWidget(self.tmout_box, 6, 1)
 
-        self.remote_update_gbox.addWidget(self.file_size_label, 6, 0)
-        self.remote_update_gbox.addWidget(self.file_size_num_label, 6, 1)
-        self.remote_update_gbox.addWidget(self.block_label, 6, 3)
-        self.remote_update_gbox.addWidget(self.block_num_label, 6, 4)
+        self.remote_update_gbox.addWidget(self.retry_label, 8, 0)
+        self.remote_update_gbox.addWidget(self.retry_box, 8, 1)
 
-        self.remote_update_gbox.addWidget(self.dummy_l, 7, 0)
+        self.remote_update_gbox.addWidget(self.file_size_label, 10, 0)
+        self.remote_update_gbox.addWidget(self.file_size_num_label, 10, 1)
+        self.remote_update_gbox.addWidget(self.block_label, 10, 3)
+        self.remote_update_gbox.addWidget(self.block_num_label, 10, 4)
 
-        self.remote_update_gbox.addWidget(self.start_update_b, 8, 0, 1, 4)
-        self.remote_update_gbox.addWidget(self.stop_update_b, 8, 4)
+        self.remote_update_gbox.addWidget(self.dummy_l, 11, 0)
+
+        self.remote_update_gbox.addWidget(self.start_update_b, 12, 0, 1, 4)
+        self.remote_update_gbox.addWidget(self.stop_update_b, 12, 4)
+
+        self.remote_update_gbox.addWidget(self.status_label, 13, 0, 1, 5)
         self.setLayout(self.remote_update_gbox)
 
 
