@@ -230,14 +230,14 @@ class MasterWindow(QtWidgets.QMainWindow, MasterWindowUi):
             self.se_collection_cbox.clear()
             self.se_collection_cbox.addItems(self.collec.get_name_list())
             self.se_collection_cbox.addItems(['刷新', '自定义'])
-            completer = QtGui.QCompleter(self.collec.get_name_list())
-            completer.setCompletionMode(QtGui.QCompleter.PopupCompletion)
+            completer = QtWidgets.QCompleter(self.collec.get_name_list())
+            completer.setCompletionMode(QtWidgets.QCompleter.PopupCompletion)
             self.se_collection_cbox.setCompleter(completer)
         elif select in ['自定义']:
             self.collec.open_collection_file()
         else:
             self.get_current_se_box().setPlainText(self.collec.get_msg(select))
-        self.se_collection_cbox.setCurrentIndex(-1)
+        # self.se_collection_cbox.setCurrentIndex(-1) #这句话在qt5/4中有不同效果
 
 
     def update_infol(self):
