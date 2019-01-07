@@ -237,7 +237,7 @@ class MasterWindow(QtWidgets.QMainWindow, MasterWindowUi):
             self.collec.open_collection_file()
         else:
             self.get_current_se_box().setPlainText(self.collec.get_msg(select))
-        # self.se_collection_cbox.setCurrentIndex(-1) #这句话在qt5/4中有不同效果
+        # self.se_collection_cbox.setCurrentIndex(-1) #qt5 执行这句话之后会再次产生信号, 索引不匹配
 
 
     def update_infol(self):
