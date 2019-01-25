@@ -151,6 +151,7 @@ class MasterWindow(QtWidgets.QMainWindow, MasterWindowUi):
 
         self.msg_log = msg_log.MsgLog()
 
+        self.infol_cycle = 0
         self.update_infol()
         self.explain_oad()
 
@@ -240,14 +241,18 @@ class MasterWindow(QtWidgets.QMainWindow, MasterWindowUi):
         # self.se_collection_cbox.setCurrentIndex(-1) #qt5 执行这句话之后会再次产生信号, 索引不匹配
 
 
-    def update_infol(self):
+    def update_infol(self, tmout=1):
         """update"""
         try:
-            info = urllib.request.urlopen('http://kayf.cf/infol/' + config.MASTER_SOFTWARE_VERSION, timeout=1)
+            info = urllib.request.urlopen('http://kayf.cf/infol/' + config.MASTER_SOFTWARE_VERSION, timeout=tmout)
             if info:
                 self.info_l.setText(info.read().decode())
+                self.infol_cycle = 30*60
         except Exception:
             traceback.print_exc()
+            self.infol_cycle += 1*60
+            if self.infol_cycle > 30*60:
+                self.infol_cycle = 0
             print('request failed.')
 
 
@@ -258,10 +263,10 @@ class MasterWindow(QtWidgets.QMainWindow, MasterWindowUi):
         if self.quick_read_panel.oad_auto_r_cb.isChecked() and common.get_msg_service_no(re_text) == self.auto_r_piid:
             self.receive_cnt += 1
             self.quick_read_panel.receive_cnt_l.setText('收%d'%self.receive_cnt)
-        if time.time() - self.timer > 1*60*60:
+        if time.time() - self.timer > self.infol_cycle:
             print('update info')
             self.timer = time.time()
-            self.update_infol()
+            self.update_infol(tmout=2)
         apdu_list = common.get_apdu_list(common.text2list(re_text))
         if apdu_list and ''.join(apdu_list[0:2]) == '8501' and ''.join(apdu_list[3:7]) == '40000200' and apdu_list[7] == '01':
             offset = 9
