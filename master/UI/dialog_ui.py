@@ -489,7 +489,7 @@ class RemoteUpdateDialog(QtGui.QDialog, ui_setup.RemoteUpdateDialogUI):
             text_list = [file_text[x: x + block_size*2] for x in range(0, len(file_text), block_size*2)]
             for block_no, block_text in enumerate(text_list):
                 # print('block:', block_no)
-                send_len = len(block_text)/2
+                send_len = (int)(len(block_text)/2)
                 self.service_no = config.SERVICE.get_service_no()
                 send_apdu_text = '0701{piid:02X} f0010800 0202 12{blockno:04X} 09'\
                                     .format(piid=self.service_no, blockno=block_no)\

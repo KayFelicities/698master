@@ -400,6 +400,7 @@ class ParamWindow(QtGui.QMainWindow, QtGui.QWidget, Ui_ParamWindow):
 
 
     def re_esam_info(self, re_text):
+        res_sum = True
         m_data = common.text2list(re_text)
         data = common.get_apdu_list(m_data)
         offset = common.list2text(data).replace(' ', '').find('F1000200') // 2 + 4

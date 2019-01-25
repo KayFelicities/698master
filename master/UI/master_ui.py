@@ -544,7 +544,10 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
 
     def trans_row(self, row):
          """translate row massage"""
-         self.msg_now = self.msg_table.item(row, 4).text()
+         if self.msg_table.item(row, 4) is None: # fixme: 这里会出现None
+             self.msg_now = ''
+         else:
+            self.msg_now = self.msg_table.item(row, 4).text()
          self.trans_se_msg()
          self.se_msg_tab.setEnabled(False)
          self.se_send_b.setEnabled(False)
