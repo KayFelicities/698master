@@ -10,6 +10,7 @@ class Translate():
     def __init__(self, m_text):
         """init"""
         self.is_full_msg = True
+        self.is_linklayer_sep = False
         self.trans_res = commonfun.TransRes()
         self.source_msg = commonfun.format_text(m_text)
         m_list = commonfun.text2list(m_text)
@@ -23,7 +24,12 @@ class Translate():
         try:
             if m_list[0] == '68':
                 offset += linklayer_do.take_linklayer1(m_list[offset:], self.trans_res)
-                offset += applayer_do.take_applayer(m_list[offset:], self.trans_res)
+                if (int(m_list[3], 16) >> 5) & 0x01 == 1: #linklayer sep
+                    self.is_linklayer_sep = True
+                    self.trans_res.add_row(m_list[offset : len(m_list) - 3], '链路层分帧片段', '', ''.join(m_list[offset : len(m_list) - 3]), priority=1)
+                    offset = len(m_list) - 3
+                else:
+                    offset += applayer_do.take_applayer(m_list[offset:], self.trans_res)
                 offset += linklayer_do.take_linklayer2(m_list[:], offset, self.trans_res)
                 self.is_full_msg = True
             else:
@@ -225,7 +231,7 @@ class Translate():
         """get_piid"""
         return commonfun.list2text(list(filter(lambda row: row['dtype'] in ['PIID', 'PIID_ACD']\
                             , self.res_list))[0]['m_list']).replace(' ', '')
-
+    
     def get_raw_msg(self, brief):
         """get_raw_msg"""
         return commonfun.list2text(list(filter(lambda row: row['brief'].strip() == brief.strip()\
@@ -238,6 +244,9 @@ class Translate():
         """get brief translate"""
         if not self.is_success:
             return '无效报文'
+        
+        if self.is_linklayer_sep:
+            return '链路层分帧报文'
 
         brief = {}
         if not self.is_access_successed:

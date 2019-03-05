@@ -5,7 +5,7 @@ import master.trans.common as commonfun
 def take_linklayer1(m_list, trans_res):
     """translate linklayer"""
     offset = 0
-    trans_res.add_row(m_list[offset : offset+1], '帧起始符', value=86, priority=0)
+    trans_res.add_row(m_list[offset : offset+1], '帧起始符', value=68, priority=0)
     offset += 1
     link_length = int(m_list[offset + 1] + m_list[offset], 16)
     if link_length == len(m_list) - 2:
@@ -75,7 +75,7 @@ def take_linklayer1(m_list, trans_res):
 
     # 分帧
     if frame_separation_flag == 1:
-        frame_separation = int(m_list[offset] + m_list[offset + 1], 16)
+        frame_separation = int(m_list[offset + 1] + m_list[offset], 16)
         frame_separation_seq = frame_separation & 0x3f
         frame_separation_type = {
             0: '(起始帧)',
@@ -83,7 +83,7 @@ def take_linklayer1(m_list, trans_res):
             2: '(确认帧)',
             3: '(中间帧)',
         }.get(frame_separation >> 14, '错误')
-        trans_res.add_row(m_list[offset: offset+2], '分帧序号', str(frame_separation_seq) + frame_separation_type, priority=0)
+        trans_res.add_row(m_list[offset: offset+2], '分帧序号', '', str(frame_separation_seq) + frame_separation_type, priority=0)
         offset += 2
     return offset
 
