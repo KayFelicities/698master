@@ -3,12 +3,16 @@ import traceback
 import master.trans.common as commonfun
 import master.trans.linklayer as linklayer_do
 import master.trans.service as applayer_do
+import master.trans.SSALlayer as SSAL_do
+import master.trans.SSALservice as SSALapp_do
 from master import config
 
 class Translate():
     """translate class"""
     def __init__(self, m_text):
         """init"""
+        self.is_ssal = False
+        self.is_empty_ssal = False
         self.is_full_msg = True
         self.is_linklayer_sep = False
         self.trans_res = commonfun.TransRes()
@@ -22,7 +26,13 @@ class Translate():
         """translate all messages"""
         offset = 0
         try:
-            if m_list[0] == '68':
+            if m_list[0] == '98':
+                self.is_ssal = True
+                self.is_full_msg = True
+                offset += SSAL_do.take_ssal_head(m_list[offset:], self.trans_res)
+                offset += SSALapp_do.take_ssal_app(m_list[offset:-3], int(m_list[7], 16), self.trans_res)
+                offset += SSAL_do.take_ssal_tail(m_list[:], offset, self.trans_res)
+            elif m_list[0] == '68':
                 offset += linklayer_do.take_linklayer1(m_list[offset:], self.trans_res)
                 if (int(m_list[3], 16) >> 5) & 0x01 == 1: #linklayer sep
                     self.is_linklayer_sep = True
@@ -83,7 +93,7 @@ class Translate():
                 res_text = '报文解析过程出现问题，请检查报文。若报文无问题请反馈665593，谢谢！\n\n'
         temp_row = None
         for row in self.res_list:
-            if not has_linklayer and row['priority'] == 0:
+            if not has_linklayer and row['priority'] <= 0:
                 continue
             if row['dtype'] in ['Data']:
                 temp_row = row
@@ -131,7 +141,7 @@ class Translate():
         res_text = '' if self.is_success else '\n\n'
         temp_row = None
         for row in self.res_list:
-            if not has_linklayer and row['priority'] == 0:
+            if not has_linklayer and row['priority'] <= 0:
                 continue
             if row['dtype'] in ['Data']:
                 temp_row = row
@@ -149,7 +159,7 @@ class Translate():
         res_text = '' if self.is_success else '<p style="color: red">报文解析过程出现问题，请检查报文。若报文无问题请反馈665593，谢谢！</p><p> </p>'
         temp_row = None
         for row in self.res_list:
-            if not has_linklayer and row['priority'] == 0:
+            if not has_linklayer and row['priority'] <= 0:
                 continue
             if row['dtype'] in ['Data']:
                 temp_row = row
@@ -238,8 +248,6 @@ class Translate():
                             , self.res_list))[0]['m_list']).replace(' ', '').strip()
 
 
-
-
     def get_brief(self):
         """get brief translate"""
         if not self.is_success:
@@ -255,8 +263,15 @@ class Translate():
         depth0_list = [row for row in self.res_list if row['depth'] == 0]
         depth1_list = [row for row in self.res_list if row['depth'] == 1]
         depth2_list = [row for row in self.res_list if row['depth'] == 2]
-        service_type = commonfun.list2text(list(filter(lambda row: row['dtype'] == 'service'\
-                                                        , depth0_list))[0]['m_list'])
+        try:
+            service_type = commonfun.list2text(list(filter(lambda row: row['dtype'] == 'service'\
+                                                            , depth0_list))[0]['m_list'])
+        except IndexError:
+            if self.is_ssal:
+                return 'SSAL报文'
+            else:
+                return '错误报文'
+
         if service_type[1] == '8':
             brief['dir'] = '应答' if service_type[0] == '0' else '主动'
         else:
