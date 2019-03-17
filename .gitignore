@@ -55,3 +55,4 @@ master/datas/topyc.py
 !master/datas/k_data.pyc
 
 .idea
+/__pycache__
