@@ -244,7 +244,7 @@ class MasterWindow(QtWidgets.QMainWindow, MasterWindowUi):
     def update_infol(self, tmout=1):
         """update"""
         try:
-            info = urllib.request.urlopen('http://kayf.cf/infol/' + config.MASTER_SOFTWARE_VERSION, timeout=tmout)
+            info = urllib.request.urlopen('http://65.49.212.36/infol/' + config.MASTER_SOFTWARE_VERSION, timeout=tmout)
             if info:
                 self.info_l.setText(info.read().decode())
                 self.infol_cycle = 30*60

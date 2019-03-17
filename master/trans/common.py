@@ -34,6 +34,9 @@ def format_text(m_text, separator=' '):
     """format"""
     return list2text(text2list(m_text), separator=separator)
 
+def is_bit(value:'int > 0', bit:'int > 0'):
+    """chk bit """
+    return True if (value >> bit) & 1 else False
 
 def chk_format(m_list):
     """chk format"""

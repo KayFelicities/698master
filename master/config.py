@@ -3,8 +3,8 @@ import os
 import sys
 
 
-MASTER_SOFTWARE_VERSION = 'V5.6Beta14'
-MASTER_SOFTWARE_DT = '2019.01'
+MASTER_SOFTWARE_VERSION = 'V5.6Beta17'
+MASTER_SOFTWARE_DT = '2019.03'
 MASTER_WINDOW_TITLE_ADD = '_%s(%s)'%(MASTER_SOFTWARE_VERSION, MASTER_SOFTWARE_DT)
 MASTER_ICO_PATH = 'imgs/698_v5_b.png'
 TRANS_SOFTWARE_VERSION = MASTER_SOFTWARE_VERSION
@@ -21,7 +21,7 @@ COMMU = None
 
 K_DATA = None
 
-M_PRIORITY_COLOR = {0: 'grey', 1: 'black', 2: 'blue', 3: 'red'}
+M_PRIORITY_COLOR = {-1: 'green', 0: 'grey', 1: 'black', 2: 'blue', 3: 'red'}
 
 MSG_TABLE_ROW_MAX = 256
 
