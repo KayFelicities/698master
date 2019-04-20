@@ -8,15 +8,12 @@ else:
 
 class LineNumberArea(QtWidgets.QWidget):
 
-
     def __init__(self, editor):
         super().__init__(editor)
         self.myeditor = editor
 
-
     def sizeHint(self):
         return QtCore.Qsize(self.editor.lineNumberAreaWidth(), 0)
-
 
     def paintEvent(self, event):
         self.myeditor.lineNumberAreaPaintEvent(event)
@@ -39,7 +36,6 @@ class CodeEditor(QtWidgets.QPlainTextEdit):
 
         self.font_size = 9
 
-
     def lineNumberAreaWidth(self):
         digits = 1
         count = max(1, self.blockCount())
@@ -49,10 +45,8 @@ class CodeEditor(QtWidgets.QPlainTextEdit):
         space = 3 + self.fontMetrics().width('9') * digits
         return space
 
-
     def updateLineNumberAreaWidth(self, _):
         self.setViewportMargins(self.lineNumberAreaWidth(), 0, 0, 0)
-
 
     def updateLineNumberArea(self, rect, dy):
 
@@ -65,14 +59,12 @@ class CodeEditor(QtWidgets.QPlainTextEdit):
         if rect.contains(self.viewport().rect()):
             self.updateLineNumberAreaWidth(0)
 
-
     def resizeEvent(self, event):
         super().resizeEvent(event)
 
         cr = self.contentsRect();
         self.lineNumberArea.setGeometry(QtCore.QRect(cr.left(), cr.top(),
                     self.lineNumberAreaWidth(), cr.height()))
-
 
     def lineNumberAreaPaintEvent(self, event):
         mypainter = QtGui.QPainter(self.lineNumberArea)
@@ -97,7 +89,6 @@ class CodeEditor(QtWidgets.QPlainTextEdit):
             bottom = top + self.blockBoundingRect(block).height()
             blockNumber += 1
 
-
     def highlightCurrentLine(self):
         extraSelections = []
 
@@ -113,25 +104,21 @@ class CodeEditor(QtWidgets.QPlainTextEdit):
             extraSelections.append(selection)
         self.setExtraSelections(extraSelections)
 
-
     def set_font_size(self, font_size):
         """set font size"""
         self.font_size = font_size
         font = QtGui.QFont("Courier", self.font_size)
         self.setFont(font)
 
-
     def get_font_size(self):
         """get font size"""
         return self.font_size
-
 
     def zoomOut(self):
         """change font"""
         self.font_size = max(self.font_size - 1, 1)
         font = QtGui.QFont("Courier", self.font_size)
         self.setFont(font)
-
 
     def zoomIn(self):
         """change font"""

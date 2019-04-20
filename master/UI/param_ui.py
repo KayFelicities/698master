@@ -43,7 +43,7 @@ class ParamWindow(QtWidgets.QMainWindow, Ui_ParamWindow):
         self.rpt_set_b.clicked.connect(self.rpt_set)
 
         self.setWindowTitle('常用命令')
-        self.setWindowIcon(QtGui.QIcon(os.path.join(config.SORTWARE_PATH, config.MASTER_ICO_PATH)))
+        self.setWindowIcon(QtGui.QIcon(os.path.join(config.SOFTWARE_PATH, config.MASTER_ICO_PATH)))
         self.label_22.setText("无线公网IP")
         self.label_23.setText("端口")
         self.label_134.setText("以太网IP")

@@ -134,7 +134,7 @@ class MasterWindow(QtWidgets.QMainWindow, MasterWindowUi):
                             self.add_tmn_table_row('000000000001', 0, 1, is_checked=True))
         self.tmn_table_clr_b.clicked.connect(lambda: self.clr_table(self.tmn_table))
 
-        qss_file = open(os.path.join(config.SORTWARE_PATH, 'styles/white_blue.qss')).read()
+        qss_file = open(os.path.join(config.SOFTWARE_PATH, 'styles/white_blue.qss')).read()
         self.setStyleSheet(qss_file)
         self.pop_dialog = dialog_ui.TransPopDialog()
         self.pop_dialog.setStyleSheet(qss_file)

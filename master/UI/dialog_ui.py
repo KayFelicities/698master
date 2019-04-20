@@ -33,7 +33,6 @@ class TransPopDialog(QtWidgets.QDialog, ui_setup.TransPopDialogUi):
         self.always_top_cb.stateChanged.connect(self.set_always_top)
         self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint if self.always_top_cb.isChecked() else QtCore.Qt.Widget)
 
-
     def trans_msg(self):
         """translate"""
         msg_text = self.msg_box.toPlainText()
@@ -59,7 +58,7 @@ class CommuDialog(QtWidgets.QDialog, ui_setup.CommuDialogUi):
     def __init__(self):
         super(CommuDialog, self).__init__()
         if config.IS_USE_PYSIDE:
-            self.setup_ui() # fixme: CommuDialogUi中已经默认setup_ui了这里可以不用设置
+            self.setup_ui()  # fixme: CommuDialogUi中已经默认setup_ui了这里可以不用设置
         self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
 
         self.master_addr_change_b.clicked.connect(lambda: self.master_addr_box.setText('%02X'%random.randint(0, 255)))
@@ -662,7 +661,6 @@ class GetSetServiceDialog(QtWidgets.QDialog, ui_setup.GetSetServiceDialogUI):
         config.MASTER_WINDOW.se_apdu_signal.emit(apdu_text)
         config.MASTER_WINDOW.receive_signal.connect(self.re_msg)
 
-
     def re_msg(self, re_text):
         """recieve text"""
         if self.service_no != common.get_msg_service_no(re_text):
@@ -682,12 +680,10 @@ class GetSetServiceDialog(QtWidgets.QDialog, ui_setup.GetSetServiceDialogUI):
         loadtype.data2table(re_data_list, self.re_table)
         config.MASTER_WINDOW.receive_signal.disconnect(self.re_msg)
 
-
     def clr_re_table(self):
         """clear re msg table"""
         for _ in range(self.re_table.rowCount()):
             self.re_table.removeRow(0)
-
 
     def set_always_top(self):
         """set_always_top"""
@@ -702,8 +698,8 @@ class GetSetServiceDialog(QtWidgets.QDialog, ui_setup.GetSetServiceDialogUI):
 
 
 if __name__ == '__main__':
-    APP = QtGui.QApplication(sys.argv)
+    APP = QtWidgets.QApplication(sys.argv)
     dialog = RemoteUpdateDialog()
     dialog.show()
     APP.exec_()
-    os._exit(0)
+    sys.exit(0)

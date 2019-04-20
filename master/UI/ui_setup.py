@@ -19,9 +19,9 @@ class SeMsgBox(QtWidgets.QTextEdit):
     def set_save_msg(self, msg):
         self.save_msg = msg
 
-    
     def get_save_msg(self):
         return self.save_msg
+
 
 class QuickReadTab(QtWidgets.QWidget):
     """QuickReadTab"""
@@ -113,8 +113,6 @@ class QuickSetTime(QtWidgets.QWidget):
         vbox.addStretch(1)
 
 
-
-
 class MasterWindowUi():
     """ApduDiyDialogUi"""
     def __init__(self):
@@ -123,7 +121,7 @@ class MasterWindowUi():
     def setup_ui(self):
         """set layout"""
         self.setWindowTitle('698后台_{ver}'.format(ver=config.MASTER_WINDOW_TITLE_ADD))
-        self.setWindowIcon(QtGui.QIcon(os.path.join(config.SORTWARE_PATH, config.MASTER_ICO_PATH)))
+        self.setWindowIcon(QtGui.QIcon(os.path.join(config.SOFTWARE_PATH, config.MASTER_ICO_PATH)))
         self.menubar = self.menuBar()
 
         self.link_action = QtWidgets.QAction('通信设置', self)
@@ -431,7 +429,7 @@ class TransPopDialogUi():
         """set layout"""
         # self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         self.setWindowTitle('详细解析')
-        self.setWindowIcon(QtGui.QIcon(os.path.join(config.SORTWARE_PATH, config.MASTER_ICO_PATH)))
+        self.setWindowIcon(QtGui.QIcon(os.path.join(config.SOFTWARE_PATH, config.MASTER_ICO_PATH)))
         self.msg_box = QtWidgets.QPlainTextEdit()
         self.explain_box = QtWidgets.QTextEdit()
         self.splitter = QtWidgets.QSplitter(QtCore.Qt.Vertical)
@@ -469,7 +467,7 @@ class CommuDialogUi():
     def setup_ui(self):
         """set layout"""
         self.setWindowTitle('通信控制面板')
-        self.setWindowIcon(QtGui.QIcon(os.path.join(config.SORTWARE_PATH, config.MASTER_ICO_PATH)))
+        self.setWindowIcon(QtGui.QIcon(os.path.join(config.SOFTWARE_PATH, config.MASTER_ICO_PATH)))
         self.master_addr_l = QtWidgets.QLabel()
         self.master_addr_l.setText('主站地址：')
         self.master_addr_box = QtWidgets.QLineEdit()
@@ -558,7 +556,7 @@ class ApduDiyDialogUi():
         """set layout"""
         # self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         self.setWindowTitle('自定义APDU')
-        self.setWindowIcon(QtGui.QIcon(os.path.join(config.SORTWARE_PATH, config.MASTER_ICO_PATH)))
+        self.setWindowIcon(QtGui.QIcon(os.path.join(config.SOFTWARE_PATH, config.MASTER_ICO_PATH)))
 
         self.se_clr_b = QtWidgets.QPushButton()
         self.se_clr_b.setText('清空')
@@ -642,7 +640,7 @@ class MsgDiyDialogUi():
         """set layout"""
         # self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         self.setWindowTitle('自定义报文')
-        self.setWindowIcon(QtGui.QIcon(os.path.join(config.SORTWARE_PATH, config.MASTER_ICO_PATH)))
+        self.setWindowIcon(QtGui.QIcon(os.path.join(config.SOFTWARE_PATH, config.MASTER_ICO_PATH)))
 
         self.se_clr_b = QtWidgets.QPushButton()
         self.se_clr_b.setText('清空')
@@ -732,7 +730,7 @@ class RemoteUpdateDialogUI():
     def setup_ui(self):
         """set layout"""
         self.setWindowTitle('远程文件升级')
-        self.setWindowIcon(QtGui.QIcon(os.path.join(config.SORTWARE_PATH, config.MASTER_ICO_PATH)))
+        self.setWindowIcon(QtGui.QIcon(os.path.join(config.SOFTWARE_PATH, config.MASTER_ICO_PATH)))
 
         self.file_label = QtWidgets.QLabel()
         self.file_label.setText('文件:')
@@ -824,7 +822,7 @@ class GetSetServiceDialogUI():
         """set layout"""
         # self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         self.setWindowTitle('Get/Set Service')
-        self.setWindowIcon(QtGui.QIcon(os.path.join(config.SORTWARE_PATH, config.MASTER_ICO_PATH)))
+        self.setWindowIcon(QtGui.QIcon(os.path.join(config.SOFTWARE_PATH, config.MASTER_ICO_PATH)))
 
         self.object_table_w = QtWidgets.QWidget()
         self.object_table_vbox = QtWidgets.QVBoxLayout(self.object_table_w)

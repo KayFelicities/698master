@@ -3,6 +3,7 @@ import master.trans.common as commonfun
 
 SSAL_PRIORITY = -1
 
+
 def take_ssal_head(m_list, trans_res):
     """translate ssal head"""
     offset = 0
@@ -17,7 +18,7 @@ def take_ssal_head(m_list, trans_res):
                       link_length, '字节' + length_check, priority=SSAL_PRIORITY)
     offset += 2
 
-    #seq
+    # seq
     seq = int(m_list[offset + 1] + m_list[offset], 16)
     trans_res.add_row(m_list[offset : offset+2], '帧序号', 'SEQ', seq, '', priority=SSAL_PRIORITY)
     offset += 2

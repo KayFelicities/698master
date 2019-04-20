@@ -25,7 +25,8 @@ M_PRIORITY_COLOR = {-1: 'green', 0: 'grey', 1: 'black', 2: 'blue', 3: 'red'}
 
 MSG_TABLE_ROW_MAX = 256
 
-class Service():
+
+class Service:
     """service class"""
     def __init__(self):
         self.service_no = 0
@@ -36,6 +37,8 @@ class Service():
         if self.service_no >= 64:
             self.service_no = 1
         return self.service_no
+
+
 SERVICE = Service()
 
 CONFIG_DIR = os.path.join(os.path.expanduser('~'), '.698master/')
@@ -51,6 +54,6 @@ RUN_EXE_PATH = ''
 LOG_PATH = ''
 
 if getattr(sys, 'frozen', False):
-    SORTWARE_PATH = sys._MEIPASS
+    SOFTWARE_PATH = sys._MEIPASS
 else:
-    SORTWARE_PATH = os.path.join(os.path.split(os.path.realpath(__file__))[0], '..')
+    SOFTWARE_PATH = os.path.join(os.path.split(os.path.realpath(__file__))[0], '..')

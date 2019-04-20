@@ -21,7 +21,7 @@ class TransWindow(QtWidgets.QMainWindow, TransWindowUi):
 
     def __init__(self):
         super(TransWindow, self).__init__()
-        qss_file = open(os.path.join(config.SORTWARE_PATH, 'styles/white_blue.qss')).read()
+        qss_file = open(os.path.join(config.SOFTWARE_PATH, 'styles/white_blue.qss')).read()
         self.setStyleSheet(qss_file)
         if config.IS_USE_PYSIDE:
             self.setup_ui()
@@ -355,8 +355,8 @@ class TransWindow(QtWidgets.QMainWindow, TransWindowUi):
 
 
 if __name__ == '__main__':
-    APP = QtGui.QApplication(sys.argv)
+    APP = QtWidgets.QApplication(sys.argv)
     dialog = TransWindow()
     dialog.show()
     APP.exec_()
-    os._exit(0)
+    sys.exit(0)

@@ -1082,7 +1082,6 @@ class Data698():
         for row in oi_table:
             self.oi_list.append(obj._make(row))
 
-
     def get_structure(self, type, oad_omd_text):
         """format: [(brief, type, {link dict}, [link structure]),]"""
         am_type = '属性' if type.strip() in ['oad', 'OAD'] else '方法'
@@ -1233,7 +1232,6 @@ class Data698():
         print('structure_list:', structure_list)
         return structure_list
 
-
     def __get_explain(self, type, oad_omd_text):
         """get oad explain, return dict"""
         am_type = '属性' if type.strip() in ['oad', 'OAD'] else '方法'
@@ -1279,12 +1277,9 @@ class Data698():
 
         return {'oi': oi_explain, 'am': am_explain, 'index': index_explain}
 
-
-
     def get_oi_explain(self, oi_text):
         """get oad explain"""
         return self.__get_explain('oad', oi_text + '0100').get('oi', '未定义')
-
 
     def get_oad_explain(self, oad_text):
         """get oad explain"""
@@ -1296,13 +1291,11 @@ class Data698():
             ret = '未定义'
         return ret
 
-
     def get_omd_explain(self, omd_text):
         """get omd explain"""
         explain = self.__get_explain('omd', omd_text)
         return explain.get('oi', '') + explain.get('am', '')\
                 + explain.get('index', '') if explain else '未定义'
-
 
     def get_rcsd_structure(self, m_list):
         """get rcsd structure"""
@@ -1331,7 +1324,6 @@ class Data698():
                 return []
         return rcsd_structure
 
-
     def get_class_oi(self, class_text):
         """get class oi"""
         oi_list = []
@@ -1341,7 +1333,6 @@ class Data698():
                 oi_list.append(row.oi + ' ' + row.oi_name)
                 last_oi = row.oi
         return oi_list
-
 
     def get_oi_attr(self, oi_text):
         """get_oi_attr"""
@@ -1365,7 +1356,6 @@ class Data698():
                         attr_list.append(ic_r.am_no + ' ' + ic_r.am_name)
                         break
         return attr_list
-
 
 
 if __name__ == '__main__':

@@ -125,4 +125,3 @@ def add_linkLayer(apdu_list, CA_text='00', SA_text='00000001', logic_addr=0, SA_
     fcs_calc = ((fcs_calc << 8) | (fcs_calc >> 8)) & 0xffff  # 低位在前
 
     return commonfun.format_text('68' + fcs_calc_aera_text + '{0:04X}'.format(fcs_calc) + '16')
-

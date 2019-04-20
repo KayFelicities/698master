@@ -22,9 +22,11 @@ BASE_CLASS = [
     '显示类',
 ]
 
+
 def get_favorite_oi():
     """['oi explain', ...]"""
     return FAVORITE_OI
+
 
 def get_base_class():
     """['class1', 'class2', ...]"""
