@@ -14,7 +14,7 @@ from master.datas import service_data
 from master.trans import loadtype
 from master.others import master_config
 if config.IS_USE_PYSIDE:
-    from PySide import QtGui, QtCore
+    from PySide2 import QtCore, QtWidgets
 else:
     from PyQt5 import QtCore, QtWidgets
 
@@ -23,7 +23,8 @@ class TransPopDialog(QtWidgets.QDialog, ui_setup.TransPopDialogUi):
     """translate window"""
     def __init__(self):
         super(TransPopDialog, self).__init__()
-        # self.setup_ui()
+        if config.IS_USE_PYSIDE:
+            self.setup_ui()
         self.show_level_cb.setChecked(True)
 
         self.msg_box.textChanged.connect(self.trans_msg)
@@ -57,7 +58,8 @@ class CommuDialog(QtWidgets.QDialog, ui_setup.CommuDialogUi):
     """communication config window"""
     def __init__(self):
         super(CommuDialog, self).__init__()
-        # self.setup_ui() # fixme: CommuDialogUi中已经默认setup_ui了这里可以不用设置
+        if config.IS_USE_PYSIDE:
+            self.setup_ui() # fixme: CommuDialogUi中已经默认setup_ui了这里可以不用设置
         self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
 
         self.master_addr_change_b.clicked.connect(lambda: self.master_addr_box.setText('%02X'%random.randint(0, 255)))
@@ -197,7 +199,8 @@ class ApduDiyDialog(QtWidgets.QDialog, ui_setup.ApduDiyDialogUi):
     """apdu DIY dialog class"""
     def __init__(self):
         super(ApduDiyDialog, self).__init__()
-        # self.setup_ui()
+        if config.IS_USE_PYSIDE:
+            self.setup_ui()
 
         self.send_b.setEnabled(False)
         self.chk_valid_cb.setChecked(True)
@@ -279,7 +282,8 @@ class MsgDiyDialog(QtWidgets.QDialog, ui_setup.MsgDiyDialogUi):
     """apdu DIY dialog class"""
     def __init__(self):
         super(MsgDiyDialog, self).__init__()
-        # self.setup_ui()
+        if config.IS_USE_PYSIDE:
+            self.setup_ui()
 
         self.send_b.setEnabled(False)
         self.chk_valid_cb.setChecked(True)
@@ -350,7 +354,8 @@ class RemoteUpdateDialog(QtWidgets.QDialog, ui_setup.RemoteUpdateDialogUI):
     update_signal = QtCore.Signal(int, int) if config.IS_USE_PYSIDE else QtCore.pyqtSignal(int, int)
     def __init__(self):
         super(RemoteUpdateDialog, self).__init__()
-        # self.setup_ui()
+        if config.IS_USE_PYSIDE:
+            self.setup_ui()
         self.setAcceptDrops(True)
         self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
         # self.setAttribute(QtCore.Qt.WA_DeleteOnClose)

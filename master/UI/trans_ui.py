@@ -9,7 +9,7 @@ from master.trans.translate import Translate
 from master.others import master_config
 from master import config
 if config.IS_USE_PYSIDE:
-    from PySide import QtGui, QtCore
+    from PySide2 import QtGui, QtCore, QtWidgets
 else:
     from PyQt5 import QtGui, QtCore, QtWidgets
 
@@ -23,7 +23,8 @@ class TransWindow(QtWidgets.QMainWindow, TransWindowUi):
         super(TransWindow, self).__init__()
         qss_file = open(os.path.join(config.SORTWARE_PATH, 'styles/white_blue.qss')).read()
         self.setStyleSheet(qss_file)
-        # self.setup_ui()
+        if config.IS_USE_PYSIDE:
+            self.setup_ui()
         self.proc_bar.setVisible(False)
         self.show_level_cb.setChecked(True)
         self.auto_wrap_cb.setChecked(False)

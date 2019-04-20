@@ -8,7 +8,7 @@ from master.commu import communication
 from master import config
 from master.datas import k_data_s
 if config.IS_USE_PYSIDE:
-    from PySide import QtGui
+    from PySide2 import QtWidgets
 else:
     from PyQt5 import QtWidgets
 
@@ -25,6 +25,7 @@ def main():
     config.MASTER_WINDOW.show_commu_window()
     APP.exec_()
     os._exit(0)
+
 
 if __name__ == "__main__":
     main()

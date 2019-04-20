@@ -18,7 +18,7 @@ from master.datas import collection
 from master.others import msg_log
 from master.others import master_config
 if config.IS_USE_PYSIDE:
-    from PySide import QtGui, QtCore
+    from PySide2 import QtGui, QtCore, QtWidgets
 else:
     from PyQt5 import QtGui, QtCore, QtWidgets
 
@@ -31,7 +31,8 @@ class MasterWindow(QtWidgets.QMainWindow, MasterWindowUi):
 
     def __init__(self):
         super(MasterWindow, self).__init__()
-        # self.setup_ui()
+        if config.IS_USE_PYSIDE:
+            self.setup_ui()
         # self.show_linklayer_cb.setVisible(False)
         self.show_level_cb.setVisible(False)
         self.plaintext_rn.setChecked(False)

@@ -6,7 +6,7 @@ from master.UI.param_window import Ui_ParamWindow
 from master.UI import param
 from master.datas import base_data
 if config.IS_USE_PYSIDE:
-    from PySide import QtGui, QtCore
+    from PySide2 import QtGui, QtCore, QtWidgets
 else:
     from PyQt5 import QtGui, QtCore, QtWidgets
 

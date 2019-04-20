@@ -3,7 +3,7 @@ import os
 import sys
 from master import config
 if config.IS_USE_PYSIDE:
-    from PySide import QtGui, QtCore
+    from PySide2 import QtGui, QtCore, QtWidgets
 else:
     from PyQt5 import QtGui, QtCore, QtWidgets
 

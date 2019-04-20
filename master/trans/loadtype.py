@@ -1,7 +1,7 @@
 """load type"""
 from master import config
 if config.IS_USE_PYSIDE:
-    from PySide import QtGui, QtCore
+    from PySide2 import QtCore, QtWidgets
 else:
     from PyQt5 import QtCore, QtWidgets
 

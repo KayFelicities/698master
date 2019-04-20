@@ -6,7 +6,11 @@
 #
 # WARNING! All changes made in this file will be lost!
 
-from PyQt5 import QtCore, QtGui, QtWidgets
+from master import config
+if config.IS_USE_PYSIDE:
+    from PySide2 import QtGui, QtCore, QtWidgets
+else:
+    from PyQt5 import QtGui, QtCore, QtWidgets
 
 class Ui_ParamWindow(object):
     def setupUi(self, ParamWindow):
