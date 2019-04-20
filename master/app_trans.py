@@ -6,13 +6,14 @@ from master import config
 from master.datas import k_data_s
 
 if config.IS_USE_PYSIDE:
-    from PySide2 import QtWidgets
+    from PySide2 import QtCore, QtWidgets
 else:
-    from PyQt5 import QtWidgets
+    from PyQt5 import QtCore, QtWidgets
 
 
 def main(file_path=''):
     """main"""
+    QtCore.QCoreApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling)
     config.K_DATA = k_data_s.Data698('123456')
     app = QtWidgets.QApplication(sys.argv)
     config.ABOUT_WINDOW = AboutWindow()

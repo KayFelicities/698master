@@ -238,6 +238,7 @@ class MasterWindowUi():
         self.msg_table.setColumnWidth(2, 60)
         self.msg_table.setColumnWidth(3, 200)
         self.msg_table.setColumnWidth(4, 240)
+        self.msg_table.horizontalHeader().setStretchLastSection(True)
         self.msg_table.setHorizontalScrollMode(QtWidgets.QAbstractItemView.ScrollPerPixel)
         self.msg_table.setVerticalScrollMode(QtWidgets.QAbstractItemView.ScrollPerPixel)
         self.msg_table.setEditTriggers(QtWidgets.QTableWidget.NoEditTriggers) # 表格不可编辑

@@ -39,7 +39,7 @@ class Collection():
         """init"""
         self.collection_list = []
         if not os.path.isfile(config.COLLECTION_FILE_PATH):
-            self.init_collection_file()
+            self.init_collection_file(self)
         self.refresh_name_list()
 
     @staticmethod
