@@ -86,15 +86,15 @@ SERVICES = {
 
 def get_dar(index):
     """get dar"""
-    return DARS.get(index, '未知错误(%d)'%index)
+    return DARS.get(index, '未知错误(%d)' % index)
 
 
 def get_unit(index):
     """get unit"""
-    return UNITS.get(index, '未知单位(%d)'%index)
+    return UNITS.get(index, '未知单位(%d)' % index)
 
 
 def get_service(service_text):
     """get service"""
-    return SERVICES.get(service_text, '未知服务(%s)'%service_text)
+    return SERVICES.get(service_text, '未知服务(%s)' % service_text)
 
