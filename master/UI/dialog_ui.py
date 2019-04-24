@@ -541,6 +541,17 @@ class RemoteUpdateDialog(QtWidgets.QDialog, ui_setup.RemoteUpdateDialogUI):
         self.stop_update_b.setEnabled(False)
         self.start_update_b.setEnabled(True)
         self.start_update_b.setText('开始升级')
+        self.status_label.setText('升级失败 ' + err_msg)
+
+    def ok_quit(self, ok_msg = ''):
+        """ok_quit"""
+        self.file_open_b.setEnabled(True)
+        self.block_size_box.setEnabled(True)
+        self.retry_box.setEnabled(True)
+        self.tmout_box.setEnabled(True)
+        self.stop_update_b.setEnabled(False)
+        self.start_update_b.setEnabled(True)
+        self.start_update_b.setText('开始升级')
         self.status_label.setText('升级成功 ' + ok_msg)
 
 

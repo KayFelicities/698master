@@ -42,7 +42,9 @@ class AboutWindow(QtWidgets.QDialog):
                     '<center><img src="{alipay}" height="350"></center>'.format(alipay=os.path.join(config.SOFTWARE_PATH, config.ALIPAY_IMG))
             self.about_box.setText(text)
 
+        self.foot_text = QtGui.QLabel()
         self.foot_text.setText('<p align="center">Designed by Kay. Powered by SX Company.')
+        self.foot_hbox = QtGui.QHBoxLayout()
         self.foot_hbox.addStretch(1)
         self.foot_hbox.addWidget(self.foot_text)
         self.foot_hbox.addStretch(1)

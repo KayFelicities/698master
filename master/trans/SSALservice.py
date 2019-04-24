@@ -4,6 +4,7 @@ import master.trans.linklayer as linklayer_do
 import master.trans.service as applayer_do
 
 
+
 def take_ssal_app(m_list, FC, trans_res):
     """take_ssal_applayer"""
     offset = 0
@@ -134,6 +135,7 @@ class SSALService:
                     'SSAL-string[%d]'%len12, ''.join(m_list[offset+2: offset+2 + len12]))
         offset += 2 + len12
         return offset
+
 
     def get_err_msg(self, err_code):
         """get_err_msg"""

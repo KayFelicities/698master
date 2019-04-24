@@ -31,8 +31,7 @@ class MasterWindow(QtWidgets.QMainWindow, MasterWindowUi):
 
     def __init__(self):
         super(MasterWindow, self).__init__()
-        if config.IS_USE_PYSIDE:
-            self.setup_ui()
+        self.setup_ui()
         # self.show_linklayer_cb.setVisible(False)
         self.show_level_cb.setVisible(False)
         self.plaintext_rn.setChecked(False)
@@ -115,8 +114,8 @@ class MasterWindow(QtWidgets.QMainWindow, MasterWindowUi):
         self.se_collection_cbox.addItems(['刷新', '自定义'])
         self.se_collection_cbox.setCurrentIndex(-1)
         self.se_collection_cbox.activated.connect(self.collection_active)
-        completer = QtWidgets.QCompleter(self.collec.get_name_list())
-        completer.setCompletionMode(QtWidgets.QCompleter.PopupCompletion)
+        completer = QtGui.QCompleter(self.collec.get_name_list())
+        completer.setCompletionMode(QtGui.QCompleter.PopupCompletion)
         self.se_collection_cbox.setCompleter(completer)
 
         self.about_action.triggered.connect(lambda: config.ABOUT_WINDOW.show() or config.ABOUT_WINDOW.showNormal() or config.ABOUT_WINDOW.activateWindow())
@@ -134,7 +133,7 @@ class MasterWindow(QtWidgets.QMainWindow, MasterWindowUi):
                             self.add_tmn_table_row('000000000001', 0, 1, is_checked=True))
         self.tmn_table_clr_b.clicked.connect(lambda: self.clr_table(self.tmn_table))
 
-        qss_file = open(os.path.join(config.SOFTWARE_PATH, 'styles/white_blue.qss')).read()
+        qss_file = open(os.path.join(config.SORTWARE_PATH, 'styles/white_blue.qss')).read()
         self.setStyleSheet(qss_file)
         self.pop_dialog = dialog_ui.TransPopDialog()
         self.pop_dialog.setStyleSheet(qss_file)
@@ -211,7 +210,7 @@ class MasterWindow(QtWidgets.QMainWindow, MasterWindowUi):
             self.get_current_se_box().verticalScrollBar().setValue(scroll_vpos)
             self.se_msg_tab.setEnabled(True)
             self.get_current_se_box().setFocus(True)
-        return QtWidgets.QMainWindow.eventFilter(self, widget, event)
+        return QtGui.QMainWindow.eventFilter(self, widget, event)
 
 
     def set_time(self, is_current_tm):
@@ -232,14 +231,14 @@ class MasterWindow(QtWidgets.QMainWindow, MasterWindowUi):
             self.se_collection_cbox.clear()
             self.se_collection_cbox.addItems(self.collec.get_name_list())
             self.se_collection_cbox.addItems(['刷新', '自定义'])
-            completer = QtWidgets.QCompleter(self.collec.get_name_list())
-            completer.setCompletionMode(QtWidgets.QCompleter.PopupCompletion)
+            completer = QtGui.QCompleter(self.collec.get_name_list())
+            completer.setCompletionMode(QtGui.QCompleter.PopupCompletion)
             self.se_collection_cbox.setCompleter(completer)
         elif select in ['自定义']:
             self.collec.open_collection_file()
         else:
             self.get_current_se_box().setPlainText(self.collec.get_msg(select))
-        # self.se_collection_cbox.setCurrentIndex(-1) #qt5 执行这句话之后会再次产生信号, 索引不匹配
+        self.se_collection_cbox.setCurrentIndex(-1)
 
 
     def update_infol(self, tmout=1):
@@ -563,10 +562,10 @@ class MasterWindow(QtWidgets.QMainWindow, MasterWindowUi):
 
     def set_auto_wrap(self):
         """set_auto_wrap"""
-        self.get_current_se_box().setLineWrapMode(QtWidgets.QTextEdit.WidgetWidth\
-                if self.auto_wrap_cb.isChecked() else QtWidgets.QTextEdit.NoWrap)
-        self.explain_box.setLineWrapMode(QtWidgets.QTextEdit.WidgetWidth\
-                if self.auto_wrap_cb.isChecked() else QtWidgets.QTextEdit.NoWrap)
+        self.get_current_se_box().setLineWrapMode(QtGui.QTextEdit.WidgetWidth\
+                if self.auto_wrap_cb.isChecked() else QtGui.QTextEdit.NoWrap)
+        self.explain_box.setLineWrapMode(QtGui.QTextEdit.WidgetWidth\
+                if self.auto_wrap_cb.isChecked() else QtGui.QTextEdit.NoWrap)
 
 
     def set_always_top(self):

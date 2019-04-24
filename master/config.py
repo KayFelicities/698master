@@ -25,8 +25,7 @@ M_PRIORITY_COLOR = {-1: 'green', 0: 'grey', 1: 'black', 2: 'blue', 3: 'red'}
 
 MSG_TABLE_ROW_MAX = 256
 
-
-class Service:
+class Service():
     """service class"""
     def __init__(self):
         self.service_no = 0

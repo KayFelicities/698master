@@ -129,6 +129,56 @@ class Translate:
             res_text += '</table>'
         # print(res_text)
         return res_text
+    
+
+    def get_structed_msg(self, has_linklayer=True):
+        """get_structed_msg"""
+        res_text = '' if self.is_success else '\n\n'
+        temp_row = None
+        for row in self.res_list:
+            if not has_linklayer and row['priority'] <= 0:
+                continue
+            if row['dtype'] in ['Data']:
+                temp_row = row
+                continue
+
+            res_text += '{padding}{messagerow}\n'\
+                .format(padding='  '*row['depth'],\
+                messagerow=commonfun.list2text(temp_row['m_list']+row['m_list'] if temp_row else row['m_list']))
+            temp_row = None
+        return res_text[:-1]  #remove last \n
+
+
+    def get_structed_explain(self, has_linklayer=True, is_show_type=False):
+        """get_structed_explain"""
+        res_text = '' if self.is_success else '<p style="color: red">报文解析过程出现问题，请检查报文。若报文无问题请反馈665593，谢谢！</p><p> </p>'
+        temp_row = None
+        for row in self.res_list:
+            if not has_linklayer and row['priority'] <= 0:
+                continue
+            if row['dtype'] in ['Data']:
+                temp_row = row
+                continue
+            value = row['value']
+            if isinstance(value, int):
+                value *= 10**int(row['scaler'])
+            if int(row['scaler']) < 0:
+                format_str = '{val:.%df}'%(abs(int(row['scaler'])))
+                value = format_str.format(val=value)
+            
+            dtype = ''
+            if is_show_type:
+                dtype = '('+temp_row['dtype']+'_'+row['dtype']+')' if temp_row\
+                    else ('('+row['dtype']+')' if row['dtype'] else '')
+
+            res_text += '<p style="margin:0; {color}; {padding};">{brief}{value}{unit}{dtype}</p>'\
+                    .format(color='color: %s'%config.M_PRIORITY_COLOR[row['priority']],\
+                    padding='margin-left: %d px'%(row['depth'] * 10),\
+                    brief=row['brief'].replace('<', '(').replace('>', ')') +':'\
+                                if row['brief'] else '', dtype=dtype, value=value, unit=row['unit'])
+            temp_row = None
+        # print('res_text:', res_text)
+        return res_text
 
     def get_structed_msg(self, has_linklayer=True):
         """get_structed_msg"""
@@ -232,6 +282,7 @@ class Translate:
         """get_raw_msg"""
         return commonfun.list2text(list(filter(lambda row: row['brief'].strip() == brief.strip()\
                             , self.res_list))[0]['m_list']).replace(' ', '').strip()
+
 
     def get_brief(self):
         """get brief translate"""
