@@ -1,37 +1,40 @@
 """line box class"""
-from PyQt4 import QtGui
-from PyQt4 import QtCore
+from master import config
+if config.IS_USE_PYSIDE:
+    from PySide2 import QtGui, QtCore, QtWidgets
+else:
+    from PyQt5 import QtGui, QtCore, QtWidgets
 
 
-class LineNumberArea(QtGui.QWidget):
-
+class LineNumberArea(QtWidgets.QWidget):
 
     def __init__(self, editor):
         super().__init__(editor)
         self.myeditor = editor
 
-
     def sizeHint(self):
         return QtCore.Qsize(self.editor.lineNumberAreaWidth(), 0)
-
 
     def paintEvent(self, event):
         self.myeditor.lineNumberAreaPaintEvent(event)
 
 
-class CodeEditor(QtGui.QPlainTextEdit):
+class CodeEditor(QtWidgets.QPlainTextEdit):
     def __init__(self):
         super().__init__()
         self.lineNumberArea = LineNumberArea(self)
 
-        self.connect(self, QtCore.SIGNAL('blockCountChanged(int)'), self.updateLineNumberAreaWidth)
-        self.connect(self, QtCore.SIGNAL('updateRequest(QRect,int)'), self.updateLineNumberArea)
-        self.connect(self, QtCore.SIGNAL('cursorPositionChanged()'), self.highlightCurrentLine)
-
+        # self.connect(self, QtCore.SIGNAL('blockCountChanged(int)'), self.updateLineNumberAreaWidth)
+        # self.connect(self, QtCore.SIGNAL('updateRequest(QRect,int)'), self.updateLineNumberArea)
+        # self.connect(self, QtCore.SIGNAL('cursorPositionChanged()'), self.highlightCurrentLine)
+        # pyQt5使用下面的方法
+        self.blockCountChanged.connect(self.updateLineNumberAreaWidth)
+        self.updateRequest.connect(self.updateLineNumberArea)
+        self.cursorPositionChanged.connect(self.highlightCurrentLine)
+        
         self.updateLineNumberAreaWidth(0)
 
         self.font_size = 9
-
 
     def lineNumberAreaWidth(self):
         digits = 1
@@ -42,10 +45,8 @@ class CodeEditor(QtGui.QPlainTextEdit):
         space = 3 + self.fontMetrics().width('9') * digits
         return space
 
-
     def updateLineNumberAreaWidth(self, _):
         self.setViewportMargins(self.lineNumberAreaWidth(), 0, 0, 0)
-
 
     def updateLineNumberArea(self, rect, dy):
 
@@ -58,14 +59,12 @@ class CodeEditor(QtGui.QPlainTextEdit):
         if rect.contains(self.viewport().rect()):
             self.updateLineNumberAreaWidth(0)
 
-
     def resizeEvent(self, event):
         super().resizeEvent(event)
 
         cr = self.contentsRect();
         self.lineNumberArea.setGeometry(QtCore.QRect(cr.left(), cr.top(),
                     self.lineNumberAreaWidth(), cr.height()))
-
 
     def lineNumberAreaPaintEvent(self, event):
         mypainter = QtGui.QPainter(self.lineNumberArea)
@@ -90,12 +89,11 @@ class CodeEditor(QtGui.QPlainTextEdit):
             bottom = top + self.blockBoundingRect(block).height()
             blockNumber += 1
 
-
     def highlightCurrentLine(self):
         extraSelections = []
 
         if not self.isReadOnly():
-            selection = QtGui.QTextEdit.ExtraSelection()
+            selection = QtWidgets.QTextEdit.ExtraSelection()
 
             lineColor = QtGui.QColor(QtCore.Qt.yellow).lighter(160)
 
@@ -106,25 +104,21 @@ class CodeEditor(QtGui.QPlainTextEdit):
             extraSelections.append(selection)
         self.setExtraSelections(extraSelections)
 
-
     def set_font_size(self, font_size):
         """set font size"""
         self.font_size = font_size
         font = QtGui.QFont("Courier", self.font_size)
         self.setFont(font)
 
-
     def get_font_size(self):
         """get font size"""
         return self.font_size
-
 
     def zoomOut(self):
         """change font"""
         self.font_size = max(self.font_size - 1, 1)
         font = QtGui.QFont("Courier", self.font_size)
         self.setFont(font)
-
 
     def zoomIn(self):
         """change font"""

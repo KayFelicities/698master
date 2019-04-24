@@ -6,12 +6,12 @@ from master.UI.param_window import Ui_ParamWindow
 from master.UI import param
 from master.datas import base_data
 if config.IS_USE_PYSIDE:
-    from PySide import QtGui, QtCore
+    from PySide2 import QtGui, QtCore, QtWidgets
 else:
-    from PyQt4 import QtGui, QtCore
+    from PyQt5 import QtGui, QtCore, QtWidgets
 
 
-class ParamWindow(QtGui.QMainWindow, QtGui.QWidget, Ui_ParamWindow):
+class ParamWindow(QtWidgets.QMainWindow, Ui_ParamWindow):
     def __init__(self):
         super(ParamWindow, self).__init__()
         self.setupUi(self)
@@ -43,7 +43,7 @@ class ParamWindow(QtGui.QMainWindow, QtGui.QWidget, Ui_ParamWindow):
         self.rpt_set_b.clicked.connect(self.rpt_set)
 
         self.setWindowTitle('常用命令')
-        self.setWindowIcon(QtGui.QIcon(os.path.join(config.SORTWARE_PATH, config.MASTER_ICO_PATH)))
+        self.setWindowIcon(QtGui.QIcon(os.path.join(config.SOFTWARE_PATH, config.MASTER_ICO_PATH)))
         self.label_22.setText("无线公网IP")
         self.label_23.setText("端口")
         self.label_134.setText("以太网IP")

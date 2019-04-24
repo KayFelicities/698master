@@ -1,7 +1,7 @@
 # coding: utf-8
 """common functions"""
 import time
-from master.datas import k_data
+from master.datas import k_data_s
 
 
 def text2list(m_text):
@@ -37,6 +37,11 @@ def format_text(m_text, separator=' '):
 def is_bit(value:'int > 0', bit:'int > 0'):
     """chk bit """
     return True if (value >> bit) & 1 else False
+
+def is_bit(value:'int > 0', bit:'int > 0'):
+    """chk bit """
+    return True if (value >> bit) & 1 else False
+
 
 def chk_format(m_list):
     """chk format"""
@@ -144,29 +149,25 @@ def get_fcs(data_list):
     return fcs
 
 
-class TransRes():
+class TransRes:
     """translate result functions"""
     def __init__(self):
         """init"""
         self.trans_res = []
         self.access_res = {}
 
-
     def add_row(self, m_list, brief='', dtype='', value='', unit='', scaler=0, depth=0, priority=1):
         """add trans result row"""
         self.trans_res += [{'m_list': m_list, 'brief': brief, 'dtype': dtype, 'value': value,\
                     'unit': unit, 'scaler': scaler, 'depth': depth, 'priority': priority}]
 
-
     def add_access_res(self, oad, dar):
         """add access result row"""
         self.access_res[oad] = dar
 
-
     def get_trans_res(self):
         """get result"""
         return self.trans_res
-
 
     def get_access_res(self):
         """get access result"""

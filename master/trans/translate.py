@@ -7,7 +7,7 @@ import master.trans.SSALlayer as SSAL_do
 import master.trans.SSALservice as SSALapp_do
 from master import config
 
-class Translate():
+class Translate:
     """translate class"""
     def __init__(self, m_text):
         """init"""
@@ -21,7 +21,6 @@ class Translate():
         self.res_list, self.is_success = self.__trans_all(m_list)
         self.is_access_successed = self.get_access_res()
 
-
     def __trans_all(self, m_list):
         """translate all messages"""
         offset = 0
@@ -34,7 +33,7 @@ class Translate():
                 offset += SSAL_do.take_ssal_tail(m_list[:], offset, self.trans_res)
             elif m_list[0] == '68':
                 offset += linklayer_do.take_linklayer1(m_list[offset:], self.trans_res)
-                if (int(m_list[3], 16) >> 5) & 0x01 == 1: #linklayer sep
+                if (int(m_list[3], 16) >> 5) & 0x01 == 1:  # linklayer sep
                     self.is_linklayer_sep = True
                     self.trans_res.add_row(m_list[offset : len(m_list) - 3], '链路层分帧片段', '', ''.join(m_list[offset : len(m_list) - 3]), priority=1)
                     offset = len(m_list) - 3
@@ -60,11 +59,9 @@ class Translate():
             # print('res_list:', res_list)
             return res_list, chk_res
 
-
     def get_res_list(self):
         """get result list"""
         return self.res_list
-
 
     def get_access_res(self):
         """get access res"""
@@ -75,12 +72,10 @@ class Translate():
                 return False
         return True
 
-
     def get_access_dict(self):
         """get access result dict"""
         access_res = self.trans_res.get_access_res()
         return access_res
-
 
     def get_full(self, is_show_level=True, is_show_type=True, is_output_html=True, has_linklayer=True):
         """get full translate"""
@@ -185,13 +180,59 @@ class Translate():
         # print('res_text:', res_text)
         return res_text
 
+    def get_structed_msg(self, has_linklayer=True):
+        """get_structed_msg"""
+        res_text = '' if self.is_success else '\n\n'
+        temp_row = None
+        for row in self.res_list:
+            if not has_linklayer and row['priority'] <= 0:
+                continue
+            if row['dtype'] in ['Data']:
+                temp_row = row
+                continue
+
+            res_text += '{padding}{messagerow}\n'\
+                .format(padding='  '*row['depth'],\
+                messagerow=commonfun.list2text(temp_row['m_list']+row['m_list'] if temp_row else row['m_list']))
+            temp_row = None
+        return res_text[:-1]  #remove last \n
+
+    def get_structed_explain(self, has_linklayer=True, is_show_type=False):
+        """get_structed_explain"""
+        res_text = '' if self.is_success else '<p style="color: red">报文解析过程出现问题，请检查报文。若报文无问题请反馈665593，谢谢！</p><p> </p>'
+        temp_row = None
+        for row in self.res_list:
+            if not has_linklayer and row['priority'] <= 0:
+                continue
+            if row['dtype'] in ['Data']:
+                temp_row = row
+                continue
+            value = row['value']
+            if isinstance(value, int):
+                value *= 10**int(row['scaler'])
+            if int(row['scaler']) < 0:
+                format_str = '{val:.%df}'%(abs(int(row['scaler'])))
+                value = format_str.format(val=value)
+            
+            dtype = ''
+            if is_show_type:
+                dtype = '('+temp_row['dtype']+'_'+row['dtype']+')' if temp_row\
+                    else ('('+row['dtype']+')' if row['dtype'] else '')
+
+            res_text += '<p style="margin:0; {color}; {padding};">{brief}{value}{unit}{dtype}</p>'\
+                    .format(color='color: %s'%config.M_PRIORITY_COLOR[row['priority']],\
+                    padding='margin-left: %d px'%(row['depth'] * 10),\
+                    brief=row['brief'].replace('<', '(').replace('>', ')') +':'\
+                                if row['brief'] else '', dtype=dtype, value=value, unit=row['unit'])
+            temp_row = None
+        # print('res_text:', res_text)
+        return res_text
 
     def get_apdu_text(self):
         """get_apdu_text"""
         apdu_text = ''.join([commonfun.list2text(row['m_list'])\
                                 for row in self.res_list if row['priority'] > 0])
         return apdu_text
-
 
     def get_direction(self):
         """get direction"""
@@ -206,14 +247,12 @@ class Translate():
         else:
             return '←'
 
-
     def get_SA(self):
         """get server address"""
         for row in self.res_list:
             if row['dtype'] == 'SA':
                 return row['value'].split('[')[2].split(']')[0]
         return '-'
-
 
     def get_CA(self):
         """get client address"""
@@ -222,7 +261,6 @@ class Translate():
                 return row['value']
         return '-'
 
-
     def get_logic_addr(self):
         """get logic address"""
         for row in self.res_list:
@@ -230,14 +268,12 @@ class Translate():
                 return int(row['value'].split('[')[1].split(']')[0])
         return 0
 
-
     def get_service(self):
         """get service"""
         if self.is_ssal:
             return 'ssal'
         return commonfun.list2text(list(filter(lambda row: row['dtype'] == 'service'\
                                     , self.res_list))[0]['m_list']).replace(' ', '')
-
 
     def get_piid(self):
         """get_piid"""
@@ -354,7 +390,6 @@ class Translate():
 
         return '%s%s%s %s'%(brief.get('access_res', ''), brief.get('dir', ''),\
                             brief.get('service', ''), brief.get('content', ''))
-
 
     def get_clipboard_text(self, is_show_level=True, is_show_type=True):
         """get_clipboard_text"""

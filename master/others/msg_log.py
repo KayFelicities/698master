@@ -3,6 +3,7 @@ import os
 import datetime
 from master import config
 
+
 class MsgLog:
     """logger class"""
     def __init__(self, log_dir=config.MSG_LOG_DIR):
@@ -16,7 +17,6 @@ class MsgLog:
         with open(self.file_path, 'a', encoding='gb2312') as log:
             log_time = now.strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
             log.write('\n' + '='*10 + log_time + '='*10 + '\n')
-
 
     def add_log(self, terminal_addr, chan_text, direction, brief, msg):
         """add msg row to log"""

@@ -14,16 +14,17 @@ from master.datas import service_data
 from master.trans import loadtype
 from master.others import master_config
 if config.IS_USE_PYSIDE:
-    from PySide import QtGui, QtCore
+    from PySide2 import QtCore, QtWidgets
 else:
-    from PyQt4 import QtGui, QtCore
+    from PyQt5 import QtCore, QtWidgets
 
 
-class TransPopDialog(QtGui.QDialog, ui_setup.TransPopDialogUi):
+class TransPopDialog(QtWidgets.QDialog, ui_setup.TransPopDialogUi):
     """translate window"""
     def __init__(self):
         super(TransPopDialog, self).__init__()
-        self.setup_ui()
+        if config.IS_USE_PYSIDE:
+            self.setup_ui()
         self.show_level_cb.setChecked(True)
 
         self.msg_box.textChanged.connect(self.trans_msg)
@@ -31,7 +32,6 @@ class TransPopDialog(QtGui.QDialog, ui_setup.TransPopDialogUi):
         self.show_dtype_cb.stateChanged.connect(self.trans_msg)
         self.always_top_cb.stateChanged.connect(self.set_always_top)
         self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint if self.always_top_cb.isChecked() else QtCore.Qt.Widget)
-
 
     def trans_msg(self):
         """translate"""
@@ -53,11 +53,12 @@ class TransPopDialog(QtGui.QDialog, ui_setup.TransPopDialogUi):
         self.move(window_pos)
 
 
-class CommuDialog(QtGui.QDialog, ui_setup.CommuDialogUi):
+class CommuDialog(QtWidgets.QDialog, ui_setup.CommuDialogUi):
     """communication config window"""
     def __init__(self):
         super(CommuDialog, self).__init__()
-        self.setup_ui()
+        if config.IS_USE_PYSIDE:
+            self.setup_ui()  # fixme: CommuDialogUi中已经默认setup_ui了这里可以不用设置
         self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
 
         self.master_addr_change_b.clicked.connect(lambda: self.master_addr_box.setText('%02X'%random.randint(0, 255)))
@@ -193,11 +194,12 @@ class CommuDialog(QtGui.QDialog, ui_setup.CommuDialogUi):
         event.accept()
 
 
-class ApduDiyDialog(QtGui.QDialog, ui_setup.ApduDiyDialogUi):
+class ApduDiyDialog(QtWidgets.QDialog, ui_setup.ApduDiyDialogUi):
     """apdu DIY dialog class"""
     def __init__(self):
         super(ApduDiyDialog, self).__init__()
-        self.setup_ui()
+        if config.IS_USE_PYSIDE:
+            self.setup_ui()
 
         self.send_b.setEnabled(False)
         self.chk_valid_cb.setChecked(True)
@@ -275,11 +277,12 @@ class ApduDiyDialog(QtGui.QDialog, ui_setup.ApduDiyDialogUi):
         self.move(window_pos)
 
 
-class MsgDiyDialog(QtGui.QDialog, ui_setup.MsgDiyDialogUi):
+class MsgDiyDialog(QtWidgets.QDialog, ui_setup.MsgDiyDialogUi):
     """apdu DIY dialog class"""
     def __init__(self):
         super(MsgDiyDialog, self).__init__()
-        self.setup_ui()
+        if config.IS_USE_PYSIDE:
+            self.setup_ui()
 
         self.send_b.setEnabled(False)
         self.chk_valid_cb.setChecked(True)
@@ -345,12 +348,13 @@ class MsgDiyDialog(QtGui.QDialog, ui_setup.MsgDiyDialogUi):
         self.move(window_pos)
 
 
-class RemoteUpdateDialog(QtGui.QDialog, ui_setup.RemoteUpdateDialogUI):
+class RemoteUpdateDialog(QtWidgets.QDialog, ui_setup.RemoteUpdateDialogUI):
     """remote update window"""
     update_signal = QtCore.Signal(int, int) if config.IS_USE_PYSIDE else QtCore.pyqtSignal(int, int)
     def __init__(self):
         super(RemoteUpdateDialog, self).__init__()
-        self.setup_ui()
+        if config.IS_USE_PYSIDE:
+            self.setup_ui()
         self.setAcceptDrops(True)
         self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
         # self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
@@ -407,14 +411,14 @@ class RemoteUpdateDialog(QtGui.QDialog, ui_setup.RemoteUpdateDialogUI):
     def open_file(self, filepath=''):
         """open file"""
         if not filepath:
-            filepath = QtGui.QFileDialog.getOpenFileName(self, 'Open file', '', '*.*')
+            filepath,filetype = QtWidgets.QFileDialog.getOpenFileName(self, 'Open file', '', '*.*')
         if filepath:
             print('filepath: ', filepath)
             file_type = filepath.split('.')[-1]
             if file_type not in ['sp4']:
-                reply = QtGui.QMessageBox.question(self, '警告', '确定升级非sp4文件吗？',\
-                                QtGui.QMessageBox.Yes | QtGui.QMessageBox.No, QtGui.QMessageBox.No)
-                if reply != QtGui.QMessageBox.Yes:
+                reply = QtWidgets.QMessageBox.question(self, '警告', '确定升级非sp4文件吗？',\
+                                QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No, QtWidgets.QMessageBox.No)
+                if reply != QtWidgets.QMessageBox.Yes:
                     return
             self.file_path_box.setText(filepath)
             file_size = os.path.getsize(filepath)
@@ -537,6 +541,17 @@ class RemoteUpdateDialog(QtGui.QDialog, ui_setup.RemoteUpdateDialogUI):
         self.stop_update_b.setEnabled(False)
         self.start_update_b.setEnabled(True)
         self.start_update_b.setText('开始升级')
+        self.status_label.setText('升级失败 ' + err_msg)
+
+    def ok_quit(self, ok_msg = ''):
+        """ok_quit"""
+        self.file_open_b.setEnabled(True)
+        self.block_size_box.setEnabled(True)
+        self.retry_box.setEnabled(True)
+        self.tmout_box.setEnabled(True)
+        self.stop_update_b.setEnabled(False)
+        self.start_update_b.setEnabled(True)
+        self.start_update_b.setText('开始升级')
         self.status_label.setText('升级成功 ' + ok_msg)
 
 
@@ -563,11 +578,11 @@ class RemoteUpdateDialog(QtGui.QDialog, ui_setup.RemoteUpdateDialogUI):
         self.is_updating = False
 
 
-class GetSetServiceDialog(QtGui.QDialog, ui_setup.GetSetServiceDialogUI):
+class GetSetServiceDialog(QtWidgets.QDialog, ui_setup.GetSetServiceDialogUI):
     """get service dialog class"""
     def __init__(self):
         super(GetSetServiceDialog, self).__init__()
-        self.setup_ui()
+        # self.setup_ui()
 
         self.class_cb.addItems(tuple(['收藏'] + service_data.get_base_class()))
         self.class_cb.setCurrentIndex(-1)
@@ -612,15 +627,15 @@ class GetSetServiceDialog(QtGui.QDialog, ui_setup.GetSetServiceDialogUI):
         row_pos = self.object_table.rowCount()
         self.object_table.insertRow(row_pos)
 
-        class_cb = QtGui.QComboBox()
+        class_cb = QtWidgets.QComboBox()
         class_cb.addItems(('常用',))
         class_cb.setCurrentIndex(0)
         self.object_table.setCellWidget(row_pos, 0, class_cb)
-        oad_cb = QtGui.QComboBox()
+        oad_cb = QtWidgets.QComboBox()
         # oad_cb.addItems(get_set_oads.ACTIVE_OADS)
         oad_cb.setCurrentIndex(0)
         self.object_table.setCellWidget(row_pos, 1, oad_cb)
-        self.object_remove_cb = QtGui.QPushButton()
+        self.object_remove_cb = QtWidgets.QPushButton()
         self.object_remove_cb.setText('删')
         self.object_table.setCellWidget(row_pos, 2, self.object_remove_cb)
         self.object_remove_cb.clicked.connect(self.object_table_remove)
@@ -657,7 +672,6 @@ class GetSetServiceDialog(QtGui.QDialog, ui_setup.GetSetServiceDialogUI):
         config.MASTER_WINDOW.se_apdu_signal.emit(apdu_text)
         config.MASTER_WINDOW.receive_signal.connect(self.re_msg)
 
-
     def re_msg(self, re_text):
         """recieve text"""
         if self.service_no != common.get_msg_service_no(re_text):
@@ -677,12 +691,10 @@ class GetSetServiceDialog(QtGui.QDialog, ui_setup.GetSetServiceDialogUI):
         loadtype.data2table(re_data_list, self.re_table)
         config.MASTER_WINDOW.receive_signal.disconnect(self.re_msg)
 
-
     def clr_re_table(self):
         """clear re msg table"""
         for _ in range(self.re_table.rowCount()):
             self.re_table.removeRow(0)
-
 
     def set_always_top(self):
         """set_always_top"""
@@ -697,8 +709,8 @@ class GetSetServiceDialog(QtGui.QDialog, ui_setup.GetSetServiceDialogUI):
 
 
 if __name__ == '__main__':
-    APP = QtGui.QApplication(sys.argv)
+    APP = QtWidgets.QApplication(sys.argv)
     dialog = RemoteUpdateDialog()
     dialog.show()
     APP.exec_()
-    os._exit(0)
+    sys.exit(0)

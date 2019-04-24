@@ -3,6 +3,8 @@ from master import config
 import master.trans.linklayer as linklayer_do
 import master.trans.service as applayer_do
 
+
+
 def take_ssal_app(m_list, FC, trans_res):
     """take_ssal_applayer"""
     offset = 0
@@ -11,7 +13,7 @@ def take_ssal_app(m_list, FC, trans_res):
     return offset
 
 
-class SSALService():
+class SSALService:
     """SSALService class"""
     def __init__(self, trans_res):
         """init"""
@@ -139,7 +141,6 @@ class SSALService():
         return offset
 
 
-
     def get_err_msg(self, err_code):
         """get_err_msg"""
         return {
@@ -165,5 +166,5 @@ class SSALService():
             0x3003: '链路-报文发送失败', 
             0x3004: '链路-信道错误', 
             0x3005: '链路-当前链路会话协商失败', 
-            }.get(err_code, '未知错误码0x%X'%err_code)
+            }.get(err_code, '未知错误码0x%X' % err_code)
 
