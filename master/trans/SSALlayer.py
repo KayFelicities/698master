@@ -55,7 +55,8 @@ def take_ssal_head(m_list, trans_res):
     # 设备地址类型
     if commonfun.is_bit(ctrol, 13):
         device_int = (int(m_list[offset + 1], 16) >> 3) & 0x1f
-        device_type = {0: '采集前置/通信后置', 1: '采集设备', 2: '现场服务终端（掌机）', 3: '移动办公设备(营业办公设备)', 4: '通信前置', 5: '3A认证服务器'}\
+        device_type = {0: '采集前置/通信后置', 1: '采集设备', 2: '现场服务终端（掌机）', 3: '移动办公设备(营业办公设备)', 
+                        4: '通信前置', 5: '3A认证服务器', 6: '在线性能检测服务器', 7: '接入区运维专用设备', 24: '网上国网APP终端', 25: '隔离装置'}\
                     .get(device_int, '未知%d'%device_int)
         addr_int = int(m_list[offset + 1], 16) & 0x07
         addr_type = {0: '单地址', 1: '组地址', 2: '广播地址'}\
@@ -71,7 +72,10 @@ def take_ssal_head(m_list, trans_res):
     if commonfun.is_bit(ctrol, 12):
         addr_len = (int(m_list[offset], 16) >> 4) & 0x07
         logic_addr_len = int(m_list[offset], 16) & 0x0f
-        address = ''.join(m_list[offset + 1: offset + 1 + logic_addr_len])
+        if device_int not in [1, 2, 3, 24] and addr_len == 4:
+            address = '%d.%d.%d.%d'%(int(m_list[offset+1 + 3], 16), int(m_list[offset+1 + 2], 16), int(m_list[offset+1 + 3], 16), int(m_list[offset+1], 16))
+        else:
+            address = ''.join(m_list[offset + 1: offset + 1 + logic_addr_len][::-1])
         trans_res.add_row(m_list[offset: offset+1+logic_addr_len], '设备地址', 'DA', address, priority=SSAL_PRIORITY)
         offset += 1 + logic_addr_len
 
@@ -80,7 +84,10 @@ def take_ssal_head(m_list, trans_res):
         s_port_len = (int(m_list[offset], 16) >> 5) & 0x07
         s_addr_len = int(m_list[offset], 16) & 0x1f
         offset += 1
-        s_addr = ''.join(m_list[offset: offset + s_addr_len][::-1])
+        if s_addr_len == 4: # 先这样判断是不是IP
+            s_addr = '%d.%d.%d.%d'%(int(m_list[offset + 3], 16), int(m_list[offset + 2], 16), int(m_list[offset + 1], 16), int(m_list[offset], 16))
+        else:
+            s_addr = ''.join(m_list[offset: offset + s_addr_len][::-1])
         offset += s_addr_len
         s_port = ' : ' + ''.join(m_list[offset: offset + s_port_len][::-1]) if s_port_len else ''
         offset += s_port_len
@@ -91,7 +98,10 @@ def take_ssal_head(m_list, trans_res):
         t_port_len = (int(m_list[offset], 16) >> 5) & 0x07
         t_addr_len = int(m_list[offset], 16) & 0x1f
         offset += 1
-        t_addr = ''.join(m_list[offset: offset + t_addr_len][::-1])
+        if t_addr_len == 4: # 先这样判断是不是IP
+            t_addr = '%d.%d.%d.%d'%(int(m_list[offset + 3], 16), int(m_list[offset + 2], 16), int(m_list[offset + 1], 16), int(m_list[offset], 16))
+        else:
+            t_addr = ''.join(m_list[offset: offset + t_addr_len][::-1])
         offset += t_addr_len
         t_port = ' : ' + ''.join(m_list[offset: offset + t_port_len][::-1]) if t_port_len else ''
         offset += t_port_len
@@ -117,7 +127,10 @@ def take_ssal_head(m_list, trans_res):
     # 网关地址 
     if commonfun.is_bit(ctrol, 7):
         ga_len = int(m_list[offset], 16) & 0x1f
-        ga_content = ''.join(m_list[offset+1: offset+1 + ga_len])
+        if ga_len == 4:
+            ga_content = '%d.%d.%d.%d'%(int(m_list[offset+1 + 3], 16), int(m_list[offset+1 + 2], 16), int(m_list[offset+1 + 1], 16), int(m_list[offset+1], 16))
+        else:
+            ga_content = ''.join(m_list[offset+1: offset+1 + ga_len])
         trans_res.add_row(m_list[offset: offset+1 + ga_len], '网关地址', 'GA', ga_content, priority=SSAL_PRIORITY)
         offset += 1 + ga_len
 

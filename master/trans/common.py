@@ -40,7 +40,7 @@ def is_bit(value:'int > 0', bit:'int > 0'):
 
 def chk_format(m_list):
     """chk format"""
-    if m_list[0] != '68' or m_list[len(m_list) - 1] != '16':
+    if m_list[0] not in ['68', '98'] or m_list[len(m_list) - 1] != '16':
         return False
     else:
         return True
@@ -52,8 +52,10 @@ def search_msg(m_list):
     msg_list = []
     # print("kay, m_list:", m_list)
     while offset < len(m_list) - 5:  # at least 5 byte
-        if m_list[offset] == '68':
+        if m_list[offset] in ['68', '98']:
             msg_len = int(m_list[offset + 2] + m_list[offset + 1], 16)
+            if m_list[offset] == '98':
+                msg_len += 2
             if offset + msg_len + 1 < len(m_list) and m_list[offset + msg_len + 1] == '16':
                 msg_list.append(list2text(m_list[offset: offset + msg_len + 2]))
                 offset += msg_len + 2

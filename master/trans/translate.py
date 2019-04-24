@@ -233,6 +233,8 @@ class Translate():
 
     def get_service(self):
         """get service"""
+        if self.is_ssal:
+            return 'ssal'
         return commonfun.list2text(list(filter(lambda row: row['dtype'] == 'service'\
                                     , self.res_list))[0]['m_list']).replace(' ', '')
 

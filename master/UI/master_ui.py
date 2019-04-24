@@ -331,26 +331,32 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
         """add message row"""
         trans = Translate(m_text)
         brief = trans.get_brief()
-        # direction = trans.get_direction()
-        client_addr = trans.get_CA()
-        if config.IS_FILETER_CA and client_addr != '00' and client_addr != config.COMMU.master_addr:
-            print('过滤报文：CA不匹配')
-            return
-        server_addr = trans.get_SA()
-        logic_addr = trans.get_logic_addr()
-        chan_text = {0: '串口', 1: '前置机', 2: '服务器'}.get(chan_index)
 
-        # chk to add tmn addr to table
-        if direction == '←':
-            for row_num in range(self.tmn_table.rowCount()):
-                if server_addr == self.tmn_table.item(row_num, 1).text()\
-                and logic_addr == self.tmn_table.cellWidget(row_num, 2).value()\
-                and chan_index == self.tmn_table.cellWidget(row_num, 3).currentIndex():
-                    break
-            else:
-                is_cb_checked = False if chan_index == 1 else True
-                self.add_tmn_table_row(tmn_addr=server_addr, logic_addr=logic_addr,\
-                                        chan_index=chan_index, is_checked=is_cb_checked)
+        if trans.is_ssal:
+            server_addr = '0'
+            logic_addr = '0'
+            chan_text = {0: '串口', 1: '前置机', 2: '服务器'}.get(chan_index)
+        else:
+            # direction = trans.get_direction()
+            client_addr = trans.get_CA()
+            if config.IS_FILETER_CA and client_addr != '00' and client_addr != config.COMMU.master_addr:
+                print('过滤报文：CA不匹配')
+                return
+            server_addr = trans.get_SA()
+            logic_addr = trans.get_logic_addr()
+            chan_text = {0: '串口', 1: '前置机', 2: '服务器'}.get(chan_index)
+
+            # chk to add tmn addr to table
+            if direction == '←':
+                for row_num in range(self.tmn_table.rowCount()):
+                    if server_addr == self.tmn_table.item(row_num, 1).text()\
+                    and logic_addr == self.tmn_table.cellWidget(row_num, 2).value()\
+                    and chan_index == self.tmn_table.cellWidget(row_num, 3).currentIndex():
+                        break
+                else:
+                    is_cb_checked = False if chan_index == 1 else True
+                    self.add_tmn_table_row(tmn_addr=server_addr, logic_addr=logic_addr,\
+                                            chan_index=chan_index, is_checked=is_cb_checked)
 
         text_color = QtGui.QColor(220, 226, 241) if direction == '→' else\
                     QtGui.QColor(227, 237, 205) if direction == '←' else QtGui.QColor(255, 255, 255)

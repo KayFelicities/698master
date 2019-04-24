@@ -262,7 +262,7 @@ class Data698():
             ('24', '方法', '5', '', '删除一个事件关联对象属性', 'OAD,'),
             ('25', '属性', '1', 'static', '逻辑名', 'octet-string,'),
             ('25', '属性', '2', 'static', '通信配置', 'structure{工作模式:enum[混合模式<0>,客户机模式<1>,服务器模式<2>],在线方式:enum[永久在线<0>,被动激活<1>],连接方式:enum[TCP<0>,UDP<1>],连接应用方式:enum[主备模式<0>,多连接模式<1>],侦听端口列表:array:long-unsigned,APN:visible-string,用户名:visible-string,密码:visible-string,代理服务器地址:octet-string,代理端口:long-unsigned,超时时间及重发次数:unsigned,心跳周期(秒):long-unsigned},'),
-            ('25', '属性', '3', 'static', '主站通信参数表', 'array:structure{IP地址:octet-string,端口:long-unsigned,},'),
+            ('25', '属性', '3', 'static', '主站通信参数表', 'array:structure{IP地址:octet-string,端口:long-unsigned},'),
             ('25', '属性', '4', 'static', '短信通信参数', 'structure{短信中心号码:visible-string(SIZE(16)),主站号码:array:visible-string(SIZE(16)),短信通知目的号码:array:visible-string(SIZE(16))},'),
             ('25', '属性', '5', 'static', '版本信息', 'structure{厂商代码:visible-string(SIZE(4)),软件版本号:visible-string(SIZE(4)),软件版本日期:visible-string(SIZE(6)),硬件版本号:visible-string(SIZE(4)),硬件版本日期:visible-string(SIZE(6)),厂家扩展信息:visible-string(SIZE(8))},'),
             ('25', '属性', '6', 'static', '支持规约列表', 'array:visible-string,'),

@@ -320,10 +320,9 @@ class TypeDo():
             offset += res['offset']
             string_len = res['len']
         add_brief = data_info[0] if data_info else ''
-        if add_brief.find('IP') >= 0 or brief.find('ip') >= 0:
-            string_text = '.'.join([str(int(x, 16)) for x in m_list[offset: offset+string_len]])
-        else:
-            string_text = ''.join(m_list[offset: offset+string_len])
+        string_text = ''.join(m_list[offset: offset+string_len])
+        if string_len == 4:
+            string_text += '(' + '.'.join([str(int(x, 16)) for x in m_list[offset: offset+string_len]]) + ')'
         offset += string_len
         self.trans_res.add_row(m_list[:offset], brief + add_brief,\
                 'octect-string[%d]'%string_len, string_text, depth=depth)
