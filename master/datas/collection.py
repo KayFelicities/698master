@@ -39,12 +39,14 @@ class Collection():
         """init"""
         self.collection_list = []
         if not os.path.isfile(config.COLLECTION_FILE_PATH):
-            self.init_collection_file()
+            self.init_collection_file(self)
         self.refresh_name_list()
 
+    @staticmethod
     def open_collection_file(self):
         os.system('start "" "notepad" "{dir}"'.format(dir=config.COLLECTION_FILE_PATH))
 
+    @staticmethod
     def init_collection_file(self):
         if not os.path.isdir(config.CONFIG_DIR):
             os.mkdir(config.CONFIG_DIR)

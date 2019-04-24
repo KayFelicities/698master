@@ -15,7 +15,7 @@ def serial_com_scan():
     return [com[0] for com in list(serial.tools.list_ports.comports())]
 
 
-class CommuPanel():
+class CommuPanel:
     """communication control panel class"""
     def __init__(self):
         self.serial_handle = None
@@ -27,7 +27,6 @@ class CommuPanel():
         self.client_list = []
 
         self.master_addr = '00'
-
 
     def send_msg(self, m_text, chan_index):
         """send message"""
@@ -60,11 +59,10 @@ class CommuPanel():
                     print('del client', client_addr)
             config.MASTER_WINDOW.send_signal.emit(common.format_text(m_text), 2)
 
-
-    def receive_msg(self, m_text, chan_index):
+    @staticmethod
+    def receive_msg(m_text, chan_index):
         """receive msg to emit signal"""
         config.MASTER_WINDOW.receive_signal.emit(m_text, chan_index)
-
 
     def serial_connect(self, com, baudrate=9600, bytesize=8, parity='E', stopbits=1, timeout=0.05):
         """connect serial"""
@@ -82,7 +80,6 @@ class CommuPanel():
             traceback.print_exc()
             return 'err'
 
-
     def serial_disconnect(self):
         """stop serial"""
         if self.is_serial_running is False:
@@ -94,7 +91,6 @@ class CommuPanel():
         except Exception:
             traceback.print_exc()
             return 'err'
-
 
     def serial_read_loop(self):
         """serial loop"""
@@ -119,7 +115,6 @@ class CommuPanel():
             if self.is_serial_running is False:
                 print('serial_run quit')
                 break
-
 
     def frontend_connect(self, addr):
         """connect"""
@@ -153,7 +148,6 @@ class CommuPanel():
             traceback.print_exc()
             return 'err'
 
-
     def frontend_keep_alive(self):
         """keep frontend server connect"""
         timer = time.time()
@@ -164,7 +158,6 @@ class CommuPanel():
                 m_list = common.text2list('FFFFFFFFFF')
                 send_b = b''.join(map(lambda x: struct.pack('B', int(x, 16)), m_list))
                 self.frontend_handle.sendall(send_b)
-
 
     def frontend_read_loop(self):
         """frontend loop"""
@@ -190,7 +183,6 @@ class CommuPanel():
                 break
         self.frontend_disconnect()
 
-
     def server_start(self, server_port):
         """connect server"""
         if self.is_server_running:
@@ -205,7 +197,6 @@ class CommuPanel():
         except Exception:
             traceback.print_exc()
             return 'err'
-
 
     def server_accept(self):
         """accept tcp client"""
@@ -223,7 +214,6 @@ class CommuPanel():
                 break
         self.client_list = []
 
-
     def server_stop(self):
         """stop server"""
         if self.is_server_running is False:
@@ -238,7 +228,6 @@ class CommuPanel():
         except Exception:
             traceback.print_exc()
             return 'err'
-
 
     def server_read_loop(self, client_handle, client_addr):
         """server loop"""
@@ -266,7 +255,6 @@ class CommuPanel():
         client_handle.shutdown(socket.SHUT_RDWR)
         client_handle.close()
         self.client_list.remove((client_handle, client_addr))
-
 
     def quit(self):
         """quit"""

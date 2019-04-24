@@ -1,9 +1,9 @@
 """load type"""
 from master import config
 if config.IS_USE_PYSIDE:
-    from PySide import QtGui, QtCore
+    from PySide2 import QtCore, QtWidgets
 else:
-    from PyQt4 import QtGui, QtCore
+    from PyQt5 import QtCore, QtWidgets
 
 
 def take_axdr_len(m_list):
@@ -87,7 +87,7 @@ def take_NULL(data_list, table, depth=0):
     offset += 1
     table_row_num = table.rowCount()
     table.insertRow(table_row_num)
-    item = QtGui.QTableWidgetItem('NULL')
+    item = QtWidgets.QTableWidgetItem('NULL')
     table.setItem(table_row_num, 0, item)
     return offset
 
@@ -100,9 +100,9 @@ def take_array(data_list, table, depth=0):
 
     table_row_num = table.rowCount()
     table.insertRow(table_row_num)
-    item = QtGui.QTableWidgetItem('array')
+    item = QtWidgets.QTableWidgetItem('array')
     table.setItem(table_row_num, 0, item)
-    box = QtGui.QSpinBox()
+    box = QtWidgets.QSpinBox()
     box.setRange(0, 30)
     box.setValue(num)
     table.setCellWidget(table_row_num, 1, box)
@@ -119,9 +119,9 @@ def take_structure(data_list, table, depth=0):
     offset += 1
     table_row_num = table.rowCount()
     table.insertRow(table_row_num)
-    item = QtGui.QTableWidgetItem('structure')
+    item = QtWidgets.QTableWidgetItem('structure')
     table.setItem(table_row_num, 0, item)
-    box = QtGui.QSpinBox()
+    box = QtWidgets.QSpinBox()
     box.setRange(0, 30)
     box.setValue(num)
     table.setCellWidget(table_row_num, 1, box)
@@ -138,9 +138,9 @@ def take_bool(data_list, table, depth=0):
     offset += 1
     table_row_num = table.rowCount()
     table.insertRow(table_row_num)
-    item = QtGui.QTableWidgetItem('bool')
+    item = QtWidgets.QTableWidgetItem('bool')
     table.setItem(table_row_num, 0, item)
-    box = QtGui.QComboBox()
+    box = QtWidgets.QComboBox()
     box.addItems(('False', 'True'))
     box.setv(bool_value)
     table.setCellWidget(table_row_num, 1, box)
@@ -174,9 +174,9 @@ def take_double_long(data_list, table, depth=0):
     offset += 4
     table_row_num = table.rowCount()
     table.insertRow(table_row_num)
-    item = QtGui.QTableWidgetItem('long_unsigned')
+    item = QtWidgets.QTableWidgetItem('long_unsigned')
     table.setItem(table_row_num, 0, item)
-    box = QtGui.QTextEdit()
+    box = QtWidgets.QTextEdit()
     box.setText(str(value))
     table.setCellWidget(table_row_num, 1, box)
     return offset
@@ -189,9 +189,9 @@ def take_double_long_unsigned(data_list, table, depth=0):
     offset += 4
     table_row_num = table.rowCount()
     table.insertRow(table_row_num)
-    item = QtGui.QTableWidgetItem('long_unsigned')
+    item = QtWidgets.QTableWidgetItem('long_unsigned')
     table.setItem(table_row_num, 0, item)
-    box = QtGui.QTextEdit()
+    box = QtWidgets.QTextEdit()
     box.setText(str(value))
     table.setCellWidget(table_row_num, 1, box)
     return offset
@@ -208,9 +208,9 @@ def take_octect_string(data_list, table, string_len=None, depth=0):
     offset += string_len
     table_row_num = table.rowCount()
     table.insertRow(table_row_num)
-    item = QtGui.QTableWidgetItem('octect_string')
+    item = QtWidgets.QTableWidgetItem('octect_string')
     table.setItem(table_row_num, 0, item)
-    box = QtGui.QTextEdit()
+    box = QtWidgets.QTextEdit()
     if string_len == 4: # 暂时这样匹配ip
         box.setText('%d.%d.%d.%d'%(int(string_text[0:2], 16), int(string_text[2:4], 16),\
                                     int(string_text[4:6], 16), int(string_text[6:8], 16)))
@@ -260,9 +260,9 @@ def take_integer(data_list, table, depth=0):
     offset += 1
     table_row_num = table.rowCount()
     table.insertRow(table_row_num)
-    item = QtGui.QTableWidgetItem('long_unsigned')
+    item = QtWidgets.QTableWidgetItem('long_unsigned')
     table.setItem(table_row_num, 0, item)
-    box = QtGui.QTextEdit()
+    box = QtWidgets.QTextEdit()
     box.setText(str(value))
     table.setCellWidget(table_row_num, 1, box)
     return offset
@@ -278,9 +278,9 @@ def take_long(data_list, table, depth=0):
     offset += 2
     table_row_num = table.rowCount()
     table.insertRow(table_row_num)
-    item = QtGui.QTableWidgetItem('long_unsigned')
+    item = QtWidgets.QTableWidgetItem('long_unsigned')
     table.setItem(table_row_num, 0, item)
-    box = QtGui.QTextEdit()
+    box = QtWidgets.QTextEdit()
     box.setText(str(value))
     table.setCellWidget(table_row_num, 1, box)
     return offset
@@ -293,9 +293,9 @@ def take_unsigned(data_list, table, depth=0):
     offset += 1
     table_row_num = table.rowCount()
     table.insertRow(table_row_num)
-    item = QtGui.QTableWidgetItem('long_unsigned')
+    item = QtWidgets.QTableWidgetItem('long_unsigned')
     table.setItem(table_row_num, 0, item)
-    box = QtGui.QTextEdit()
+    box = QtWidgets.QTextEdit()
     box.setText(str(value))
     table.setCellWidget(table_row_num, 1, box)
     return offset
@@ -308,9 +308,9 @@ def take_long_unsigned(data_list, table, depth=0):
     offset += 2
     table_row_num = table.rowCount()
     table.insertRow(table_row_num)
-    item = QtGui.QTableWidgetItem('long_unsigned')
+    item = QtWidgets.QTableWidgetItem('long_unsigned')
     table.setItem(table_row_num, 0, item)
-    box = QtGui.QTextEdit()
+    box = QtWidgets.QTextEdit()
     box.setText(str(value))
     table.setCellWidget(table_row_num, 1, box)
     return offset
@@ -326,9 +326,9 @@ def take_long64(data_list, table, depth=0):
     offset += 8
     table_row_num = table.rowCount()
     table.insertRow(table_row_num)
-    item = QtGui.QTableWidgetItem('long_unsigned')
+    item = QtWidgets.QTableWidgetItem('long_unsigned')
     table.setItem(table_row_num, 0, item)
-    box = QtGui.QTextEdit()
+    box = QtWidgets.QTextEdit()
     box.setText(str(value))
     table.setCellWidget(table_row_num, 1, box)
     return offset
@@ -341,9 +341,9 @@ def take_long64_unsigned(data_list, table, depth=0):
     offset += 8
     table_row_num = table.rowCount()
     table.insertRow(table_row_num)
-    item = QtGui.QTableWidgetItem('long_unsigned')
+    item = QtWidgets.QTableWidgetItem('long_unsigned')
     table.setItem(table_row_num, 0, item)
-    box = QtGui.QTextEdit()
+    box = QtWidgets.QTextEdit()
     box.setText(str(value))
     table.setCellWidget(table_row_num, 1, box)
     return offset
@@ -356,9 +356,9 @@ def take_enum(data_list, table, depth=0, enum_dict=None):
     offset += 1
     table_row_num = table.rowCount()
     table.insertRow(table_row_num)
-    item = QtGui.QTableWidgetItem('enum')
+    item = QtWidgets.QTableWidgetItem('enum')
     table.setItem(table_row_num, 0, item)
-    box = QtGui.QTextEdit()
+    box = QtWidgets.QTextEdit()
     box.setText(str(value))
     table.setCellWidget(table_row_num, 1, box)
     return offset
@@ -402,9 +402,9 @@ def take_date_time(data_list, table, depth=0):
 
     table_row_num = table.rowCount()
     table.insertRow(table_row_num)
-    item = QtGui.QTableWidgetItem('date_time')
+    item = QtWidgets.QTableWidgetItem('date_time')
     table.setItem(table_row_num, 0, item)
-    dt_w = QtGui.QDateTimeEdit()
+    dt_w = QtWidgets.QDateTimeEdit()
     dt_read = QtCore.QDateTime(year, month, day, hour, minute, second)
     dt_w.setDateTime(dt_read)
     table.setCellWidget(table_row_num, 1, dt_w)
@@ -449,9 +449,9 @@ def take_date_time_s(data_list, table, depth=0):
 
     table_row_num = table.rowCount()
     table.insertRow(table_row_num)
-    item = QtGui.QTableWidgetItem('date_time_s')
+    item = QtWidgets.QTableWidgetItem('date_time_s')
     table.setItem(table_row_num, 0, item)
-    dt_w = QtGui.QDateTimeEdit()
+    dt_w = QtWidgets.QDateTimeEdit()
     dt_read = QtCore.QDateTime(year, month, day, hour, minute, second)
     dt_w.setDateTime(dt_read)
     table.setCellWidget(table_row_num, 1, dt_w)

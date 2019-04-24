@@ -2,8 +2,9 @@
 import copy
 import master.trans.datatype as typedo
 from master.datas import base_data
-from master.datas import k_data
+from master.datas import k_data_s
 from master import config
+
 
 def take_applayer(m_list, trans_res):
     """take_applayer"""
@@ -12,7 +13,8 @@ def take_applayer(m_list, trans_res):
     offset += service.take_service(m_list[offset:])
     return offset
 
-class Service():
+
+class Service:
     """service class"""
     def __init__(self, trans_res):
         """init"""
