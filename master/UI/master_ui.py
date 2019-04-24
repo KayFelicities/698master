@@ -18,12 +18,12 @@ from master.datas import collection
 from master.others import msg_log
 from master.others import master_config
 if config.IS_USE_PYSIDE:
-    from PySide2 import QtGui, QtCore, QtWidgets
+    from PySide import QtGui, QtCore
 else:
-    from PyQt5 import QtGui, QtCore, QtWidgets
+    from PyQt4 import QtGui, QtCore
 
 
-class MasterWindow(QtWidgets.QMainWindow, MasterWindowUi):
+class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
     """serial window"""
     receive_signal = QtCore.Signal(str, int) if config.IS_USE_PYSIDE else QtCore.pyqtSignal(str, int)
     send_signal = QtCore.Signal(str, int) if config.IS_USE_PYSIDE else QtCore.pyqtSignal(str, int)
@@ -133,7 +133,7 @@ class MasterWindow(QtWidgets.QMainWindow, MasterWindowUi):
                             self.add_tmn_table_row('000000000001', 0, 1, is_checked=True))
         self.tmn_table_clr_b.clicked.connect(lambda: self.clr_table(self.tmn_table))
 
-        qss_file = open(os.path.join(config.SORTWARE_PATH, 'styles/white_blue.qss')).read()
+        qss_file = open(os.path.join(config.SOFTWARE_PATH, 'styles/white_blue.qss')).read()
         self.setStyleSheet(qss_file)
         self.pop_dialog = dialog_ui.TransPopDialog()
         self.pop_dialog.setStyleSheet(qss_file)
@@ -295,26 +295,25 @@ class MasterWindow(QtWidgets.QMainWindow, MasterWindowUi):
         row_pos = self.tmn_table.rowCount()
         self.tmn_table.insertRow(row_pos)
 
-        tmn_enable_cb = QtWidgets.QCheckBox()
+        tmn_enable_cb = QtGui.QCheckBox()
         tmn_enable_cb.setChecked(is_checked)
         self.tmn_table.setCellWidget(row_pos, 0, tmn_enable_cb)
 
-        item = QtWidgets.QTableWidgetItem(tmn_addr)
+        item = QtGui.QTableWidgetItem(tmn_addr)
         self.tmn_table.setItem(row_pos, 1, item)
 
-        logic_addr_box = QtWidgets.QSpinBox()
+        logic_addr_box = QtGui.QSpinBox()
         logic_addr_box.setRange(0, 3)
         logic_addr_box.setValue(logic_addr)
         self.tmn_table.setCellWidget(row_pos, 2, logic_addr_box)
 
-        channel_cb = QtWidgets.QComboBox()
+        channel_cb = QtGui.QComboBox()
         channel_cb.addItems(('串口', '前置机', '服务器'))
         channel_cb.setCurrentIndex(chan_index)
         self.tmn_table.setCellWidget(row_pos, 3, channel_cb)
 
-        self.tmn_remove_cb = QtWidgets.QPushButton()
+        self.tmn_remove_cb = QtGui.QPushButton()
         self.tmn_remove_cb.setText('删')
-        self.tmn_remove_cb.setMaximumWidth(25)
         self.tmn_table.setCellWidget(row_pos, 4, self.tmn_remove_cb)
         self.tmn_remove_cb.clicked.connect(self.tmn_table_remove)
 
@@ -332,60 +331,54 @@ class MasterWindow(QtWidgets.QMainWindow, MasterWindowUi):
         """add message row"""
         trans = Translate(m_text)
         brief = trans.get_brief()
+        # direction = trans.get_direction()
+        client_addr = trans.get_CA()
+        if config.IS_FILETER_CA and client_addr != '00' and client_addr != config.COMMU.master_addr:
+            print('过滤报文：CA不匹配')
+            return
+        server_addr = trans.get_SA()
+        logic_addr = trans.get_logic_addr()
+        chan_text = {0: '串口', 1: '前置机', 2: '服务器'}.get(chan_index)
 
-        if trans.is_ssal:
-            server_addr = '0'
-            logic_addr = '0'
-            chan_text = {0: '串口', 1: '前置机', 2: '服务器'}.get(chan_index)
-        else:
-            # direction = trans.get_direction()
-            client_addr = trans.get_CA()
-            if config.IS_FILETER_CA and client_addr != '00' and client_addr != config.COMMU.master_addr:
-                print('过滤报文：CA不匹配')
-                return
-            server_addr = trans.get_SA()
-            logic_addr = trans.get_logic_addr()
-            chan_text = {0: '串口', 1: '前置机', 2: '服务器'}.get(chan_index)
-
-            # chk to add tmn addr to table
-            if direction == '←':
-                for row_num in range(self.tmn_table.rowCount()):
-                    if server_addr == self.tmn_table.item(row_num, 1).text()\
-                    and logic_addr == self.tmn_table.cellWidget(row_num, 2).value()\
-                    and chan_index == self.tmn_table.cellWidget(row_num, 3).currentIndex():
-                        break
-                else:
-                    is_cb_checked = False if chan_index == 1 else True
-                    self.add_tmn_table_row(tmn_addr=server_addr, logic_addr=logic_addr,\
-                                            chan_index=chan_index, is_checked=is_cb_checked)
+        # chk to add tmn addr to table
+        if direction == '←':
+            for row_num in range(self.tmn_table.rowCount()):
+                if server_addr == self.tmn_table.item(row_num, 1).text()\
+                and logic_addr == self.tmn_table.cellWidget(row_num, 2).value()\
+                and chan_index == self.tmn_table.cellWidget(row_num, 3).currentIndex():
+                    break
+            else:
+                is_cb_checked = False if chan_index == 1 else True
+                self.add_tmn_table_row(tmn_addr=server_addr, logic_addr=logic_addr,\
+                                        chan_index=chan_index, is_checked=is_cb_checked)
 
         text_color = QtGui.QColor(220, 226, 241) if direction == '→' else\
                     QtGui.QColor(227, 237, 205) if direction == '←' else QtGui.QColor(255, 255, 255)
         row_pos = self.msg_table.rowCount()
         self.msg_table.insertRow(row_pos)
 
-        item = QtWidgets.QTableWidgetItem(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
+        item = QtGui.QTableWidgetItem(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
         # item.setBackground(text_color)
         self.msg_table.setItem(row_pos, 0, item)
 
         addr_text = '{SA}:{logic}'.format(SA=server_addr, logic=logic_addr)
-        item = QtWidgets.QTableWidgetItem(addr_text)
+        item = QtGui.QTableWidgetItem(addr_text)
         # item.setBackground(text_color)
         self.msg_table.setItem(row_pos, 1, item)
 
-        item = QtWidgets.QTableWidgetItem(chan_text + direction)
+        item = QtGui.QTableWidgetItem(chan_text + direction)
         item.setBackground(text_color)
         self.msg_table.setItem(row_pos, 2, item)
 
-        item = QtWidgets.QTableWidgetItem(brief)
+        item = QtGui.QTableWidgetItem(brief)
         if brief == '无效报文':
-            item.setForeground(QtCore.Qt.red) # Qt4使用setTextColor
+            item.setTextColor(QtCore.Qt.red)
         if brief.find('(访问失败)') == 0:
-            item.setForeground(QtGui.QColor(255, 140, 0))# Qt4使用setTextColor
+            item.setTextColor(QtGui.QColor(255, 140, 0))
         self.msg_table.setItem(row_pos, 3, item)
 
         msg_text = common.format_text(m_text)
-        item = QtWidgets.QTableWidgetItem(msg_text)
+        item = QtGui.QTableWidgetItem(msg_text)
         # item.setBackground(text_color)
         self.msg_table.setItem(row_pos, 4, item)
 

@@ -6,12 +6,12 @@ from master.UI.param_window import Ui_ParamWindow
 from master.UI import param
 from master.datas import base_data
 if config.IS_USE_PYSIDE:
-    from PySide2 import QtGui, QtCore, QtWidgets
+    from PySide import QtGui, QtCore
 else:
-    from PyQt5 import QtGui, QtCore, QtWidgets
+    from PyQt4 import QtGui, QtCore
 
 
-class ParamWindow(QtWidgets.QMainWindow, Ui_ParamWindow):
+class ParamWindow(QtGui.QMainWindow, QtGui.QWidget, Ui_ParamWindow):
     def __init__(self):
         super(ParamWindow, self).__init__()
         self.setupUi(self)

@@ -1,12 +1,9 @@
 """line box class"""
-from master import config
-if config.IS_USE_PYSIDE:
-    from PySide2 import QtGui, QtCore, QtWidgets
-else:
-    from PyQt5 import QtGui, QtCore, QtWidgets
+from PyQt4 import QtGui
+from PyQt4 import QtCore
 
 
-class LineNumberArea(QtWidgets.QWidget):
+class LineNumberArea(QtGui.QWidget):
 
     def __init__(self, editor):
         super().__init__(editor)
@@ -19,19 +16,15 @@ class LineNumberArea(QtWidgets.QWidget):
         self.myeditor.lineNumberAreaPaintEvent(event)
 
 
-class CodeEditor(QtWidgets.QPlainTextEdit):
+class CodeEditor(QtGui.QPlainTextEdit):
     def __init__(self):
         super().__init__()
         self.lineNumberArea = LineNumberArea(self)
 
-        # self.connect(self, QtCore.SIGNAL('blockCountChanged(int)'), self.updateLineNumberAreaWidth)
-        # self.connect(self, QtCore.SIGNAL('updateRequest(QRect,int)'), self.updateLineNumberArea)
-        # self.connect(self, QtCore.SIGNAL('cursorPositionChanged()'), self.highlightCurrentLine)
-        # pyQt5使用下面的方法
-        self.blockCountChanged.connect(self.updateLineNumberAreaWidth)
-        self.updateRequest.connect(self.updateLineNumberArea)
-        self.cursorPositionChanged.connect(self.highlightCurrentLine)
-        
+        self.connect(self, QtCore.SIGNAL('blockCountChanged(int)'), self.updateLineNumberAreaWidth)
+        self.connect(self, QtCore.SIGNAL('updateRequest(QRect,int)'), self.updateLineNumberArea)
+        self.connect(self, QtCore.SIGNAL('cursorPositionChanged()'), self.highlightCurrentLine)
+
         self.updateLineNumberAreaWidth(0)
 
         self.font_size = 9
@@ -93,7 +86,7 @@ class CodeEditor(QtWidgets.QPlainTextEdit):
         extraSelections = []
 
         if not self.isReadOnly():
-            selection = QtWidgets.QTextEdit.ExtraSelection()
+            selection = QtGui.QTextEdit.ExtraSelection()
 
             lineColor = QtGui.QColor(QtCore.Qt.yellow).lighter(160)
 

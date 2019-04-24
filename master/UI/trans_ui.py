@@ -9,19 +9,19 @@ from master.trans.translate import Translate
 from master.others import master_config
 from master import config
 if config.IS_USE_PYSIDE:
-    from PySide2 import QtGui, QtCore, QtWidgets
+    from PySide import QtGui, QtCore
 else:
-    from PyQt5 import QtGui, QtCore, QtWidgets
+    from PyQt4 import QtGui, QtCore
 
 
-class TransWindow(QtWidgets.QMainWindow, TransWindowUi):
+class TransWindow(QtGui.QMainWindow, TransWindowUi):
     """translate window"""
     load_file = QtCore.Signal(str) if config.IS_USE_PYSIDE else QtCore.pyqtSignal(str)
     set_progress = QtCore.Signal(int) if config.IS_USE_PYSIDE else QtCore.pyqtSignal(int)
 
     def __init__(self):
         super(TransWindow, self).__init__()
-        qss_file = open(os.path.join(config.SORTWARE_PATH, 'styles/white_blue.qss')).read()
+        qss_file = open(os.path.join(config.SOFTWARE_PATH, 'styles/white_blue.qss')).read()
         self.setStyleSheet(qss_file)
         self.setup_ui()
         self.proc_bar.setVisible(False)
@@ -31,7 +31,7 @@ class TransWindow(QtWidgets.QMainWindow, TransWindowUi):
         apply_config = master_config.MasterConfig()
         file_list = apply_config.get_last_file()[::-1]
         for file_name in file_list:
-            self.file_action = QtWidgets.QAction('%s'%file_name[0], self)
+            self.file_action = QtGui.QAction('%s'%file_name, self)
             self.file_menu.addAction(self.file_action)
             self.file_action.triggered.connect(self.openfile)
         font_size = apply_config.get_font_size()
@@ -112,20 +112,20 @@ class TransWindow(QtWidgets.QMainWindow, TransWindowUi):
     def openfile(self, filepath=''):
         """open file"""
         action = self.sender()
-        if isinstance(action, QtWidgets.QAction) and os.path.isfile(action.text()):
+        if isinstance(action, QtGui.QAction) and os.path.isfile(action.text()):
             filepath = action.text()
         if not os.path.isfile(filepath):
-            filepath,filetype = QtWidgets.QFileDialog.getOpenFileName(self, caption='请选择698日志文件', filter='*')
-
+            filepath = QtGui.QFileDialog.getOpenFileName(self, caption='请选择698日志文件', filter='*')
         if filepath:
+            print('filepath: ', filepath)
             save_config = master_config.MasterConfig()
             save_config.add_last_file(filepath)
             save_config.commit()
             file_size = os.path.getsize(filepath)
             if file_size > 3000000:
-                reply = QtWidgets.QMessageBox.question(self, '警告', '打开大型文件会使用较长时间，确定打开吗？',\
-                                QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No, QtWidgets.QMessageBox.No)
-                if reply != QtWidgets.QMessageBox.Yes:
+                reply = QtGui.QMessageBox.question(self, '警告', '打开大型文件会使用较长时间，确定打开吗？',\
+                                QtGui.QMessageBox.Yes | QtGui.QMessageBox.No, QtGui.QMessageBox.No)
+                if reply != QtGui.QMessageBox.Yes:
                     return
             self.proc_bar.setVisible(True)
             self.open_action.setEnabled(False)
@@ -318,7 +318,7 @@ class TransWindow(QtWidgets.QMainWindow, TransWindowUi):
         """copy_to_clipboard"""
         trans = Translate(self.msg_box.toPlainText())
         text = trans.get_clipboard_text(self.show_level_cb.isChecked(), self.show_dtype_cb.isChecked())
-        clipboard = QtWidgets.QApplication.clipboard()
+        clipboard = QtGui.QApplication.clipboard()
         clipboard.clear()
         clipboard.setText(text)
 
@@ -337,8 +337,8 @@ class TransWindow(QtWidgets.QMainWindow, TransWindowUi):
 
     def update_wrap_mode(self):
         """update_wrap_mode"""
-        self.input_box.setLineWrapMode(QtWidgets.QPlainTextEdit.WidgetWidth\
-                if self.auto_wrap_cb.isChecked() else QtWidgets.QPlainTextEdit.NoWrap)
+        self.input_box.setLineWrapMode(QtGui.QPlainTextEdit.WidgetWidth\
+                if self.auto_wrap_cb.isChecked() else QtGui.QPlainTextEdit.NoWrap)
 
 
     def closeEvent(self, event):
@@ -354,7 +354,7 @@ class TransWindow(QtWidgets.QMainWindow, TransWindowUi):
 
 
 if __name__ == '__main__':
-    APP = QtWidgets.QApplication(sys.argv)
+    APP = QtGui.QApplication(sys.argv)
     dialog = TransWindow()
     dialog.show()
     APP.exec_()
