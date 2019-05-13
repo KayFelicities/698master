@@ -1,5 +1,6 @@
 """handle with 698 link layer"""
 import master.trans.common as commonfun
+import master.trans.service as applayer_do
 
 
 def take_linklayer1(m_list, trans_res):
@@ -125,3 +126,60 @@ def add_linkLayer(apdu_list, CA_text='00', SA_text='00000001', logic_addr=0, SA_
     fcs_calc = ((fcs_calc << 8) | (fcs_calc >> 8)) & 0xffff  # 低位在前
 
     return commonfun.format_text('68' + fcs_calc_aera_text + '{0:04X}'.format(fcs_calc) + '16')
+
+def repair_cs(m_text):
+    """repair_cs"""
+    m_list = commonfun.text2list(m_text)
+    offset = 1
+    link_length = int(m_list[offset + 1] + m_list[offset], 16)
+    if link_length != len(m_list) - 2:
+        right_len = len(m_list) - 2
+        m_list[offset + 1] = '{0:02X}'.format(right_len >> 8)
+        m_list[offset] = '{0:02X}'.format(right_len & 0xff)
+    offset += 2
+
+    # 控制域
+    ctrol = int(m_list[offset], 16)
+    frame_separation_flag = (ctrol >> 5) & 0x01
+
+    # 控制域
+    offset += 1
+
+    # 地址域
+    server_addr_len = (int(m_list[offset], 16) & 0x0f) + 1
+    offset += server_addr_len + 1
+
+    # 客户机地址
+    offset += 1
+
+    # 帧头校验
+    hcs_calc = commonfun.get_fcs(m_list[1:offset])
+    hcs_calc = ((hcs_calc << 8) | (hcs_calc >> 8)) & 0xffff  # 低位在前
+    hcs_now = int(m_list[offset] + m_list[offset + 1], 16)
+    if hcs_now != hcs_calc:
+        m_list[offset] = '{0:02X}'.format(hcs_calc >> 8)
+        m_list[offset + 1] = '{0:02X}'.format(hcs_calc & 0xff)
+    offset += 2
+
+    # 分帧
+    if frame_separation_flag == 1:
+        offset += 2
+
+    trans_res = commonfun.TransRes()
+    offset += applayer_do.take_applayer(m_list[offset:], trans_res)
+
+    fcs_calc = commonfun.get_fcs(m_list[1:offset])
+    fcs_calc = ((fcs_calc << 8) | (fcs_calc >> 8)) & 0xffff  # 低位在前
+    fcs_now = int(m_list[offset] + m_list[offset + 1], 16)
+    if fcs_now != fcs_calc:
+        m_list[offset] = '{0:02X}'.format(fcs_calc >> 8)
+        m_list[offset + 1] = '{0:02X}'.format(fcs_calc & 0xff)
+
+    m_text = commonfun.list2text(m_list)
+    return m_text
+
+
+if __name__ == "__main__":
+    msg = '68 17 00 43 05 33 33 22 22 00 00 32 56 2E 05 01 3F 31 06 09 00 00 84 99 16'
+    res = repair_cs(msg)
+    print(res)

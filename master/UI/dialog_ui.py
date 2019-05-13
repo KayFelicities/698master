@@ -285,6 +285,7 @@ class MsgDiyDialog(QtGui.QDialog, ui_setup.MsgDiyDialogUi):
         self.chk_valid_cb.setChecked(True)
         self.show_level_cb.setChecked(True)
 
+        self.se_repair_b.clicked.connect(self.repair_msg)
         self.se_clr_b.clicked.connect(lambda: self.se_msg_box.clear() or self.se_msg_box.setFocus())
         self.re_clr_b.clicked.connect(lambda: self.re_msg_box.clear())
         self.send_b.clicked.connect(self.send_msg)
@@ -308,6 +309,16 @@ class MsgDiyDialog(QtGui.QDialog, ui_setup.MsgDiyDialogUi):
         """re msg"""
         self.re_msg_box.setPlainText(msg_text)
         config.MASTER_WINDOW.receive_signal.disconnect(self.re_msg)
+
+    def repair_msg(self):
+        """re msg"""
+        msg_text = self.se_msg_box.toPlainText()
+        if len(msg_text) < 5:
+            return
+        trans = translate.Translate(msg_text)
+        if trans.is_success and trans.is_full_msg:
+            repair_msg = linklayer.repair_cs(msg_text)
+            self.se_msg_box.setPlainText(repair_msg)
 
     def trans_se_msg(self):
         """translate"""
