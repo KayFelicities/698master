@@ -215,29 +215,18 @@ class ApduDiyDialog(QtGui.QDialog, ui_setup.ApduDiyDialogUi):
         self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint if self.always_top_cb.isChecked() else QtCore.Qt.Widget)
 
         self.apdu_text = ''
-        self.service_no = 0xff
         self.send_tm = 0
 
     def send_apdu(self):
         """send apdu"""
-        self.service_no = common.get_apdu_service_no(self.apdu_text)
         config.MASTER_WINDOW.se_apdu_signal.emit(self.apdu_text)
         self.re_msg_box.clear()
         config.MASTER_WINDOW.receive_signal.connect(self.re_msg)
-        self.send_tm = time.time()
 
     def re_msg(self, msg_text):
         """re msg"""
-        if self.service_no != common.get_msg_service_no(msg_text):
-            return
-        if abs(time.time() - self.send_tm) > config.RE_MSG_TIMEOUT:
-            print('re msg timeout!')
-            config.MASTER_WINDOW.receive_signal.disconnect(self.re_msg)
-            self.service_no = 0xff
-            return
         self.re_msg_box.setPlainText(msg_text)
         config.MASTER_WINDOW.receive_signal.disconnect(self.re_msg)
-        self.service_no = 0xff
 
     def trans_se_msg(self):
         """translate"""
