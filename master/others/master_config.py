@@ -9,6 +9,9 @@ class MasterConfig:
     """master config class"""
     def __init__(self, config_path=config.CONFIG_FILE_PATH):
         self.config_path = config_path
+        config_dir = os.path.dirname(self.config_path)
+        if not os.path.isdir(config_dir):
+            os.mkdir(config_dir)
         try:
             self.config = configparser.ConfigParser()
             self.config.read(self.config_path)
