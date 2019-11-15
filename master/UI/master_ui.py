@@ -399,7 +399,7 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
             reply_apdu_text = reply.get_rpt_replay_apdu(trans)
             self.send_apdu(reply_apdu_text, tmn_addr=server_addr,\
                             logic_addr=logic_addr, chan_index=chan_index, C_text='03')
-        if service == '8505' and self.is_reply_split:
+        if service == '8505' and self.is_reply_split and trans.is_access_successed:
             reply_apdu_text = reply.get_rpt_replay_split(trans)
             self.send_apdu(reply_apdu_text, tmn_addr=server_addr,\
                             logic_addr=logic_addr, chan_index=chan_index, C_text='43')

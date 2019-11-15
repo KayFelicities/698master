@@ -363,8 +363,8 @@ class Service:
         choice = {'00': '错误信息', '01': '对象属性', '02': '记录型对象属性'}
         offset += self.typedo.take_CHOICE(m_list[offset:], '分帧响应', choice_dict=choice)
         if re_m_list_choice == '00':
-            self.trans_res.add_access_res('', m_list[offset + 1])
-            offset += self.typedo.take_DAR(m_list[offset + 1:], '错误信息')
+            self.trans_res.add_access_res('', m_list[offset])
+            offset += self.typedo.take_DAR(m_list[offset:], '错误信息')
         elif re_m_list_choice == '01':  # SEQUENCE OF A-ResultNormal
             num = int(m_list[offset], 16)
             self.trans_res.add_row(m_list[offset: offset+1],\
