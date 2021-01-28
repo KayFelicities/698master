@@ -53,7 +53,11 @@ def take_linklayer1(m_list, trans_res):
     }.get(int(m_list[offset], 16) >> 6, '错误')
     server_logic_addr = (int(m_list[offset], 16) >> 4) & 0x03
     server_addr_len = (int(m_list[offset], 16) & 0x0f) + 1
-    server_addr_reverse = m_list[offset + server_addr_len: offset: -1]
+    server_logic_len = 0
+    if server_logic_addr > 1: # 扩展逻辑地址
+        server_logic_len = 1
+        server_logic_addr = int(m_list[offset + 1], 16)
+    server_addr_reverse = m_list[offset + server_addr_len: offset + server_logic_len: -1]
     server_addr = ''.join(server_addr_reverse)
     trans_res.add_row(m_list[offset: offset+server_addr_len+1], '服务器地址', 'SA',\
                     '逻辑地址[%s], %s[%s]'%(server_logic_addr, server_addr_type, server_addr), priority=0)
@@ -117,7 +121,11 @@ def add_linkLayer(apdu_list, CA_text='00', SA_text='00000001', logic_addr=0, SA_
         SA_text += '0'
     L_text = '{0:04X}'.format(len(SA_text) // 2 + 9 + len(apdu_list))
     L_text = L_text[2:4] + L_text[0:2]
-    SA_param_text = '{0:02X}'.format(((len(SA_text) // 2 - 1) & 0x0f) | ((logic_addr & 0x03) << 4) | ((SA_type & 0x03) << 6))
+    if logic_addr > 1:  # 扩展逻辑地址
+        SA_param_text = '{0:02X}'.format(((len(SA_text) // 2) & 0x0f) | (0x02 << 4) | ((SA_type & 0x03) << 6))
+        SA_param_text += '%02X'%logic_addr
+    else:
+        SA_param_text = '{0:02X}'.format(((len(SA_text) // 2 - 1) & 0x0f) | ((logic_addr & 0x03) << 4) | ((SA_type & 0x03) << 6))
     hcs_clac_aera_text = L_text + C_text + SA_param_text + SA_text + CA_text
     hcs_calc = commonfun.get_fcs(commonfun.text2list(hcs_clac_aera_text))
     hcs_calc = ((hcs_calc << 8) | (hcs_calc >> 8)) & 0xffff  # 低位在前

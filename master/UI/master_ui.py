@@ -303,7 +303,7 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
         self.tmn_table.setItem(row_pos, 1, item)
 
         logic_addr_box = QtGui.QSpinBox()
-        logic_addr_box.setRange(0, 3)
+        logic_addr_box.setRange(0, 255)
         logic_addr_box.setValue(logic_addr)
         self.tmn_table.setCellWidget(row_pos, 2, logic_addr_box)
 
