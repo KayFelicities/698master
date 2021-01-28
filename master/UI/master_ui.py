@@ -506,8 +506,8 @@ class MasterWindow(QtGui.QMainWindow, MasterWindowUi):
                         if self.tmn_table.cellWidget(x, 0).isChecked()]:
             if tmn_addr and tmn_addr != self.tmn_table.item(row, 1).text():
                 continue
-            if logic_addr != -1 and logic_addr != self.tmn_table.cellWidget(row, 2).value():
-                continue
+            # if logic_addr != -1 and logic_addr != self.tmn_table.cellWidget(row, 2).value():
+            #     continue
             if chan_index != -1 and chan_index != self.tmn_table.cellWidget(row, 3).currentIndex():
                 continue
 

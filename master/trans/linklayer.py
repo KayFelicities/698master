@@ -119,13 +119,13 @@ def add_linkLayer(apdu_list, CA_text='00', SA_text='00000001', logic_addr=0, SA_
     SA_text = ''.join(SA_list)
     if len(SA_text) % 2 == 1:
         SA_text += '0'
-    L_text = '{0:04X}'.format(len(SA_text) // 2 + 9 + len(apdu_list))
-    L_text = L_text[2:4] + L_text[0:2]
     if logic_addr > 1:  # 扩展逻辑地址
         SA_param_text = '{0:02X}'.format(((len(SA_text) // 2) & 0x0f) | (0x02 << 4) | ((SA_type & 0x03) << 6))
         SA_param_text += '%02X'%logic_addr
     else:
         SA_param_text = '{0:02X}'.format(((len(SA_text) // 2 - 1) & 0x0f) | ((logic_addr & 0x03) << 4) | ((SA_type & 0x03) << 6))
+    L_text = '{0:04X}'.format(len(SA_text) // 2 + (10 if logic_addr > 1 else 9) + len(apdu_list))
+    L_text = L_text[2:4] + L_text[0:2]
     hcs_clac_aera_text = L_text + C_text + SA_param_text + SA_text + CA_text
     hcs_calc = commonfun.get_fcs(commonfun.text2list(hcs_clac_aera_text))
     hcs_calc = ((hcs_calc << 8) | (hcs_calc >> 8)) & 0xffff  # 低位在前
